@@ -2,30 +2,42 @@ package missionsrenewed.missions;
 
 /**
  * What a mission asks of the player's fleet. The tier scales whichever of these the family uses.
- * No mission content exists yet: the design answers are on ticket MSR-1.
+ * Only hauling is written so far. The design answers are on ticket MSR-1.
  */
 public enum MissionFamily {
     /** Beat hostile fleets. Scales with fleet points. */
-    COMBAT("combat"),
+    COMBAT("combat", false),
     /** Carry the client's cargo from one market to another. Scales with cargo units. */
-    HAULING("hauling"),
+    HAULING("hauling", true),
     /** Deliver fuel. Scales with fuel units, and the fleet burns fuel on the way. */
-    FUEL_RUN("fuel run"),
+    FUEL_RUN("fuel run", false),
     /** Carry passengers. Scales with crew capacity. */
-    CREW_TRANSPORT("crew transport"),
+    CREW_TRANSPORT("crew transport", false),
     /** Raid or garrison jobs. Scales with marines. */
-    MARINES("marines"),
+    MARINES("marines", false),
     /** Put up credits now, get them back later with interest. Scales with the stake. */
-    INVESTMENT("investment"),
+    INVESTMENT("investment", false),
     /** Hand over or sell goods (metals, colony items, weapons) for a payout. Scales with the value asked for. */
-    CONTRIBUTION("contribution"),
+    CONTRIBUTION("contribution", false),
     /** Haul material to a far location, often outside the core worlds. Scales with cargo and distance. */
-    EXPEDITION("expedition");
+    EXPEDITION("expedition", false);
 
     /** The name shown in the bar and in the contract text. */
     public final String displayName;
+    /** Whether bars offer this type yet. Only types with a written mission are offered. */
+    public final boolean playable;
 
-    MissionFamily(String displayName) {
+    MissionFamily(String displayName, boolean playable) {
         this.displayName = displayName;
+        this.playable = playable;
+    }
+
+    /** The types bars offer. */
+    public static java.util.List<MissionFamily> playableFamilies() {
+        java.util.List<MissionFamily> result = new java.util.ArrayList<>();
+        for (MissionFamily family : values()) {
+            if (family.playable) result.add(family);
+        }
+        return result;
     }
 }

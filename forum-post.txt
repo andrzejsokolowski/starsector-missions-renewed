@@ -1,0 +1,58 @@
+Subject: [0.98a] Missions - Renewed 0.1.0 - tiered bar contracts that pay late-game money
+
+[center][size=28pt][url=https://github.com/andrzejsokolowski/starsector-missions-renewed/releases/latest][b]Missions - Renewed[/b][/url][/size]
+[img]https://raw.githubusercontent.com/andrzejsokolowski/starsector-missions-renewed/main/graphics/icons/missions_renewed.png[/img]
+[url=https://github.com/andrzejsokolowski/starsector-missions-renewed/releases/latest][img]https://img.shields.io/github/downloads/andrzejsokolowski/starsector-missions-renewed/total?style=for-the-badge&label=download[/img][/url]  [url=https://github.com/andrzejsokolowski/starsector-missions-renewed][img]https://img.shields.io/github/v/release/andrzejsokolowski/starsector-missions-renewed?display_name=tag&sort=semver&style=for-the-badge&label=source[/img][/url]
+[/center]
+[center][b]
+WHAT DOES THIS MOD DO?
+Once your colonies earn millions a month, a 30k bar mission is not worth the trip.
+Missions - Renewed adds contracts in tiers 0 to 7, from pocket money to millions of credits.
+Needs LunaLib.
+[/b][/center]
+
+[hr][center][size=12pt][b]Contracts in the bar[/b][/size][/center][hr]
+[list]
+[li]Every bar has a chance (50 percent by default) to offer a contract. The bar option shows its tier and job type, for example "Look over the contract (tier 5, hauling)".[/li]
+[li]Tiers are random, but lean a little toward your fleet size, colony income and credits. A late-game fleet sees fewer tier 0 jobs, and every tier stays possible.[/li]
+[li]Each contract pays an advance when you sign and the rest on completion.[/li]
+[li]Missing the deadline or abandoning the contract charges a penalty, even if that leaves you in debt, and costs reputation with the client's faction.[/li]
+[li]You can hold 3 contracts at once. They are in the intel screen under Missions.[/li]
+[/list]
+
+[hr][center][size=12pt][b]Hauling[/b][/size][/center][hr]
+[list]
+[li]The client hands you the cargo: ore, metals, food, machinery and other trade goods.[/li]
+[li]Deliver all of it to the named market before the deadline. Docking there completes the job.[/li]
+[li]Running off with the cargo costs more than it is worth.[/li]
+[li]Tier 0 asks for 100 to 300 units and pays 5k to 20k. Tier 7 asks for 12,000 to 20,000 units and pays 3M to 4M.[/li]
+[/list]
+
+[hr][center][size=12pt][b]Planned[/b][/size][/center][hr]
+[list]
+[li]Combat contracts. From tier 5 the enemies are Omega, Shrouded Dwellers, Threat and hand-built fleets, never pirates.[/li]
+[li]Fuel runs, crew transport, marine operations, investments, contributions and expeditions.[/li]
+[/list]
+
+[hr][center][size=12pt][b]Settings and compatibility[/b][/size][/center][hr]
+[list]
+[li]LunaLib settings: chance of an offer per bar, how much the tier roll leans toward your strength, reward multiplier.[/li]
+[li]Does not take a place from other mods' bar events.[/li]
+[li]Can be added to a game in progress. Removing it from a game in progress breaks that save.[/li]
+[/list]
+
+[spoiler=AI use disclaimer]Some or all assets and code in this mod were created using AI tools:
+[list]
+[li]Code: Claude Code (Claude Opus 5.5)[/li]
+[li]Text (readme and this post): Claude Code (Claude Opus 5.5)[/li]
+[li]Settings icon: drawn by a script written with Claude Code (Claude Opus 5.5)[/li][/list]
+[/spoiler]
+
+[spoiler=License]
+This mod is under the CC0 (Creative Commons Zero) License, allowing you to do whatever you want with the code, without giving any credit to anyone.
+[/spoiler]
+
+[spoiler=Version log]
+[b]0.1.0[/b]
+[list][li]First release: tiered bar contracts and the first job type, hauling.[/li][/list]
+[/spoiler]

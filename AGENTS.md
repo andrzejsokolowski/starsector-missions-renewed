@@ -34,11 +34,22 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   fleetPoints min, colony income per month vs reward min, credits vs stake min). The roll multiplies that
   tier's weight by 1 + lean and its neighbours by 1 + lean/2 (LunaLib `mr_playerLean`, default 100).
 - `src/missionsrenewed/missions/MissionFamily` - combat, hauling, fuel run, crew transport, marines,
-  investment, contribution, expedition. The bar option shows "(tier N, family)". No mission content yet.
-  The design answers that govern missions are on ticket MSR-1.
+  investment, contribution, expedition. The bar option shows "(tier N, family)". Only families with
+  `playable` true are rolled (hauling so far). The design answers that govern missions are on ticket MSR-1.
+- `src/missionsrenewed/missions/ContractIntel` - base for every signed contract: advance on signing,
+  payment on success, penalty on failure or abandon (taken even into debt), reputation with the client's
+  faction, deadline, at most `MAX_OPEN` (3) at once, Abandon button in the intel screen.
+- `src/missionsrenewed/missions/hauling/` - `HaulingContracts.build` picks a destination (size 3+, not
+  hostile to the player or the client, 3 to 10 + 4 x tier light years), a good legal at both ends whose
+  base value stays under 60 percent of the pay, and a deadline of twice the trip at burn 8 plus 20 days.
+  Penalty = max(half the pay, advance + cargo value). `HaulingDelivery` (transient listener, added every
+  load) completes the job when the player docks at the destination with all the cargo.
+- The bar keeps the unsigned contract in market memory (`$missions_renewed_contract`) for the rest of the
+  offer's time, so looking twice shows the same terms.
 - `src/missionsrenewed/Settings` - LunaLib reads with defaults.
 
-## Known before the first release
+## Known limits
 
-- The board event is a class in the save, so removing the mod mid-game breaks that save. Decide whether
-  that is acceptable before release (most content mods have the same limit) and say so in the forum post.
+- The board event and the contracts are classes in the save, so removing the mod mid-game breaks that
+  save. The README and forum post say so.
+- `forum-post.txt` is the forum draft. No topic exists yet.

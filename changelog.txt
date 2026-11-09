@@ -1,0 +1,7 @@
+Version 0.1.0 (2026-11-09)
+- First release.
+- Every bar has a chance (50 percent by default) to offer a tiered contract, tier 0 to 7, with the tier and job type shown in the bar.
+- The tier roll leans a little toward your fleet size, colony income and credits. A LunaLib setting controls how much, or turns it off.
+- First job type: hauling. The client hands over the cargo, you deliver it to another market before the deadline.
+- Contracts pay an advance on signing and the rest on delivery. Missing the deadline or abandoning the contract charges a penalty, even into debt, and costs reputation with the client's faction.
+- At most 3 open contracts at once.
