@@ -9,10 +9,12 @@ public final class Tier {
     public final float rewardMin, rewardMax;
     public final float fleetPointsMin, fleetPointsMax;
     public final float cargoMin, cargoMax;
+    public final float fuelMin, fuelMax;
+    public final float crewMin, crewMax;
     public final float stakeMin, stakeMax;
     public final float weight;
 
-    Tier(int level, float[] reward, float[] fleetPoints, float[] cargo, float[] stake, float weight) {
+    Tier(int level, float[] reward, float[] fleetPoints, float[] cargo, float[] fuel, float[] crew, float[] stake, float weight) {
         this.level = level;
         this.rewardMin = reward[0];
         this.rewardMax = reward[1];
@@ -20,6 +22,10 @@ public final class Tier {
         this.fleetPointsMax = fleetPoints[1];
         this.cargoMin = cargo[0];
         this.cargoMax = cargo[1];
+        this.fuelMin = fuel[0];
+        this.fuelMax = fuel[1];
+        this.crewMin = crew[0];
+        this.crewMax = crew[1];
         this.stakeMin = stake[0];
         this.stakeMax = stake[1];
         this.weight = weight;
@@ -35,6 +41,14 @@ public final class Tier {
 
     public float rollCargo(Random random) {
         return roll(random, cargoMin, cargoMax);
+    }
+
+    public float rollFuel(Random random) {
+        return roll(random, fuelMin, fuelMax);
+    }
+
+    public float rollCrew(Random random) {
+        return roll(random, crewMin, crewMax);
     }
 
     public float rollStake(Random random) {

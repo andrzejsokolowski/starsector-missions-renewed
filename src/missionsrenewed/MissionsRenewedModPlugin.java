@@ -6,7 +6,7 @@ import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.intel.bar.PortsideBarData;
 import com.fs.starfarer.api.impl.campaign.intel.bar.PortsideBarEvent;
 import missionsrenewed.bar.MissionBoardBarEvent;
-import missionsrenewed.missions.hauling.HaulingDelivery;
+import missionsrenewed.missions.delivery.DeliveryListener;
 import missionsrenewed.tiers.TierTable;
 
 public class MissionsRenewedModPlugin extends BaseModPlugin {
@@ -22,7 +22,7 @@ public class MissionsRenewedModPlugin extends BaseModPlugin {
     @Override
     public void onGameLoad(boolean newGame) {
         // Transient: a fresh listener every load, nothing of it in the save.
-        Global.getSector().addTransientListener(new HaulingDelivery());
+        Global.getSector().addTransientListener(new DeliveryListener());
 
         PortsideBarData bar = PortsideBarData.getInstance();
         if (bar == null) return;

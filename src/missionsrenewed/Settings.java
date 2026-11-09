@@ -23,8 +23,14 @@ public final class Settings {
         return decimal("mr_rewardMult", 1f);
     }
 
-    public static float strengthMult() {
-        return decimal("mr_strengthMult", 1f);
+    /** Test mode: every bar offers any contract on request, and the intel screen can finish or fail one at once. */
+    public static boolean testMode() {
+        try {
+            Boolean value = LunaSettings.getBoolean(MOD_ID, "mr_testMode");
+            return value != null && value;
+        } catch (Throwable t) {
+            return false;
+        }
     }
 
     private static int integer(String key, int fallback) {

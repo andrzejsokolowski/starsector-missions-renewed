@@ -20,7 +20,7 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 ## Layout
 
 - `data/config/missions_renewed/tiers.json` - tiers 0 to 7: credit reward, hostile fleet points, cargo
-  units and investment stake as [min, max], plus a pick weight. `TierTable` reads it with
+  units, fuel units, crew and investment stake as [min, max], plus a pick weight. `TierTable` reads it with
   `getMergedJSON`, so other mods can add to it. The build checks 0 to 7 are present and every range is sane.
 - `src/missionsrenewed/bar/MissionBoardBarEvent` - the one bar event. One instance lives in
   `PortsideBarData` for good (`isAlwaysShow`, never pinned by `wasShownAtMarket`). Each market rolls
@@ -35,15 +35,29 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   tier's weight by 1 + lean and its neighbours by 1 + lean/2 (LunaLib `mr_playerLean`, default 100).
 - `src/missionsrenewed/missions/MissionFamily` - combat, hauling, fuel run, crew transport, marines,
   investment, contribution, expedition. The bar option shows "(tier N, family)". Only families with
-  `playable` true are rolled (hauling so far). The design answers that govern missions are on ticket MSR-1.
+  `playable` true are rolled (hauling, fuel run, crew transport, contribution, investment). `Contracts`
+  maps a type to its builder and says whether a market can offer it. The design answers that govern
+  missions are on ticket MSR-1.
 - `src/missionsrenewed/missions/ContractIntel` - base for every signed contract: advance on signing,
   payment on success, penalty on failure or abandon (taken even into debt), reputation with the client's
-  faction, deadline, at most `MAX_OPEN` (3) at once, Abandon button in the intel screen.
-- `src/missionsrenewed/missions/hauling/` - `HaulingContracts.build` picks a destination (size 3+, not
-  hostile to the player or the client, 3 to 10 + 4 x tier light years), a good legal at both ends whose
-  base value stays under 60 percent of the pay, and a deadline of twice the trip at burn 8 plus 20 days.
-  Penalty = max(half the pay, advance + cargo value). `HaulingDelivery` (transient listener, added every
-  load) completes the job when the player docks at the destination with all the cargo.
+  faction, deadline, at most `MAX_OPEN` (3) at once, Abandon button in the intel screen. Each type also
+  writes its own bar offer (`addOfferText`, `addOfferTerms`, `cannotSignReason`), shown by `bar/OfferScreen`.
+- `src/missionsrenewed/missions/delivery/` - `DeliveryContract` (bring N units to a destination; docking
+  there with all of it completes the job) and its types: `hauling/HaulingContract` (kept in the old
+  package and with the old field names, because 0.1.0 saves hold it), `FuelRunContract` (fuel tanks),
+  `CrewTransportContract` (crew quarters) and `ContributionContract` (the player finds the goods, or one
+  colony item at tiers 4 to 6). `DeliveryContracts.build` picks a destination (size 3+, not hostile to the
+  player or the client, 3 to 10 + 4 x tier light years). Handed-over goods stay under 60 percent of the
+  pay, and the penalty is at least advance + goods value. Deadline: twice the trip at burn 8 plus 20 days.
+  `DeliveryListener` (transient, added every load) completes jobs on docking.
+- `src/missionsrenewed/missions/investment/` - stake on signing (negative advance), payout after 5 to 12
+  months, half the stake back on early withdrawal, stake refunded if the market dies. No pirates or Pathers.
+- Test mode (LunaLib `mr_testMode`): the board event adds an option carrying a fresh
+  `TestContractBarEvent` (BarCMD runs any bar event that is an option's data, so it is never registered).
+  It builds any type and tier on the spot and ignores the open contract limit. Intel gets Complete now and
+  Fail now buttons.
+- `DeliveryListener` also puts the board event on `$BarCMD_shownEvents` when a market is opened: BarCMD
+  ignores events missing from that list until it expires, which hid new offers and the test option.
 - The bar keeps the unsigned contract in market memory (`$missions_renewed_contract`) for the rest of the
   offer's time, so looking twice shows the same terms.
 - `src/missionsrenewed/Settings` - LunaLib reads with defaults.

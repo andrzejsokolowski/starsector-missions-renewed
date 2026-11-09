@@ -18,29 +18,41 @@ Requires LunaLib.
 
 ## Job types
 
-- **Hauling** (playable): the client hands you the cargo. Deliver all of it to the named market before the
+- **Hauling**: the client hands you the cargo. Deliver all of it to the named market before the
   deadline. Docking there completes the job. Running off with the cargo costs more than it is worth.
-- Planned: combat, fuel runs, crew transport, marine operations, investments, contributions and
-  expeditions.
+- **Fuel run**: the client fills your fuel tanks. Arrive with the full amount: every jump on the way
+  burns into the delivery unless you bring spare fuel. Needs free fuel tank space.
+- **Crew transport**: contract workers ride in your crew quarters. Crew lost in battle count against the
+  delivery. Needs free crew quarters.
+- **Contribution**: bring goods you find or buy yourself to a construction project at another market.
+  The pay covers the goods about twice over. At tiers 4 to 6 the project may ask for a colony item.
+- **Investment**: put up a stake, get it back with profit after 5 to 12 months. Pulling out early
+  returns half the stake. Pirates and the Luddic Path do not offer them.
+- Planned: combat, marine operations and expeditions.
 
 ## Tiers
 
-| Tier | Pay | Hauling cargo |
-| --- | --- | --- |
-| 0 | 5k to 20k | 100 to 300 units |
-| 1 | 20k to 45k | 300 to 800 |
-| 2 | 45k to 80k | 800 to 1,500 |
-| 3 | 80k to 150k | 1,500 to 3,000 |
-| 4 | 150k to 300k | 3,000 to 5,000 |
-| 5 | 300k to 600k | 5,000 to 8,000 |
-| 6 | 700k to 1.5M | 8,000 to 12,000 |
-| 7 | 3M to 4M | 12,000 to 20,000 |
+| Tier | Pay | Hauling cargo | Fuel | Workers | Investment stake |
+| --- | --- | --- | --- | --- | --- |
+| 0 | 5k to 20k | 100 to 300 units | 100 to 300 | 50 to 150 | 5k to 15k |
+| 1 | 20k to 45k | 300 to 800 | 300 to 600 | 150 to 300 | 15k to 35k |
+| 2 | 45k to 80k | 800 to 1,500 | 600 to 1,000 | 300 to 600 | 35k to 60k |
+| 3 | 80k to 150k | 1,500 to 3,000 | 1,000 to 1,800 | 600 to 1,000 | 60k to 120k |
+| 4 | 150k to 300k | 3,000 to 5,000 | 1,800 to 3,000 | 1,000 to 1,600 | 120k to 250k |
+| 5 | 300k to 600k | 5,000 to 8,000 | 3,000 to 4,500 | 1,600 to 2,500 | 250k to 500k |
+| 6 | 700k to 1.5M | 8,000 to 12,000 | 4,500 to 6,500 | 2,500 to 3,500 | 500k to 1.2M |
+| 7 | 3M to 4M | 12,000 to 20,000 | 6,500 to 10,000 | 3,500 to 5,000 | 2M to 3M |
+
+Fuel and workers are capped so they are worth less than the pay, so low tiers often ask for less than
+the table says.
 
 ## Settings (LunaLib)
 
 - Chance of an offer per bar.
 - Lean toward your strength: 0 makes the tier roll fully random.
 - Reward multiplier.
+- Test mode, off by default: every bar gets an option to spawn any job type at any tier, and open
+  contracts get buttons to complete or fail them at once. For testing, not for normal play.
 
 ## Removing the mod
 

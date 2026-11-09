@@ -125,7 +125,7 @@ tasks.register('checkReleaseFiles') {
         def tiers = new groovy.json.JsonSlurper().parseText(tierText).tiers
         if (tiers*.tier != (0..7).toList()) problems << "tiers.json must list tiers 0 to 7 in order, has ${tiers*.tier}"
         tiers.each { t ->
-            ['reward', 'fleetPoints', 'cargo', 'stake'].each { k ->
+            ['reward', 'fleetPoints', 'cargo', 'fuel', 'crew', 'stake'].each { k ->
                 def r = t[k]
                 if (!(r instanceof List) || r.size() != 2 || r[0] > r[1]) problems << "tiers.json tier ${t.tier}: ${k} must be [min, max]"
             }

@@ -4,3 +4,5 @@ mr_barChance,Chance of an offer per bar,Int,50,,"Chance in percent that a bar ha
 mr_playerLean,Lean toward your strength,Int,100,,"How much the tier roll favours tiers that match your fleet size, colony income and credits. 0 is fully random. 100 makes the matching tier twice as likely and its neighbours one and a half times. Every tier stays possible.",0,300,
 mr_header_scaling,Scaling Header,Header,Scaling,,,,,
 mr_rewardMult,Reward multiplier,Double,1.0,,"Multiplies every credit reward and investment payout.",0.1,10,
+mr_header_test,Testing Header,Header,Testing,,,,,
+mr_testMode,Test mode,Boolean,false,,"For testing the mod. Every bar gets an extra option to pick any job type and tier, and open contracts get buttons to finish or fail them at once. Leave it off for normal play.",,,

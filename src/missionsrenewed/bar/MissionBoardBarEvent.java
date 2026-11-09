@@ -6,18 +6,15 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.campaign.rules.MemoryAPI;
 import com.fs.starfarer.api.impl.campaign.intel.bar.events.BarEventManager;
 import com.fs.starfarer.api.impl.campaign.intel.bar.events.BaseBarEvent;
-import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import missionsrenewed.Settings;
 import missionsrenewed.missions.ContractIntel;
+import missionsrenewed.missions.Contracts;
 import missionsrenewed.missions.MissionFamily;
-import missionsrenewed.missions.hauling.HaulingContract;
-import missionsrenewed.missions.hauling.HaulingContracts;
 import missionsrenewed.tiers.PlayerTier;
 import missionsrenewed.tiers.Tier;
 import missionsrenewed.tiers.TierTable;
 
-import java.awt.Color;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -36,6 +33,8 @@ import java.util.Random;
  * re-roll a bar. The tier roll leans toward the player's own tier (PlayerTier), by the LunaLib lean
  * setting. The contract itself is built on first look and kept in market memory for the rest of the
  * offer's time, so looking twice shows the same terms.
+ *
+ * In test mode (LunaLib) every bar also gets an option that opens TestContractBarEvent.
  */
 public class MissionBoardBarEvent extends BaseBarEvent {
 
@@ -69,16 +68,31 @@ public class MissionBoardBarEvent extends BaseBarEvent {
 
     @Override
     public boolean shouldShowAtMarket(MarketAPI market) {
-        Offer offer = offerAt(market);
-        return offer != null && offer.family.playable;
+        if (Settings.testMode() && market != null && market.getPrimaryEntity() != null) return true;
+        return liveOffer(market) != null;
     }
 
     @Override
     public void addPromptAndOption(InteractionDialogAPI dialog, Map<String, MemoryAPI> memoryMap) {
-        Offer offer = offerAt(dialog.getInteractionTarget().getMarket());
-        if (offer == null || !offer.family.playable) return;
-        dialog.getTextPanel().addPara("A spacer at a corner table has a datapad full of contracts and is looking for a captain.");
-        dialog.getOptionPanel().addOption("Look over the contract (tier " + offer.tier + ", " + offer.family.displayName + ")", this);
+        MarketAPI market = dialog.getInteractionTarget().getMarket();
+        Offer offer = liveOffer(market);
+        if (offer != null) {
+            dialog.getTextPanel().addPara("A spacer at a corner table has a datapad full of contracts and is looking for a captain.");
+            dialog.getOptionPanel().addOption("Look over the contract (tier " + offer.tier + ", " + offer.family.displayName + ")", this);
+        }
+        if (Settings.testMode()) {
+            // BarCMD runs whichever bar event an option carries, so the test screen needs no registration.
+            TestContractBarEvent test = new TestContractBarEvent();
+            dialog.getOptionPanel().addOption("[Test mode] Spawn a contract", test);
+            dialog.setOptionColor(test, Misc.getGrayColor());
+        }
+    }
+
+    /** This market's offer if it exists and its type can be offered here. */
+    private static Offer liveOffer(MarketAPI market) {
+        Offer offer = offerAt(market);
+        if (offer == null || !Contracts.canOffer(offer.family, market)) return null;
+        return offer;
     }
 
     @Override
@@ -87,8 +101,8 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         shownAt = dialog.getInteractionTarget().getMarket();
         shown = contractAt(shownAt);
         options.clearOptions();
-        if (shown instanceof HaulingContract) {
-            showHauling((HaulingContract) shown);
+        if (shown != null) {
+            OfferScreen.show(dialog, shown, Option.ACCEPT, Option.DECLINE, "Decline", false);
             return;
         }
         // The roll fell through, for example no market in range takes the cargo.
@@ -97,44 +111,11 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         options.addOption("Leave", Option.LEAVE);
     }
 
-    private void showHauling(HaulingContract contract) {
-        dialog.getVisualPanel().showPersonInfo(contract.getClientPerson(), true);
-        Color h = Misc.getHighlightColor();
-        String good = contract.getCommodity().getLowerCaseName();
-        text.addPara(contract.getClientPerson().getNameString() + " has a hold's worth of " + good
-                + " that needs to be somewhere else, and no patience for slow captains.");
-        text.addPara("\"" + Misc.getWithDGS(contract.getUnits()) + " units, my crates, your holds. Delivered to "
-                + contract.getDestination().getName() + " within " + Math.round(contract.getDurationDays())
-                + " days. Short or late, and the breach clause applies.\"");
-
-        TooltipMakerAPI terms = text.beginTooltip();
-        terms.addPara("Cargo: %s units of " + good + ", supplied by the client", 0f, h, Misc.getWithDGS(contract.getUnits()));
-        terms.addPara("Destination: %s, %s light years away", 0f, h, contract.getDestination().getName(),
-                Misc.getRoundedValueMaxOneAfterDecimal(contract.getDistanceLY()));
-        terms.addPara("Deadline: %s days", 0f, h, "" + Math.round(contract.getDurationDays()));
-        contract.addTerms(terms, 10f);
-        text.addTooltip();
-
-        options.addOption("Sign the contract", Option.ACCEPT);
-        options.addOption("Decline", Option.DECLINE);
-
-        List<ContractIntel> open = ContractIntel.open();
-        float space = Global.getSector().getPlayerFleet().getCargo().getSpaceLeft();
-        if (open.size() >= ContractIntel.MAX_OPEN) {
-            options.setEnabled(Option.ACCEPT, false);
-            options.setTooltip(Option.ACCEPT, "You already hold " + ContractIntel.MAX_OPEN + " open contracts.");
-        } else if (space < contract.getUnits()) {
-            options.setEnabled(Option.ACCEPT, false);
-            options.setTooltip(Option.ACCEPT, "Your holds have room for " + Misc.getWithDGS((int) space) + " more units, "
-                    + "the cargo needs " + Misc.getWithDGS(contract.getUnits()) + ".");
-        }
-    }
-
     @Override
     public void optionSelected(String optionText, Object optionData) {
         if (optionData == Option.ACCEPT && shown != null) {
             closeOffer(shownAt);
-            text.addPara("You sign. Dock crews start moving the crates into your holds before the ink is dry.");
+            text.addPara(shown.signText());
             shown.accept(text);
             shown = null;
             done = true;
@@ -152,7 +133,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         if (!memory.contains(OFFER_KEY)) {
             memory.unset(CONTRACT_KEY);
             Random random = new Random(BarEventManager.getInstance().getSeed(market.getPrimaryEntity(), null, EVENT_ID));
-            memory.set(OFFER_KEY, roll(random), MIN_DAYS + (MAX_DAYS - MIN_DAYS) * random.nextFloat());
+            memory.set(OFFER_KEY, roll(random, market), MIN_DAYS + (MAX_DAYS - MIN_DAYS) * random.nextFloat());
         }
         return Offer.parse(memory.getString(OFFER_KEY));
     }
@@ -168,8 +149,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         Tier tier = TierTable.get(offer.tier);
         if (tier == null) return null;
         Random random = new Random(BarEventManager.getInstance().getSeed(market.getPrimaryEntity(), null, EVENT_ID + "_contract"));
-        ContractIntel contract = null;
-        if (offer.family == MissionFamily.HAULING) contract = HaulingContracts.build(market, tier, random);
+        ContractIntel contract = Contracts.build(offer.family, market, tier, random);
         if (contract != null) memory.set(CONTRACT_KEY, contract, memory.getExpire(OFFER_KEY));
         return contract;
     }
@@ -183,13 +163,29 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         memory.unset(CONTRACT_KEY);
     }
 
-    private static String roll(Random random) {
+    private static String roll(Random random, MarketAPI market) {
         if (random.nextFloat() >= Settings.barChance()) return "none";
-        List<MissionFamily> families = MissionFamily.playableFamilies();
+        List<MissionFamily> families = Contracts.offeredAt(market);
         if (families.isEmpty()) return "none";
         Tier tier = TierTable.pick(random, PlayerTier.estimate(), Settings.playerLean());
         if (tier == null) return "none";
         return tier.level + "|" + families.get(random.nextInt(families.size())).name();
+    }
+
+    /**
+     * Puts this event on the market's $BarCMD_shownEvents list when the list exists. BarCMD only looks at
+     * events on that list until it expires (up to 40 days), and a bar that had no offer when the list was
+     * made would leave this event off it. Called when the player docks, before the bar opens.
+     */
+    @SuppressWarnings("unchecked")
+    public static void keepOnBarList(MarketAPI market) {
+        if (market == null) return;
+        try {
+            Object list = market.getMemoryWithoutUpdate().get("$BarCMD_shownEvents");
+            if (list instanceof List && !((List<String>) list).contains(EVENT_ID)) ((List<String>) list).add(EVENT_ID);
+        } catch (RuntimeException ignored) {
+            // An unmodifiable list from another mod: the event shows once the list expires.
+        }
     }
 
     /** Clears every market's roll so bars visited before this mod was added roll on the next visit. */

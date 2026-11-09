@@ -1,3 +1,11 @@
+Version 0.2.0 (2026-11-10)
+- New job type: fuel runs. The client fills your fuel tanks and you deliver the full amount. Fuel burned on the way comes out of the delivery.
+- New job type: crew transport. Contract workers ride in your crew quarters to another market. Crew lost in battle count against the delivery.
+- New job type: contributions. Bring goods you find or buy yourself to a construction project at another market. At tiers 4 to 6 the project may ask for a colony item instead.
+- New job type: investments. Put up a stake and get it back with profit after 5 to 12 months. Pulling out early returns half the stake. Pirates and the Luddic Path do not offer them.
+- New LunaLib test mode: every bar can spawn any job type at any tier, and open contracts get buttons to complete or fail them at once. Off by default.
+- Fixed: a bar with no contract on your last visit could hide its next contract for up to 40 days.
+
 Version 0.1.0 (2026-11-09)
 - First release.
 - Every bar has a chance (50 percent by default) to offer a tiered contract, tier 0 to 7, with the tier and job type shown in the bar.
