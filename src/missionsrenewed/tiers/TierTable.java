@@ -35,6 +35,7 @@ public final class TierTable {
                     pair(row, "cargo"),
                     pair(row, "fuel"),
                     pair(row, "crew"),
+                    pair(row, "marines"),
                     pair(row, "stake"),
                     (float) row.optDouble("weight", 10)));
         }

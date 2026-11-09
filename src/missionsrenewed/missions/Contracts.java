@@ -1,8 +1,11 @@
 package missionsrenewed.missions;
 
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
+import missionsrenewed.missions.combat.CombatContracts;
 import missionsrenewed.missions.delivery.DeliveryContracts;
+import missionsrenewed.missions.expedition.ExpeditionContracts;
 import missionsrenewed.missions.investment.InvestmentContracts;
+import missionsrenewed.missions.marines.RaidContracts;
 import missionsrenewed.tiers.Tier;
 
 import java.util.ArrayList;
@@ -39,8 +42,16 @@ public final class Contracts {
             case CREW_TRANSPORT:
             case CONTRIBUTION:
                 return DeliveryContracts.build(family, origin, tier, random);
+            case SMUGGLING:
+                return DeliveryContracts.build(family, origin, tier, random);
             case INVESTMENT:
                 return InvestmentContracts.build(origin, tier, random);
+            case COMBAT:
+                return CombatContracts.build(origin, tier, random);
+            case MARINES:
+                return RaidContracts.build(origin, tier, random);
+            case EXPEDITION:
+                return ExpeditionContracts.build(origin, tier, random);
             default:
                 return null;
         }

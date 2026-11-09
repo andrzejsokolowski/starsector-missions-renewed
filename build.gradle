@@ -125,9 +125,26 @@ tasks.register('checkReleaseFiles') {
         def tiers = new groovy.json.JsonSlurper().parseText(tierText).tiers
         if (tiers*.tier != (0..7).toList()) problems << "tiers.json must list tiers 0 to 7 in order, has ${tiers*.tier}"
         tiers.each { t ->
-            ['reward', 'fleetPoints', 'cargo', 'fuel', 'crew', 'stake'].each { k ->
+            ['reward', 'fleetPoints', 'cargo', 'fuel', 'crew', 'marines', 'stake'].each { k ->
                 def r = t[k]
                 if (!(r instanceof List) || r.size() != 2 || r[0] > r[1]) problems << "tiers.json tier ${t.tier}: ${k} must be [min, max]"
+            }
+        }
+
+        // Enemy groups: every group names a faction and tiers, hand-built ones list variants that exist
+        // in the base game (modded groups are generated from their faction).
+        def groupText = file('data/config/missions_renewed/enemy_fleets.json').getText('UTF-8').readLines()
+                .collect { it.replaceFirst(/#.*$/, '') }.join('\n')
+        def groups = new groovy.json.JsonSlurper().parseText(groupText).groups
+        def variantRoot = new File(core, 'data/variants')
+        def vanillaVariants = [] as Set
+        if (variantRoot.isDirectory()) variantRoot.eachFileRecurse { f -> if (f.name.endsWith('.variant')) vanillaVariants << f.name - '.variant' }
+        groups.each { id, g ->
+            if (!g.name || !g.faction) problems << "enemy_fleets.json ${id}: needs name and faction"
+            if (!(g.minTier instanceof Integer) || !(g.maxTier instanceof Integer) || g.minTier > g.maxTier) problems << "enemy_fleets.json ${id}: bad tiers"
+            if (!g.generated && !(g.variants instanceof Map && !g.variants.isEmpty())) problems << "enemy_fleets.json ${id}: hand-built group without variants"
+            if (!g.generated && ['omega', 'threat', 'dweller'].contains(g.faction)) {
+                g.variants.keySet().each { v -> if (!vanillaVariants.contains(v)) problems << "enemy_fleets.json ${id}: no vanilla variant ${v}" }
             }
         }
 

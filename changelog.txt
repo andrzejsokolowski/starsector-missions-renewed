@@ -1,3 +1,11 @@
+Version 0.4.0 (2026-11-10)
+- New job type: combat. Break a hostile fleet waiting near a planet in a nearby system. Tiers 0 to 4 send pirates or Pathers. From tier 5 the enemy is an Omega, Threat or Shrouded Dweller fleet, or Abyssal and Dustkeeper fleets when their mods are installed.
+- New job type: marine operations. Raid a market hostile to the client to knock out a named industry, or bring your own marines to a garrison of the client's faction.
+- New job type: expeditions. Haul supplies to a camp at a planet in an uncolonised system. The offer shows the chance of an ambush waiting there.
+- New job type: smuggling. Carry weapons, drugs or organs to a market where they are illegal. Patrols that scan you take the goods and your standing.
+- Clients you satisfy may offer to become contacts, more often at higher tiers.
+- New LunaLib switches for the four new job types, and an enemy strength multiplier.
+
 Version 0.3.0 (2026-11-10)
 - New LunaLib switches turn each job type on or off.
 - New LunaLib sliders set the lowest and highest tier bars offer. Offers already rolled outside the new settings are hidden until the bar refreshes.

@@ -52,6 +52,21 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   `DeliveryListener` (transient, added every load) completes jobs on docking.
 - `src/missionsrenewed/missions/investment/` - stake on signing (negative advance), payout after 5 to 12
   months, half the stake back on early withdrawal, stake refunded if the market dies. No pirates or Pathers.
+- `src/missionsrenewed/missions/combat/` - `CombatContract` (a fleet spawned on signing near a planet,
+  preferably in an uncolonised system; done when the player fights it and it is destroyed or down to a
+  quarter of its fleet points; void if someone else kills it). `EnemyFleets` picks and builds enemies:
+  tiers 0 to 4 pirates or Pathers from FleetFactoryV3, tiers 5 to 7 a group from
+  `data/config/missions_renewed/enemy_fleets.json` (hand-built from variants with AI cores on automated
+  ships, or generated from a modded faction; groups whose faction is missing are skipped).
+- `src/missionsrenewed/missions/marines/` - `RaidContract` (disrupt a named industry at a market hostile to
+  the client, picked by `MarketCMD.getDefenderStr` inside the tier's `marines` range; `RaidListener`,
+  transient, reports raids) and `RaidContracts` (raid or `delivery/GarrisonContract`, the player's marines
+  to a same-faction market).
+- `src/missionsrenewed/missions/expedition/` - cargo to a planet in an uncolonised system (`Places`), delivered
+  by flying within 300 units. The ambush is rolled at offer time from a shown chance and spawned when the
+  player enters the system.
+- `delivery/SmugglingContract` - goods illegal at the destination. Vanilla patrol scans do the rest.
+- Completed contracts offer the client as a potential contact (`ContactIntel.addPotentialContact`).
 - LunaLib `mr_job_<type>` (lower-case enum name) switches each type, `mr_minTier` / `mr_maxTier` bound the
   roll (swapped when crossed). `liveOffer` hides rolled offers that no longer fit, the roll skips them.
 - Test mode (LunaLib `mr_testMode`, in the Debug section, ignores the job and tier settings): the board event adds an option carrying a fresh

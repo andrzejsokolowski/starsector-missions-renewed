@@ -23,6 +23,11 @@ public final class Settings {
         return decimal("mr_rewardMult", 1f);
     }
 
+    /** Multiplies the fleet points of every enemy fleet. */
+    public static float strengthMult() {
+        return decimal("mr_strengthMult", 1f);
+    }
+
     /** Whether bars offer this job type (LunaLib mr_job_<type>, on by default). */
     public static boolean jobEnabled(missionsrenewed.missions.MissionFamily family) {
         return bool("mr_job_" + family.name().toLowerCase(java.util.Locale.ROOT), true);

@@ -76,6 +76,8 @@ public final class DeliveryContracts {
                 case FUEL_RUN: contract = suppliedRun(family, origin, destination, Commodities.FUEL, tier.rollFuel(random), tier, reward, random); break;
                 case CREW_TRANSPORT: contract = suppliedRun(family, origin, destination, Commodities.CREW, tier.rollCrew(random), tier, reward, random); break;
                 case CONTRIBUTION: contract = contribution(origin, destination, tier, reward, random); break;
+                case SMUGGLING: contract = smuggling(origin, destination, tier, reward, random); break;
+                case MARINES: contract = garrison(origin, destination, tier, reward, random); break;
                 default: return null;
             }
             if (contract != null) return contract;
@@ -137,6 +139,35 @@ public final class DeliveryContracts {
         float days = deadlineDays(origin, destination) + 30f;
         return new ContributionContract(tier.level, client, origin, destination, good, null, contributionUnits(good, reward),
                 advance, reward - advance, penalty, days);
+    }
+
+    /** Goods smuggled to a market where they are illegal (design answer 8: illegal jobs). */
+    private static final String[] SMUGGLED_GOODS = {Commodities.HAND_WEAPONS, Commodities.DRUGS, Commodities.ORGANS};
+
+    private static SmugglingContract smuggling(MarketAPI origin, MarketAPI destination, Tier tier, int reward, Random random) {
+        if (destination.getFaction() == origin.getFaction()) return null;
+        WeightedRandomPicker<String> goods = new WeightedRandomPicker<>(random);
+        for (String good : SMUGGLED_GOODS) {
+            if (destination.isIllegal(good)) goods.add(good);
+        }
+        if (goods.isEmpty()) return null;
+        String good = goods.pick();
+        float cap = reward * MAX_GOODS_VALUE_SHARE / price(good);
+        int units = (int) (Math.min(tier.rollCargo(random) * 0.5f, cap) / 10f) * 10;
+        if (units < 10) return null;
+        int advance = roundTo(reward * ADVANCE_SHARE, 500);
+        return new SmugglingContract(tier.level, client(origin, Ranks.POST_SMUGGLER, random), origin, destination, good, units,
+                advance, reward - advance, handedOverPenalty(reward, advance, good, units), deadlineDays(origin, destination));
+    }
+
+    /** Garrison duty: the player's own marines, to a market of the client's faction. */
+    private static GarrisonContract garrison(MarketAPI origin, MarketAPI destination, Tier tier, int reward, Random random) {
+        if (destination.getFaction() != origin.getFaction() || destination.getSize() < 4) return null;
+        int units = contributionUnits(Commodities.MARINES, reward);
+        int advance = roundTo(reward * CONTRIBUTION_ADVANCE_SHARE, 500);
+        int penalty = roundTo(Math.max(reward * CONTRIBUTION_PENALTY_SHARE, advance * 2f), 500);
+        return new GarrisonContract(tier.level, client(origin, Ranks.POST_MARINE_SQUAD_LEADER, random), origin, destination,
+                units, advance, reward - advance, penalty, deadlineDays(origin, destination) + 30f);
     }
 
     private static int contributionUnits(String good, int reward) {

@@ -1,0 +1,47 @@
+{
+	# Enemy groups for combat contracts and expedition ambushes at tiers 5 to 7 (design answer 5 on
+	# MSR-1: no pirates or Pathers from tier 5). Tiers 0 to 4 use pirate and Pather fleets built by the game.
+	# Other mods can add groups to this file: the game merges every mod's copy.
+	#   name        shown in the contract, "a <name> fleet"
+	#   faction     the fleet's faction. A group whose faction is not loaded is skipped.
+	#   minTier, maxTier   tiers the group can appear at
+	#   variants    hand-built: variant id -> pick weight. Missing variants are skipped. The fleet is
+	#               filled with these until its fleet points are spent.
+	#   generated   true: the game builds the fleet from the faction's own ship list instead
+	#   weight      how often this group is picked among those that fit
+	"groups": {
+		"omega": {
+			"name": "Omega", "faction": "omega", "minTier": 5, "maxTier": 7, "weight": 10,
+			"variants": {
+				"tesseract_Attack": 1, "tesseract_Attack2": 1, "tesseract_Defense": 1, "tesseract_Disruptor": 1,
+				"tesseract_Shieldbreaker": 1, "tesseract_Strike": 1,
+				"facet_Armorbreaker": 2, "facet_Attack": 2, "facet_Attack2": 2, "facet_Defense": 2, "facet_Missile": 2,
+				"facet_Shieldbreaker": 2,
+				"shard_left_Attack": 2, "shard_left_Missile": 2, "shard_left_Shieldbreaker": 2,
+				"shard_right_Attack": 2, "shard_right_Missile": 2, "shard_right_Shock": 2
+			}
+		},
+		"threat": {
+			"name": "Threat", "faction": "threat", "minTier": 5, "maxTier": 7, "weight": 10,
+			"variants": {
+				"overseer_unit_Type250": 1, "hive_unit_Type350": 1,
+				"standoff_unit_Type300": 2, "standoff_unit_Type301": 2, "standoff_unit_Type302": 2,
+				"assault_unit_Type200": 3, "assault_unit_Type201": 3,
+				"skirmish_unit_Type100": 3, "skirmish_unit_Type101": 3
+			}
+		},
+		"dweller": {
+			"name": "Shrouded Dweller", "faction": "dweller", "minTier": 5, "maxTier": 7, "weight": 10,
+			"variants": {
+				"shrouded_maw_Ravenous": 0.3, "shrouded_eye_Darkened": 2, "shrouded_maelstrom_Menacing": 2,
+				"shrouded_tendril_Roiling": 3
+			}
+		},
+		"rat_abyssals": {
+			"name": "Abyssal", "faction": "rat_abyssals", "minTier": 5, "maxTier": 7, "weight": 5, "generated": true
+		},
+		"sotf_dustkeepers": {
+			"name": "Dustkeeper", "faction": "sotf_dustkeepers", "minTier": 5, "maxTier": 7, "weight": 5, "generated": true
+		}
+	}
+}

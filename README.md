@@ -28,7 +28,18 @@ Requires LunaLib.
   The pay covers the goods about twice over. At tiers 4 to 6 the project may ask for a colony item.
 - **Investment**: put up a stake, get it back with profit after 5 to 12 months. Pulling out early
   returns half the stake. Pirates and the Luddic Path do not offer them.
-- Planned: combat, marine operations and expeditions.
+- **Combat**: break a hostile fleet waiting near a planet in a nearby system. Tiers 0 to 4 send pirates or
+  Pathers. From tier 5 the enemy is an Omega, Threat or Shrouded Dweller fleet, or Abyssal and Dustkeeper
+  fleets when their mods are installed. The job is done when you fight it and it is destroyed or left
+  with a quarter of its strength.
+- **Marine operation**: a raid on a market hostile to the client to knock out a named industry (raiding
+  costs standing with its owner), or garrison duty: bring your own marines to a market of the client's
+  faction.
+- **Expedition**: haul supplies to a camp at a planet in an uncolonised system. Fly close to the planet to
+  deliver. The offer shows the chance of an ambush waiting there.
+- **Smuggling**: carry weapons, drugs or organs to a market where they are illegal. Patrols that scan you
+  take the goods and your standing.
+- Clients you satisfy may offer to become contacts, more often at higher tiers.
 
 ## Tiers
 
@@ -43,6 +54,9 @@ Requires LunaLib.
 | 6 | 700k to 1.5M | 8,000 to 12,000 | 4,500 to 6,500 | 2,500 to 3,500 | 500k to 1.2M |
 | 7 | 3M to 4M | 12,000 to 20,000 | 6,500 to 10,000 | 3,500 to 5,000 | 2M to 3M |
 
+Combat enemies scale with the tier's fleet points: 20 to 40 at tier 0, 450 to 700 at tier 5, 1,100 to
+2,000 at tier 7. Raid targets are picked by ground defence: up to 150 at tier 0, 4,000 and more at tier 7.
+
 Fuel and workers are capped so they are worth less than the pay, so low tiers often ask for less than
 the table says.
 
@@ -52,7 +66,7 @@ the table says.
 - Lean toward your strength: 0 makes the tier roll fully random.
 - Lowest and highest tier: bars only offer contracts in this range.
 - Job types: turn each one on or off.
-- Reward multiplier.
+- Reward multiplier and enemy strength multiplier.
 - Debug: test mode, off by default. Every bar gets an option to spawn any job type at any tier (ignoring
   the job type and tier settings), and open contracts get buttons to complete or fail them at once. For
   testing, not for normal play.

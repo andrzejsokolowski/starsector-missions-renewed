@@ -34,6 +34,11 @@ public class InvestmentContract extends ContractIntel {
         this.months = months;
     }
 
+    @Override
+    protected MarketAPI clientMarket() {
+        return origin;
+    }
+
     private int withdrawal() {
         return stake / 2;
     }

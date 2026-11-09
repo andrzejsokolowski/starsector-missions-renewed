@@ -6,6 +6,7 @@ import com.fs.starfarer.api.campaign.RepLevel;
 import com.fs.starfarer.api.campaign.ReputationActionResponsePlugin.ReputationAdjustmentResult;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
+import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.impl.campaign.CoreReputationPlugin;
 import com.fs.starfarer.api.impl.campaign.CoreReputationPlugin.CustomRepImpact;
@@ -13,6 +14,7 @@ import com.fs.starfarer.api.impl.campaign.CoreReputationPlugin.RepActionEnvelope
 import com.fs.starfarer.api.impl.campaign.CoreReputationPlugin.RepActions;
 import com.fs.starfarer.api.impl.campaign.ids.Tags;
 import com.fs.starfarer.api.impl.campaign.intel.BaseIntelPlugin;
+import com.fs.starfarer.api.impl.campaign.intel.contacts.ContactIntel;
 import com.fs.starfarer.api.impl.campaign.rulecmd.AddRemoveCommodity;
 import com.fs.starfarer.api.ui.IntelUIAPI;
 import com.fs.starfarer.api.ui.SectorMapAPI;
@@ -172,6 +174,7 @@ public abstract class ContractIntel extends BaseIntelPlugin {
         }
         float rep = repOnEnd(result);
         if (rep != 0f) settledRep = adjustRep(rep, text);
+        if (result == State.COMPLETED) offerContact(text);
         onEnded(result);
         sendUpdateIfPlayerHasIntel(result, text);
         endAfterDelay();
@@ -194,6 +197,27 @@ public abstract class ContractIntel extends BaseIntelPlugin {
             case FAILED:
             case ABANDONED: return -failureRep();
             default: return 0f;
+        }
+    }
+
+    /** The market the client works from, for the contact offer. Null when there is none. */
+    protected MarketAPI clientMarket() {
+        return null;
+    }
+
+    /**
+     * A satisfied client may become a contact through the game's own contact system (design answer 8 on
+     * MSR-1). The chance grows with the tier. The game decides the rest, as for its own missions.
+     */
+    private void offerContact(TextPanelAPI text) {
+        MarketAPI market = clientMarket();
+        if (market == null || !market.isInEconomy() || client == null || tier < 1) return;
+        try {
+            client.setMarket(market);
+            Global.getSector().getImportantPeople().addPerson(client);
+            ContactIntel.addPotentialContact(0.15f + 0.05f * tier, client, market, text);
+        } catch (RuntimeException e) {
+            Global.getLogger(ContractIntel.class).warn("Missions - Renewed: contact offer failed", e);
         }
     }
 

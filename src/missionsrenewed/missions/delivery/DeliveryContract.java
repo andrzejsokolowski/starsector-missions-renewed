@@ -56,6 +56,11 @@ public abstract class DeliveryContract extends ContractIntel {
         return Misc.getDistanceLY(origin.getPrimaryEntity(), destination.getPrimaryEntity());
     }
 
+    @Override
+    protected MarketAPI clientMarket() {
+        return origin;
+    }
+
     /** True when the client fills the player's holds on signing. */
     protected abstract boolean suppliedByClient();
 

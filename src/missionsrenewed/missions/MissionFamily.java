@@ -6,7 +6,7 @@ package missionsrenewed.missions;
  */
 public enum MissionFamily {
     /** Beat hostile fleets. Scales with fleet points. */
-    COMBAT("combat", false),
+    COMBAT("combat", true),
     /** Carry the client's cargo from one market to another. Scales with cargo units. */
     HAULING("hauling", true),
     /** Deliver fuel. Scales with fuel units, and the fleet burns fuel on the way. */
@@ -14,13 +14,15 @@ public enum MissionFamily {
     /** Carry passengers. Scales with crew capacity. */
     CREW_TRANSPORT("crew transport", true),
     /** Raid or garrison jobs. Scales with marines. */
-    MARINES("marines", false),
+    MARINES("marine operation", true),
     /** Put up credits now, get them back later with interest. Scales with the stake. */
     INVESTMENT("investment", true),
     /** Hand over or sell goods (metals, colony items, weapons) for a payout. Scales with the value asked for. */
     CONTRIBUTION("contribution", true),
     /** Haul material to a far location, often outside the core worlds. Scales with cargo and distance. */
-    EXPEDITION("expedition", false);
+    EXPEDITION("expedition", true),
+    /** Carry goods that are illegal at the destination. Patrol scans handle getting caught. */
+    SMUGGLING("smuggling", true);
 
     /** The name shown in the bar and in the contract text. */
     public final String displayName;
