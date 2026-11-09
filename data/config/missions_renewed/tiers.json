@@ -1,0 +1,19 @@
+{
+	# One entry per tier, 0 (pocket money) to 7 (doomstack money). First guesses, tuned by playtesting.
+	# Every pair is [min, max]. A mission rolls inside its tier's range.
+	#   reward        credits paid on success
+	#   fleetPoints   total fleet points of the hostile fleets a combat mission spawns
+	#   cargo         units of cargo a hauling or expedition job asks to carry
+	#   stake         credits an investment asks for up front (paid back later with interest)
+	#   weight        how often this tier is rolled, relative to the others
+	"tiers": [
+		{ "tier": 0, "reward": [10000, 30000],      "fleetPoints": [20, 40],     "cargo": [100, 300],     "stake": [10000, 25000],      "weight": 10 },
+		{ "tier": 1, "reward": [30000, 80000],      "fleetPoints": [50, 90],     "cargo": [300, 800],     "stake": [25000, 60000],      "weight": 10 },
+		{ "tier": 2, "reward": [80000, 200000],     "fleetPoints": [100, 170],   "cargo": [800, 1500],    "stake": [60000, 150000],     "weight": 10 },
+		{ "tier": 3, "reward": [200000, 450000],    "fleetPoints": [180, 280],   "cargo": [1500, 3000],   "stake": [150000, 350000],    "weight": 10 },
+		{ "tier": 4, "reward": [450000, 1000000],   "fleetPoints": [300, 450],   "cargo": [3000, 5000],   "stake": [350000, 800000],    "weight": 10 },
+		{ "tier": 5, "reward": [1000000, 2500000],  "fleetPoints": [450, 700],   "cargo": [5000, 8000],   "stake": [800000, 2000000],   "weight": 10 },
+		{ "tier": 6, "reward": [2500000, 6000000],  "fleetPoints": [700, 1100],  "cargo": [8000, 12000],  "stake": [2000000, 5000000],  "weight": 10 },
+		{ "tier": 7, "reward": [6000000, 15000000], "fleetPoints": [1100, 2000], "cargo": [12000, 20000], "stake": [5000000, 12000000], "weight": 10 }
+	]
+}

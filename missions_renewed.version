@@ -1,0 +1,12 @@
+{
+	"masterVersionFile":"https://raw.githubusercontent.com/andrzejsokolowski/starsector-missions-renewed/main/missions_renewed.version",
+	"changelogURL":"https://raw.githubusercontent.com/andrzejsokolowski/starsector-missions-renewed/main/changelog.txt",
+	"modName":"Missions - Renewed",
+	"modVersion": {
+		"major":0,
+		"minor":0,
+		"patch":1
+	},
+	"starsectorVersion":"0.98a-RC8",
+	"directDownloadURL":"https://github.com/andrzejsokolowski/starsector-missions-renewed/releases/latest/download/MissionsRenewed.zip"
+}
