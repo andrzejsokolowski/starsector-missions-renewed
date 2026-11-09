@@ -30,8 +30,12 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 - `MissionsRenewedModPlugin` - loads the tier table at startup, keeps exactly one board event per save,
   and on the first load of an existing save clears every market's roll and `$BarCMD_shownEvents` (BarCMD
   ignores events missing from that list until it expires, up to 40 days).
-- `src/missionsrenewed/missions/MissionFamily` - combat, hauling, investment, contribution, expedition.
-  No mission content yet: accepting an offer only shows its tier and family.
+- `src/missionsrenewed/tiers/PlayerTier` - places the player on the table (best of fleet points vs
+  fleetPoints min, colony income per month vs reward min, credits vs stake min). The roll multiplies that
+  tier's weight by 1 + lean and its neighbours by 1 + lean/2 (LunaLib `mr_playerLean`, default 100).
+- `src/missionsrenewed/missions/MissionFamily` - combat, hauling, fuel run, crew transport, marines,
+  investment, contribution, expedition. The bar option shows "(tier N, family)". No mission content yet.
+  The design answers that govern missions are on ticket MSR-1.
 - `src/missionsrenewed/Settings` - LunaLib reads with defaults.
 
 ## Known before the first release

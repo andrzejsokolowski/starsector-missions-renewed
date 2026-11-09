@@ -8,6 +8,7 @@ import com.fs.starfarer.api.impl.campaign.intel.bar.events.BarEventManager;
 import com.fs.starfarer.api.impl.campaign.intel.bar.events.BaseBarEvent;
 import missionsrenewed.Settings;
 import missionsrenewed.missions.MissionFamily;
+import missionsrenewed.tiers.PlayerTier;
 import missionsrenewed.tiers.Tier;
 import missionsrenewed.tiers.TierTable;
 
@@ -27,7 +28,9 @@ import java.util.Random;
  * BarEventManager.getSeed, which changes over time and not on reload, so reloading a save does not
  * re-roll a bar.
  *
- * Scaffold: the offer only names its tier. Accepting it does nothing yet.
+ * The tier roll leans toward the player's own tier (PlayerTier), by the LunaLib lean setting.
+ *
+ * Scaffold: the offer only names its tier and type. Accepting it does nothing yet.
  */
 public class MissionBoardBarEvent extends BaseBarEvent {
 
@@ -63,7 +66,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         Offer offer = offerAt(dialog.getInteractionTarget().getMarket());
         if (offer == null) return;
         dialog.getTextPanel().addPara("A spacer at a corner table has a datapad full of contracts and is looking for a captain.");
-        dialog.getOptionPanel().addOption("Look over the contract (tier " + offer.tier + ")", this);
+        dialog.getOptionPanel().addOption("Look over the contract (tier " + offer.tier + ", " + offer.family.displayName + ")", this);
     }
 
     @Override
@@ -73,7 +76,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         // Keep both ternary branches Strings: mixing String and int types the result as
         // java.io.Serializable, which Starsector's class loader refuses.
         String tier = offer == null ? "?" : String.valueOf(offer.tier);
-        String family = offer == null ? "unknown" : offer.family.name().toLowerCase();
+        String family = offer == null ? "unknown" : offer.family.displayName;
         text.addPara("The contract is a tier " + tier + " " + family + " job. The details are still being written.");
         options.clearOptions();
         options.addOption("Leave", Option.LEAVE);
@@ -100,7 +103,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
 
     private static String roll(Random random) {
         if (random.nextFloat() >= Settings.barChance()) return "none";
-        Tier tier = TierTable.pick(random);
+        Tier tier = TierTable.pick(random, PlayerTier.estimate(), Settings.playerLean());
         if (tier == null) return "none";
         MissionFamily[] families = MissionFamily.values();
         return tier.level + "|" + families[random.nextInt(families.length)].name();

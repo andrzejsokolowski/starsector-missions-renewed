@@ -52,10 +52,13 @@ public final class TierTable {
         return null;
     }
 
-    /** A tier by weight, or null when the table is empty. */
-    public static Tier pick(Random random) {
+    /**
+     * A tier by weight, leaning toward playerTier (see PlayerTier.leanMult), or null when the table is
+     * empty. A playerTier of -1 or a lean of 0 gives the plain weights.
+     */
+    public static Tier pick(Random random, int playerTier, float lean) {
         WeightedRandomPicker<Tier> picker = new WeightedRandomPicker<>(random);
-        for (Tier tier : tiers) picker.add(tier, tier.weight);
+        for (Tier tier : tiers) picker.add(tier, tier.weight * PlayerTier.leanMult(tier.level, playerTier, lean));
         return picker.isEmpty() ? null : picker.pick();
     }
 

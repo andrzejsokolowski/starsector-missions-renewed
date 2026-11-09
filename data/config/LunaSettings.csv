@@ -1,6 +1,7 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
 mr_header_bar,Bar Header,Header,Bar offers,,,,,
-mr_barChance,Chance of an offer per bar,Int,50,,"Chance in percent that a bar has a tiered mission on offer. Each bar rolls again when its offers refresh, about every 15 to 30 days.",0,100,
+mr_barChance,Chance of an offer per bar,Int,50,,"Chance in percent that a bar has a tiered mission on offer. Each bar rolls again when its offers refresh, about every 20 to 40 days.",0,100,
+mr_playerLean,Lean toward your strength,Int,100,,"How much the tier roll favours tiers that match your fleet size, colony income and credits. 0 is fully random. 100 makes the matching tier twice as likely and its neighbours one and a half times. Every tier stays possible.",0,300,
 mr_header_scaling,Scaling Header,Header,Scaling,,,,,
 mr_rewardMult,Reward multiplier,Double,1.0,,"Multiplies every credit reward and investment payout.",0.1,10,
 mr_strengthMult,Enemy strength multiplier,Double,1.0,,"Multiplies the size of every hostile fleet a mission spawns.",0.25,4,

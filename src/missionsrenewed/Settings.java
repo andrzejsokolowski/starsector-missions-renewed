@@ -14,6 +14,11 @@ public final class Settings {
         return integer("mr_barChance", 50) / 100f;
     }
 
+    /** How strongly the tier roll leans toward the player's own tier: 0 is fully random, 1 doubles the match. */
+    public static float playerLean() {
+        return integer("mr_playerLean", 100) / 100f;
+    }
+
     public static float rewardMult() {
         return decimal("mr_rewardMult", 1f);
     }
