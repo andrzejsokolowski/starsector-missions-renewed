@@ -52,7 +52,9 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   `DeliveryListener` (transient, added every load) completes jobs on docking.
 - `src/missionsrenewed/missions/investment/` - stake on signing (negative advance), payout after 5 to 12
   months, half the stake back on early withdrawal, stake refunded if the market dies. No pirates or Pathers.
-- Test mode (LunaLib `mr_testMode`): the board event adds an option carrying a fresh
+- LunaLib `mr_job_<type>` (lower-case enum name) switches each type, `mr_minTier` / `mr_maxTier` bound the
+  roll (swapped when crossed). `liveOffer` hides rolled offers that no longer fit, the roll skips them.
+- Test mode (LunaLib `mr_testMode`, in the Debug section, ignores the job and tier settings): the board event adds an option carrying a fresh
   `TestContractBarEvent` (BarCMD runs any bar event that is an option's data, so it is never registered).
   It builds any type and tier on the spot and ignores the open contract limit. Intel gets Complete now and
   Fail now buttons.

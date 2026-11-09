@@ -1,3 +1,8 @@
+Version 0.3.0 (2026-11-10)
+- New LunaLib switches turn each job type on or off.
+- New LunaLib sliders set the lowest and highest tier bars offer. Offers already rolled outside the new settings are hidden until the bar refreshes.
+- Test mode moved to its own Debug section in LunaLib. It ignores the job type and tier settings.
+
 Version 0.2.0 (2026-11-10)
 - New job type: fuel runs. The client fills your fuel tanks and you deliver the full amount. Fuel burned on the way comes out of the delivery.
 - New job type: crew transport. Contract workers ride in your crew quarters to another market. Crew lost in battle count against the delivery.

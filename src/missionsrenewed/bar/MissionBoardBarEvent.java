@@ -88,10 +88,14 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         }
     }
 
-    /** This market's offer if it exists and its type can be offered here. */
+    /**
+     * This market's offer if it exists, its type can be offered here, and the LunaLib job type and tier
+     * settings still allow it. An offer rolled before a setting changed is hidden, not re-rolled.
+     */
     private static Offer liveOffer(MarketAPI market) {
         Offer offer = offerAt(market);
-        if (offer == null || !Contracts.canOffer(offer.family, market)) return null;
+        if (offer == null || !Contracts.canOffer(offer.family, market) || !Settings.jobEnabled(offer.family)) return null;
+        if (offer.tier < Settings.minTier() || offer.tier > Settings.maxTier()) return null;
         return offer;
     }
 
@@ -166,8 +170,9 @@ public class MissionBoardBarEvent extends BaseBarEvent {
     private static String roll(Random random, MarketAPI market) {
         if (random.nextFloat() >= Settings.barChance()) return "none";
         List<MissionFamily> families = Contracts.offeredAt(market);
+        families.removeIf(family -> !Settings.jobEnabled(family));
         if (families.isEmpty()) return "none";
-        Tier tier = TierTable.pick(random, PlayerTier.estimate(), Settings.playerLean());
+        Tier tier = TierTable.pick(random, PlayerTier.estimate(), Settings.playerLean(), Settings.minTier(), Settings.maxTier());
         if (tier == null) return "none";
         return tier.level + "|" + families.get(random.nextInt(families.size())).name();
     }

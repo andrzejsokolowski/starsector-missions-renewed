@@ -50,9 +50,12 @@ the table says.
 
 - Chance of an offer per bar.
 - Lean toward your strength: 0 makes the tier roll fully random.
+- Lowest and highest tier: bars only offer contracts in this range.
+- Job types: turn each one on or off.
 - Reward multiplier.
-- Test mode, off by default: every bar gets an option to spawn any job type at any tier, and open
-  contracts get buttons to complete or fail them at once. For testing, not for normal play.
+- Debug: test mode, off by default. Every bar gets an option to spawn any job type at any tier (ignoring
+  the job type and tier settings), and open contracts get buttons to complete or fail them at once. For
+  testing, not for normal play.
 
 ## Removing the mod
 

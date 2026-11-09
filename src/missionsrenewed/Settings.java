@@ -23,13 +23,32 @@ public final class Settings {
         return decimal("mr_rewardMult", 1f);
     }
 
+    /** Whether bars offer this job type (LunaLib mr_job_<type>, on by default). */
+    public static boolean jobEnabled(missionsrenewed.missions.MissionFamily family) {
+        return bool("mr_job_" + family.name().toLowerCase(java.util.Locale.ROOT), true);
+    }
+
+    /** Lowest tier bars offer. Swapped with the highest when set above it. */
+    public static int minTier() {
+        return Math.min(integer("mr_minTier", 0), integer("mr_maxTier", 7));
+    }
+
+    /** Highest tier bars offer. */
+    public static int maxTier() {
+        return Math.max(integer("mr_minTier", 0), integer("mr_maxTier", 7));
+    }
+
     /** Test mode: every bar offers any contract on request, and the intel screen can finish or fail one at once. */
     public static boolean testMode() {
+        return bool("mr_testMode", false);
+    }
+
+    private static boolean bool(String key, boolean fallback) {
         try {
-            Boolean value = LunaSettings.getBoolean(MOD_ID, "mr_testMode");
-            return value != null && value;
+            Boolean value = LunaSettings.getBoolean(MOD_ID, key);
+            return value == null ? fallback : value;
         } catch (Throwable t) {
-            return false;
+            return fallback;
         }
     }
 

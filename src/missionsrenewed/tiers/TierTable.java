@@ -55,12 +55,15 @@ public final class TierTable {
     }
 
     /**
-     * A tier by weight, leaning toward playerTier (see PlayerTier.leanMult), or null when the table is
-     * empty. A playerTier of -1 or a lean of 0 gives the plain weights.
+     * A tier by weight, leaning toward playerTier (see PlayerTier.leanMult), or null when
+     * no tier lies in [minTier, maxTier]. A playerTier of -1 or a lean of 0 gives the plain weights.
      */
-    public static Tier pick(Random random, int playerTier, float lean) {
+    public static Tier pick(Random random, int playerTier, float lean, int minTier, int maxTier) {
         WeightedRandomPicker<Tier> picker = new WeightedRandomPicker<>(random);
-        for (Tier tier : tiers) picker.add(tier, tier.weight * PlayerTier.leanMult(tier.level, playerTier, lean));
+        for (Tier tier : tiers) {
+            if (tier.level < minTier || tier.level > maxTier) continue;
+            picker.add(tier, tier.weight * PlayerTier.leanMult(tier.level, playerTier, lean));
+        }
         return picker.isEmpty() ? null : picker.pick();
     }
 
