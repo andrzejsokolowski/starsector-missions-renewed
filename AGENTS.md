@@ -91,4 +91,5 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 
 - The board event and the contracts are classes in the save, so removing the mod mid-game breaks that
   save. The README and forum post say so.
-- `forum-post.txt` is the forum draft. No topic exists yet.
+- `forum-post.txt` is the text of the first post of the forum topic https://fractalsoftworks.com/forum/index.php?topic=36287
+  (modThreadId 36287 in both metadata files).

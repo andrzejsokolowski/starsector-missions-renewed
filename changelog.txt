@@ -1,3 +1,6 @@
+Version 0.4.4 (2026-11-10)
+- Update checkers and mod managers now link to the forum thread.
+
 Version 0.4.3 (2026-11-10)
 - Fixed a crash when opening the intel screen with a combat contract.
 - Combat contracts no longer say who the enemy is. You only know where someone was attacked.
