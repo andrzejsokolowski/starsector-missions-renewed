@@ -214,11 +214,20 @@ public abstract class ContractIntel extends BaseIntelPlugin {
         if (market == null || !market.isInEconomy() || client == null || tier < 1) return;
         try {
             client.setMarket(market);
+            // The game's contacts offer work by type. Without one the contact would never have any.
+            if (!client.hasTag(Tags.CONTACT_TRADE) && !client.hasTag(Tags.CONTACT_MILITARY) && !client.hasTag(Tags.CONTACT_UNDERWORLD)) {
+                client.addTag(contactType());
+            }
             Global.getSector().getImportantPeople().addPerson(client);
             ContactIntel.addPotentialContact(0.15f + 0.05f * tier, client, market, text);
         } catch (RuntimeException e) {
             Global.getLogger(ContractIntel.class).warn("Missions - Renewed: contact offer failed", e);
         }
+    }
+
+    /** The kind of contact this client becomes: trade by default. */
+    protected String contactType() {
+        return Tags.CONTACT_TRADE;
     }
 
     /** Clean-up for the job. */

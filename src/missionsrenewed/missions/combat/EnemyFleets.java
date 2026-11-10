@@ -15,6 +15,9 @@ import com.fs.starfarer.api.impl.campaign.ids.Commodities;
 import com.fs.starfarer.api.impl.campaign.ids.Factions;
 import com.fs.starfarer.api.impl.campaign.ids.FleetTypes;
 import com.fs.starfarer.api.impl.campaign.ids.MemFlags;
+import com.fs.starfarer.api.impl.campaign.missions.hub.HubMissionWithTriggers.OfficerQuality;
+import com.fs.starfarer.api.impl.campaign.rulecmd.DwellerCMD;
+import com.fs.starfarer.api.impl.combat.threat.ThreatFIDConfig;
 import com.fs.starfarer.api.util.Misc;
 import com.fs.starfarer.api.util.WeightedRandomPicker;
 
@@ -76,14 +79,20 @@ public final class EnemyFleets {
     public static CampaignFleetAPI spawn(String key, int tier, float fleetPoints, SectorEntityToken anchor, String name,
                                          float orbitDays, Random random) {
         CampaignFleetAPI fleet = null;
-        if (key != null && key.startsWith("faction:")) {
-            fleet = generated(key.substring(8), tier, fleetPoints, anchor, random);
-        } else if (key != null && key.startsWith("group:")) {
-            EnemyGroups.Group group = EnemyGroups.get(key.substring(6));
-            if (group != null && group.available()) {
-                fleet = group.generated ? generated(group.factionId, tier, fleetPoints, anchor, random)
-                        : handBuilt(group, tier, fleetPoints, random);
+        try {
+            if (key != null && key.startsWith("faction:")) {
+                fleet = generated(key.substring(8), tier, fleetPoints, anchor, false, random);
+            } else if (key != null && key.startsWith("group:")) {
+                EnemyGroups.Group group = EnemyGroups.get(key.substring(6));
+                if (group != null && group.available()) {
+                    fleet = group.generated ? generated(group.factionId, tier, fleetPoints, anchor, group.aiCores, random)
+                            : handBuilt(group, tier, fleetPoints, random);
+                }
             }
+        } catch (RuntimeException e) {
+            // A broken modded variant or faction: no fleet, and the contract voids itself.
+            Global.getLogger(EnemyFleets.class).error("Missions - Renewed: could not build the " + key + " fleet", e);
+            fleet = null;
         }
         if (fleet == null || fleet.isEmpty()) return null;
 
@@ -103,11 +112,14 @@ public final class EnemyFleets {
         fleet.setLocation(anchor.getLocation().x + (float) Math.cos(Math.toRadians(angle)) * radius,
                 anchor.getLocation().y + (float) Math.sin(Math.toRadians(angle)) * radius);
         fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, anchor, orbitDays, "lying in wait");
+        // Without this a fleet that outlives its job would sit there hostile for the rest of the game.
+        fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, anchor, 30f);
         return fleet;
     }
 
     /** A fleet the game builds from the faction's own ships, scaled up with the tier. */
-    private static CampaignFleetAPI generated(String factionId, int tier, float fleetPoints, SectorEntityToken anchor, Random random) {
+    private static CampaignFleetAPI generated(String factionId, int tier, float fleetPoints, SectorEntityToken anchor,
+                                              boolean aiCores, Random random) {
         if (Global.getSector().getFaction(factionId) == null) return null;
         FleetParamsV3 params = new FleetParamsV3(null, anchor.getLocationInHyperspace(), factionId,
                 Math.min(1f, 0.4f + 0.1f * tier), FleetTypes.PATROL_LARGE, fleetPoints, 0f, 0f, 0f, 0f, 0f, 0f);
@@ -115,6 +127,8 @@ public final class EnemyFleets {
         params.officerNumberMult = 1f + 0.2f * tier;
         if (tier >= 3) params.averageSMods = Math.min(3, tier - 2);
         params.ignoreMarketFleetSizeMult = true;
+        // Automated factions: AI core officers, as the game does for Remnants. A mod's own officer plugin still wins.
+        if (aiCores) params.aiCores = tier >= 6 ? OfficerQuality.AI_ALPHA : OfficerQuality.AI_MIXED;
         params.random = random;
         try {
             return FleetFactoryV3.createFleet(params);
@@ -136,6 +150,9 @@ public final class EnemyFleets {
         if (variants.isEmpty()) return null;
 
         CampaignFleetAPI fleet = FleetFactoryV3.createEmptyFleet(group.factionId, FleetTypes.PATROL_LARGE, null);
+        // The variants are complete. The game's own Threat and Dweller fleets also run without an inflater,
+        // which would otherwise refit the ships from the faction's weapon list on first contact.
+        fleet.setInflater(null);
         float left = fleetPoints;
         int ships = 0;
         while (ships < MAX_SHIPS && left > 0f) {
@@ -157,7 +174,7 @@ public final class EnemyFleets {
         List<FleetMemberAPI> members = fleet.getFleetData().getMembersListCopy();
         for (int i = 0; i < members.size(); i++) {
             FleetMemberAPI member = members.get(i);
-            if (!Misc.isAutomated(member)) continue;
+            if (!group.aiCores || !Misc.isAutomated(member)) continue;
             String core = (i == 0 || tier >= 6) ? Commodities.ALPHA_CORE : Commodities.BETA_CORE;
             AICoreOfficerPlugin plugin = Misc.getAICoreOfficerPlugin(core);
             if (plugin == null) continue;
@@ -174,7 +191,21 @@ public final class EnemyFleets {
         for (FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) {
             member.getRepairTracker().setCR(member.getRepairTracker().getMaxCR());
         }
+        addFactionExtras(fleet, group.factionId);
         return fleet;
+    }
+
+    /** What the game itself gives its Threat and Dweller fleets: the Threat battle and loot rules, the Dweller drops. */
+    private static void addFactionExtras(CampaignFleetAPI fleet, String factionId) {
+        if (Factions.THREAT.equals(factionId)) {
+            fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_INTERACTION_DIALOG_CONFIG_OVERRIDE_GEN, new ThreatFIDConfig());
+        } else if (Factions.DWELLER.equals(factionId)) {
+            for (FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) {
+                List<String> drops = DwellerCMD.DROP_GROUPS.get(member.getHullSpec().getRestoredToHullId());
+                if (drops == null) continue;
+                for (String group : drops) fleet.addDropRandom(group, 1);
+            }
+        }
     }
 
     private static float cost(String variantId) {

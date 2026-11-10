@@ -27,7 +27,24 @@ public class ContributionContract extends DeliveryContract {
     }
 
     private SpecialItemSpecAPI special() {
-        return specialId == null ? null : Global.getSettings().getSpecialItemSpec(specialId);
+        if (specialId == null) return null;
+        try {
+            return Global.getSettings().getSpecialItemSpec(specialId);
+        } catch (RuntimeException e) {
+            return null;
+        }
+    }
+
+    /** The item's name, or a stand-in when the mod that added it is gone. */
+    private String specialName() {
+        SpecialItemSpecAPI spec = special();
+        return spec == null ? "colony item" : spec.getName();
+    }
+
+    /** The asked-for item no longer exists (its mod was removed): the contract is void. */
+    @Override
+    protected boolean shouldCancel() {
+        return super.shouldCancel() || (specialId != null && special() == null);
     }
 
     private SpecialItemData specialData() {
@@ -36,7 +53,7 @@ public class ContributionContract extends DeliveryContract {
 
     /** "units of metals" or "Pristine Nanoforge". */
     private String goodsName() {
-        return specialId != null ? special().getName() : getCommodity().getLowerCaseName();
+        return specialId != null ? specialName() : getCommodity().getLowerCaseName();
     }
 
     @Override
@@ -46,7 +63,7 @@ public class ContributionContract extends DeliveryContract {
 
     @Override
     protected String goodsPhrase() {
-        return specialId != null ? special().getName() : "units of " + getCommodity().getLowerCaseName();
+        return specialId != null ? specialName() : "units of " + getCommodity().getLowerCaseName();
     }
 
     @Override
@@ -64,14 +81,16 @@ public class ContributionContract extends DeliveryContract {
         playerCargo().removeItems(CargoItemType.SPECIAL, specialData(), units);
         if (text != null) {
             text.setFontSmallInsignia();
-            text.addParagraph("Lost " + special().getName(), Misc.getNegativeHighlightColor());
+            text.addParagraph("Lost " + specialName(), Misc.getNegativeHighlightColor());
             text.setFontInsignia();
         }
     }
 
     @Override
     public String getIcon() {
-        return specialId != null ? special().getIconName() : super.getIcon();
+        if (specialId == null) return super.getIcon();
+        SpecialItemSpecAPI spec = special();
+        return spec != null ? spec.getIconName() : Global.getSettings().getSpriteName("intel", "important_accepted_mission");
     }
 
     @Override

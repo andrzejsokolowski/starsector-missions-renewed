@@ -44,6 +44,11 @@ public class RaidContract extends ContractIntel {
     }
 
     @Override
+    protected String contactType() {
+        return com.fs.starfarer.api.impl.campaign.ids.Tags.CONTACT_MILITARY;
+    }
+
+    @Override
     protected void onAccepted(TextPanelAPI text) {}
 
     @Override

@@ -1,5 +1,6 @@
 package missionsrenewed.missions;
 
+import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import missionsrenewed.missions.combat.CombatContracts;
 import missionsrenewed.missions.delivery.DeliveryContracts;
@@ -31,6 +32,20 @@ public final class Contracts {
             if (canOffer(family, market)) result.add(family);
         }
         return result;
+    }
+
+    /**
+     * build, but a builder that throws (another mod's odd market or faction, say) gives no offer instead
+     * of crashing the bar. The error goes to starsector.log.
+     */
+    public static ContractIntel safeBuild(MissionFamily family, MarketAPI origin, Tier tier, Random random) {
+        try {
+            return build(family, origin, tier, random);
+        } catch (RuntimeException e) {
+            Global.getLogger(Contracts.class).error("Missions - Renewed: could not build a tier " + tier.level + " "
+                    + family.displayName + " at " + (origin == null ? "null" : origin.getId()), e);
+            return null;
+        }
     }
 
     /** A contract of this type and tier offered at origin, or null when nothing fits (no destination in range). */

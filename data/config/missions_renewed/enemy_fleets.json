@@ -9,9 +9,11 @@
 	#               filled with these until its fleet points are spent.
 	#   generated   true: the game builds the fleet from the faction's own ship list instead
 	#   weight      how often this group is picked among those that fit
+	#   aiCores     true: automated ships get AI core captains. Off for Threat and Dwellers, which the
+	#               game itself never crews.
 	"groups": {
 		"omega": {
-			"name": "Omega", "faction": "omega", "minTier": 5, "maxTier": 7, "weight": 10,
+			"name": "Omega", "faction": "omega", "minTier": 5, "maxTier": 7, "weight": 10, "aiCores": true,
 			"variants": {
 				"tesseract_Attack": 1, "tesseract_Attack2": 1, "tesseract_Defense": 1, "tesseract_Disruptor": 1,
 				"tesseract_Shieldbreaker": 1, "tesseract_Strike": 1,
@@ -38,10 +40,10 @@
 			}
 		},
 		"rat_abyssals": {
-			"name": "Abyssal", "faction": "rat_abyssals", "minTier": 5, "maxTier": 7, "weight": 5, "generated": true
+			"name": "Abyssal", "faction": "rat_abyssals", "minTier": 5, "maxTier": 7, "weight": 5, "generated": true, "aiCores": true
 		},
 		"sotf_dustkeepers": {
-			"name": "Dustkeeper", "faction": "sotf_dustkeepers", "minTier": 5, "maxTier": 7, "weight": 5, "generated": true
+			"name": "Dustkeeper", "faction": "sotf_dustkeepers", "minTier": 5, "maxTier": 7, "weight": 5, "generated": true, "aiCores": true
 		}
 	}
 }

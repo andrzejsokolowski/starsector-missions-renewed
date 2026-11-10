@@ -102,6 +102,11 @@ public class MissionBoardBarEvent extends BaseBarEvent {
     @Override
     public void init(InteractionDialogAPI dialog, Map<String, MemoryAPI> memoryMap) {
         super.init(dialog, memoryMap);
+        // One instance serves every bar for the whole session, and BaseBarEvent never clears these. Left
+        // set, the next conversation would close the moment it opens (BarEventDialogPlugin checks right
+        // after init).
+        done = false;
+        noContinue = false;
         shownAt = dialog.getInteractionTarget().getMarket();
         shown = contractAt(shownAt);
         options.clearOptions();
@@ -153,7 +158,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         Tier tier = TierTable.get(offer.tier);
         if (tier == null) return null;
         Random random = new Random(BarEventManager.getInstance().getSeed(market.getPrimaryEntity(), null, EVENT_ID + "_contract"));
-        ContractIntel contract = Contracts.build(offer.family, market, tier, random);
+        ContractIntel contract = Contracts.safeBuild(offer.family, market, tier, random);
         if (contract != null) memory.set(CONTRACT_KEY, contract, memory.getExpire(OFFER_KEY));
         return contract;
     }

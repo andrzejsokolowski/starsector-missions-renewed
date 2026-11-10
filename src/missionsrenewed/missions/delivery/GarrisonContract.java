@@ -19,6 +19,11 @@ public class GarrisonContract extends DeliveryContract {
     }
 
     @Override
+    protected String contactType() {
+        return com.fs.starfarer.api.impl.campaign.ids.Tags.CONTACT_MILITARY;
+    }
+
+    @Override
     protected boolean suppliedByClient() {
         return false;
     }

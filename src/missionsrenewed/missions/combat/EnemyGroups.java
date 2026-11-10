@@ -29,11 +29,13 @@ public final class EnemyGroups {
         public final int minTier, maxTier;
         public final float weight;
         public final boolean generated;
+        /** Automated ships get AI core captains (hand-built) or the game's AI core officers (generated). */
+        public final boolean aiCores;
         /** Variant id to pick weight. Empty for generated groups. */
         public final Map<String, Float> variants;
 
         Group(String id, String name, String factionId, int minTier, int maxTier, float weight, boolean generated,
-              Map<String, Float> variants) {
+              boolean aiCores, Map<String, Float> variants) {
             this.id = id;
             this.name = name;
             this.factionId = factionId;
@@ -41,6 +43,7 @@ public final class EnemyGroups {
             this.maxTier = maxTier;
             this.weight = weight;
             this.generated = generated;
+            this.aiCores = aiCores;
             this.variants = variants;
         }
 
@@ -74,7 +77,8 @@ public final class EnemyGroups {
                 }
             }
             loaded.add(new Group(id, row.getString("name"), row.getString("faction"), row.optInt("minTier", 5),
-                    row.optInt("maxTier", 7), (float) row.optDouble("weight", 10), row.optBoolean("generated", false), variants));
+                    row.optInt("maxTier", 7), (float) row.optDouble("weight", 10), row.optBoolean("generated", false),
+                    row.optBoolean("aiCores", false), variants));
         }
         groups = Collections.unmodifiableList(loaded);
         LOG.info("Missions - Renewed: loaded " + groups.size() + " enemy groups");

@@ -1,3 +1,12 @@
+Version 0.4.1 (2026-11-10)
+- Fixed: after your first contract in a play session, opening the next offer at any bar closed it at once.
+- Threat and Shrouded Dweller contract fleets are now built like the game's own: no AI core captains, the game's Threat battle and loot rules, and Dweller drops.
+- Abyssal and Dustkeeper contract fleets get AI core officers instead of human ones.
+- Contract fleets and ambushes that outlive their job now leave instead of staying in the system for good.
+- A contract that cannot be built (an odd market or a broken modded ship) no longer shows an offer, where it could crash the bar before.
+- A contribution that asks for a colony item from a removed mod is cancelled without penalty.
+- Clients who become contacts now have a contact type (trade, military or underworld), so they offer work.
+
 Version 0.4.0 (2026-11-10)
 - New job type: combat. Break a hostile fleet waiting near a planet in a nearby system. Tiers 0 to 4 send pirates or Pathers. From tier 5 the enemy is an Omega, Threat or Shrouded Dweller fleet, or Abyssal and Dustkeeper fleets when their mods are installed.
 - New job type: marine operations. Raid a market hostile to the client to knock out a named industry, or bring your own marines to a garrison of the client's faction.

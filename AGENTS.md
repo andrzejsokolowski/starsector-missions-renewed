@@ -56,8 +56,13 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   preferably in an uncolonised system; done when the player fights it and it is destroyed or down to a
   quarter of its fleet points; void if someone else kills it). `EnemyFleets` picks and builds enemies:
   tiers 0 to 4 pirates or Pathers from FleetFactoryV3, tiers 5 to 7 a group from
-  `data/config/missions_renewed/enemy_fleets.json` (hand-built from variants with AI cores on automated
-  ships, or generated from a modded faction; groups whose faction is missing are skipped).
+  `data/config/missions_renewed/enemy_fleets.json` (hand-built from variants with no inflater, AI cores on
+  automated ships only where `aiCores` is true, plus the game's ThreatFIDConfig or Dweller drop groups as
+  its own fleets have them; or generated from a modded faction, `aiCores` then sets FleetParamsV3.aiCores;
+  groups whose faction is missing are skipped). Every contract fleet ends with GO_TO_LOCATION_AND_DESPAWN.
+- Both bar events reset BaseBarEvent's transient `done` and `noContinue` in init: the board is one instance
+  for the whole session, and BarEventDialogPlugin ends the event right after init when `done` is still set.
+  Offers are built through `Contracts.safeBuild`, so a builder that throws gives no offer instead of a crash.
 - `src/missionsrenewed/missions/marines/` - `RaidContract` (disrupt a named industry at a market hostile to
   the client, picked by `MarketCMD.getDefenderStr` inside the tier's `marines` range; `RaidListener`,
   transient, reports raids) and `RaidContracts` (raid or `delivery/GarrisonContract`, the player's marines

@@ -19,6 +19,11 @@ public class SmugglingContract extends DeliveryContract {
     }
 
     @Override
+    protected String contactType() {
+        return com.fs.starfarer.api.impl.campaign.ids.Tags.CONTACT_UNDERWORLD;
+    }
+
+    @Override
     protected boolean suppliedByClient() {
         return true;
     }

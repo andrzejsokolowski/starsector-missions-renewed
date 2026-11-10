@@ -35,6 +35,8 @@ public class TestContractBarEvent extends BaseBarEvent {
     @Override
     public void init(InteractionDialogAPI dialog, Map<String, MemoryAPI> memoryMap) {
         super.init(dialog, memoryMap);
+        done = false;
+        noContinue = false;
         market = dialog.getInteractionTarget().getMarket();
         showFamilies();
     }
@@ -69,9 +71,10 @@ public class TestContractBarEvent extends BaseBarEvent {
             showTiers();
         } else if (optionData instanceof Integer) {
             Tier tier = TierTable.get((Integer) optionData);
-            shown = tier == null ? null : Contracts.build(family, market, tier, new Random());
+            shown = tier == null ? null : Contracts.safeBuild(family, market, tier, new Random());
             if (shown == null) {
-                text.addPara("[Test mode] No " + family.displayName + " of that tier fits here, for example no market in range.",
+                text.addPara("[Test mode] No " + family.displayName + " of that tier fits here, for example no market in range."
+                                + " If that looks wrong, starsector.log may name an error.",
                         Misc.getNegativeHighlightColor());
                 showTiers();
                 return;

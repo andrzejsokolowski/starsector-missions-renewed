@@ -65,6 +65,11 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
     }
 
     @Override
+    protected String contactType() {
+        return com.fs.starfarer.api.impl.campaign.ids.Tags.CONTACT_MILITARY;
+    }
+
+    @Override
     protected void onAccepted(TextPanelAPI text) {
         fleet = EnemyFleets.spawn(enemyKey, tier, fleetPoints, anchor, Misc.ucFirst(enemy()) + " Fleet",
                 durationDays + 60f, new Random(seed));

@@ -3,7 +3,6 @@ package missionsrenewed.missions.expedition;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
 import com.fs.starfarer.api.campaign.CargoAPI;
-import com.fs.starfarer.api.campaign.FleetAssignment;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.CommoditySpecAPI;
@@ -85,6 +84,11 @@ public class ExpeditionContract extends ContractIntel {
     }
 
     @Override
+    protected String contactType() {
+        return com.fs.starfarer.api.impl.campaign.ids.Tags.CONTACT_MILITARY;
+    }
+
+    @Override
     public String cannotSignReason() {
         float room = Global.getSector().getPlayerFleet().getCargo().getSpaceLeft();
         if (room >= units) return null;
@@ -114,7 +118,6 @@ public class ExpeditionContract extends ContractIntel {
             ambushFleet = EnemyFleets.spawn(enemyKey, tier, ambushFleetPoints, destination,
                     Misc.ucFirst(EnemyFleets.enemyName(enemyKey)) + " Ambushers", 45f, new Random(seed));
             if (ambushFleet != null) {
-                ambushFleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, destination, 30f);
                 Global.getSector().getCampaignUI().addMessage("Your sensor officer goes quiet, then very loud: something is waiting near "
                         + destination.getName() + ".", Misc.getNegativeHighlightColor());
             }
