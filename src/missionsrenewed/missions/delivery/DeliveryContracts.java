@@ -94,7 +94,7 @@ public final class DeliveryContracts {
         int units = roundTo(tier.rollCargo(random), 10);
         String good = pickHaulingGood(origin, destination, units, reward, random);
         if (good == null) return null;
-        int pay = roundTo(reward * EASY_PAY_SHARE, 500);
+        int pay = roundTo(reward * EASY_PAY_SHARE * Settings.payMult(MissionFamily.HAULING), 500);
         int advance = roundTo(pay * ADVANCE_SHARE, 500);
         return new HaulingContract(tier.level, client(origin, Ranks.POST_MERCHANT, random), origin, destination, good, units,
                 advance, pay - advance, handedOverPenalty(pay, advance, good, units), deadlineDays(origin, destination));
@@ -107,7 +107,7 @@ public final class DeliveryContracts {
         float cap = reward * MAX_GOODS_VALUE_SHARE / price(good);
         int units = (int) (Math.min(rolled, cap) / 10f) * 10;
         if (units < 10) return null;
-        int pay = roundTo(reward * EASY_PAY_SHARE, 500);
+        int pay = roundTo(reward * EASY_PAY_SHARE * Settings.payMult(family), 500);
         int advance = roundTo(pay * ADVANCE_SHARE, 500);
         int penalty = handedOverPenalty(pay, advance, good, units);
         float days = deadlineDays(origin, destination);
@@ -120,8 +120,10 @@ public final class DeliveryContracts {
     }
 
     private static ContributionContract contribution(MarketAPI origin, MarketAPI destination, Tier tier, int reward, Random random) {
-        int advance = roundTo(reward * CONTRIBUTION_ADVANCE_SHARE, 500);
-        int penalty = roundTo(Math.max(reward * CONTRIBUTION_PENALTY_SHARE, advance * 2f), 500);
+        // The goods asked for come from the reward, the money from the reward times the LunaLib pay setting.
+        int pay = roundTo(reward * Settings.payMult(MissionFamily.CONTRIBUTION), 500);
+        int advance = roundTo(pay * CONTRIBUTION_ADVANCE_SHARE, 500);
+        int penalty = roundTo(Math.max(pay * CONTRIBUTION_PENALTY_SHARE, advance * 2f), 500);
         PersonAPI client = client(origin, Ranks.POST_SUPPLY_MANAGER, random);
 
         if (tier.level >= ITEM_MIN_TIER && tier.level <= ITEM_MAX_TIER && random.nextFloat() < ITEM_CHANCE) {
@@ -130,7 +132,7 @@ public final class DeliveryContracts {
                 // Colony items are found, not bought: a long deadline, the trip still counted.
                 float days = Math.max(180f, deadlineDays(origin, destination) + 120f);
                 return new ContributionContract(tier.level, client, origin, destination, null, item, 1,
-                        advance, reward - advance, penalty, days);
+                        advance, pay - advance, penalty, days);
             }
         }
 
@@ -145,17 +147,18 @@ public final class DeliveryContracts {
         // Time to buy the goods as well as to fly them.
         float days = deadlineDays(origin, destination) + 30f;
         return new ContributionContract(tier.level, client, origin, destination, good, null, contributionUnits(good, reward),
-                advance, reward - advance, penalty, days);
+                advance, pay - advance, penalty, days);
     }
 
     /** Garrison duty: the player's own marines, to a market of the client's faction. */
     private static GarrisonContract garrison(MarketAPI origin, MarketAPI destination, Tier tier, int reward, Random random) {
         if (destination.getFaction() != origin.getFaction() || destination.getSize() < 4) return null;
         int units = contributionUnits(Commodities.MARINES, reward);
-        int advance = roundTo(reward * CONTRIBUTION_ADVANCE_SHARE, 500);
-        int penalty = roundTo(Math.max(reward * CONTRIBUTION_PENALTY_SHARE, advance * 2f), 500);
+        int pay = roundTo(reward * Settings.payMult(MissionFamily.MARINES), 500);
+        int advance = roundTo(pay * CONTRIBUTION_ADVANCE_SHARE, 500);
+        int penalty = roundTo(Math.max(pay * CONTRIBUTION_PENALTY_SHARE, advance * 2f), 500);
         return new GarrisonContract(tier.level, client(origin, Ranks.POST_MARINE_SQUAD_LEADER, random), origin, destination,
-                units, advance, reward - advance, penalty, deadlineDays(origin, destination) + 30f);
+                units, advance, pay - advance, penalty, deadlineDays(origin, destination) + 30f);
     }
 
     private static int contributionUnits(String good, int reward) {

@@ -31,7 +31,8 @@ public final class InvestmentContracts {
         if (!canOffer(origin)) return null;
         int months = MIN_MONTHS + random.nextInt(MAX_MONTHS - MIN_MONTHS + 1);
         int stake = roundTo(tier.rollStake(random), 1000);
-        int profit = roundTo(tier.rollReward(random) * Settings.rewardMult() * months / MONTHS_FOR_FULL_REWARD, 500);
+        int profit = roundTo(tier.rollReward(random) * Settings.rewardMult()
+                * Settings.payMult(missionsrenewed.missions.MissionFamily.INVESTMENT) * months / MONTHS_FOR_FULL_REWARD, 500);
         PersonAPI client = origin.getFaction().createRandomPerson(random);
         client.setRankId(Ranks.CITIZEN);
         client.setPostId(Ranks.POST_INVESTOR);

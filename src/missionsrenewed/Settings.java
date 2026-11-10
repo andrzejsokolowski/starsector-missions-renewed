@@ -23,7 +23,15 @@ public final class Settings {
         return decimal("mr_rewardMult", 1f);
     }
 
-    /** Multiplies the fleet points of every enemy fleet. */
+    /**
+     * Pay multiplier for one job type (LunaLib mr_pay_<type>), on top of rewardMult. It scales the money only
+     * (pay, advance, penalty, investment profit), never the cargo, fuel, workers or marines a job asks for.
+     */
+    public static float payMult(missionsrenewed.missions.MissionFamily family) {
+        return Math.max(0f, decimal("mr_pay_" + family.name().toLowerCase(java.util.Locale.ROOT), 1f));
+    }
+
+    /** Multiplies the size of every enemy fleet. */
     public static float strengthMult() {
         return decimal("mr_strengthMult", 1f);
     }

@@ -43,8 +43,10 @@ public final class ExpeditionContracts {
         int units = (int) (Math.min(tier.rollCargo(random) * 0.6f, reward * MAX_GOODS_VALUE_SHARE / price) / 10f) * 10;
         if (units < 10) return null;
 
-        int advance = Places.roundTo(reward * ADVANCE_SHARE, 500);
-        int penalty = Places.roundTo(Math.max(reward * MIN_PENALTY_SHARE, advance + price * units), 500);
+        // The cargo comes from the reward, the money from the reward times the LunaLib pay setting.
+        int pay = Places.roundTo(reward * Settings.payMult(missionsrenewed.missions.MissionFamily.EXPEDITION), 500);
+        int advance = Places.roundTo(pay * ADVANCE_SHARE, 500);
+        int penalty = Places.roundTo(Math.max(pay * MIN_PENALTY_SHARE, advance + price * units), 500);
         float days = (float) Math.ceil(Places.tripDays(origin.getPrimaryEntity().getLocationInHyperspace(),
                 system.getLocation()) * 2f + 40f);
 
@@ -58,6 +60,6 @@ public final class ExpeditionContracts {
         client.setRankId(Ranks.CITIZEN);
         client.setPostId(Ranks.POST_ENTREPRENEUR);
         return new ExpeditionContract(tier.level, client, origin, planet, good, units, chance, ambush, enemy, ambushPoints,
-                random.nextLong(), advance, reward - advance, penalty, Math.max(40f, days));
+                random.nextLong(), advance, pay - advance, penalty, Math.max(40f, days));
     }
 }

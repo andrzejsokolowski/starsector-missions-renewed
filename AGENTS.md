@@ -88,7 +88,9 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   ignores events missing from that list until it expires, which hid new offers and the test option.
 - The bar keeps the unsigned contract in market memory (`$missions_renewed_contract`) for the rest of the
   offer's time, so looking twice shows the same terms.
-- `src/missionsrenewed/Settings` - LunaLib reads with defaults.
+- `src/missionsrenewed/Settings` - LunaLib reads with defaults. `payMult(family)` (`mr_pay_<type>`) scales the money of
+  one job type on top of `rewardMult`; builders keep the rolled reward for cargo, goods and marine amounts and use
+  the multiplied pay only for advance, payment and penalty.
 
 ## Known limits
 

@@ -33,7 +33,8 @@ public final class CombatContracts {
         if (anchor == null) return null;
 
         float share = PAY_SHARE[Math.max(0, Math.min(PAY_SHARE.length - 1, tier.level))];
-        int reward = Places.roundTo(tier.rollReward(random) * share * Settings.rewardMult(), 500);
+        int reward = Places.roundTo(tier.rollReward(random) * share * Settings.rewardMult()
+                * Settings.payMult(missionsrenewed.missions.MissionFamily.COMBAT), 500);
         int fleetPoints = Math.max(6, Math.round(tier.rollDeployment(random) * Settings.strengthMult()));
         int advance = Places.roundTo(reward * ADVANCE_SHARE, 500);
         int penalty = Places.roundTo(reward * PENALTY_SHARE, 500);

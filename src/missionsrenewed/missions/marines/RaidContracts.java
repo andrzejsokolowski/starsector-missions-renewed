@@ -52,7 +52,7 @@ public final class RaidContracts {
         if (target == null) return null;
         Industry industry = pickIndustry(target, random);
 
-        int reward = Places.roundTo(tier.rollReward(random) * Settings.rewardMult(), 500);
+        int reward = Places.roundTo(tier.rollReward(random) * Settings.rewardMult() * Settings.payMult(MissionFamily.MARINES), 500);
         int advance = Places.roundTo(reward * ADVANCE_SHARE, 500);
         int penalty = Places.roundTo(reward * PENALTY_SHARE, 500);
         float days = (float) Math.ceil(Places.tripDays(origin.getPrimaryEntity().getLocationInHyperspace(),

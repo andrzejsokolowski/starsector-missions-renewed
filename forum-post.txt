@@ -35,7 +35,7 @@ Needs LunaLib.
 
 [hr][center][size=12pt][b]Settings and compatibility[/b][/size][/center][hr]
 [list]
-[li]LunaLib settings: chance of an offer per bar, how much the tier roll leans toward your strength, lowest and highest tier, each job type on or off, reward multiplier, enemy strength multiplier.[/li]
+[li]LunaLib settings: chance of an offer per bar, how much the tier roll leans toward your strength, lowest and highest tier, each job type on or off, reward multiplier, a pay multiplier for each job type, enemy strength multiplier.[/li]
 [li]Debug section in LunaLib with a test mode, off by default: spawn any job type at any tier at any bar, and complete or fail open contracts at once.[/li]
 [li]Does not take a place from other mods' bar events.[/li]
 [li]Can be added to a game in progress. Removing it from a game in progress breaks that save.[/li]
@@ -53,6 +53,8 @@ This mod is under the CC0 (Creative Commons Zero) License, allowing you to do wh
 [/spoiler]
 
 [spoiler=Version log]
+[b]0.5.0[/b]
+[list][li]New LunaLib section "Pay per job type": a pay multiplier for each job type, on top of the reward multiplier. It changes the money, not the cargo or marines asked for.[/li][/list]
 [b]0.4.6[/b]
 [list]
 [li]Combat pays less from tier 4 up: 75 percent of before at tier 4, 60 at tier 5, 50 at tier 6 and 40 at tier 7.[/li]

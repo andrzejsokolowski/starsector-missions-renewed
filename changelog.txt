@@ -1,3 +1,6 @@
+Version 0.5.0 (2026-11-10)
+- New LunaLib section "Pay per job type": a pay multiplier for each job type, on top of the reward multiplier. It changes the money, not the cargo or marines asked for.
+
 Version 0.4.6 (2026-11-10)
 - Combat pays less from tier 4 up: 75 percent of before at tier 4, 60 at tier 5, 50 at tier 6 and 40 at tier 7.
 - Smuggling is removed. A smuggling contract you already signed can still be finished.
