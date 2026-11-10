@@ -110,6 +110,38 @@ tasks.register('checkReleaseFiles') {
                     problems << "${projectDir.toPath().relativize(f.toPath())} names missing art ${path}"
             }
         }
+        // getSpriteName("category", "key") throws when the key is missing, and an intel icon is asked for
+        // every time the intel screen draws, so a wrong key crashes the game (0.4.2: "bounties" is commented
+        // out in the game's settings.json). Check every pair against the uncommented settings.json.
+        def settingsText = new File(core, 'data/config/settings.json').getText('UTF-8').readLines()
+                .collect { it.replaceFirst(/#.*$/, '') }.join('\n')
+        def spriteKeys = { String category ->
+            def start = settingsText.indexOf("\"${category}\"")
+            def keys = [] as Set
+            while (start >= 0) {
+                def open = settingsText.indexOf('{', start)
+                def colon = settingsText.indexOf(':', start)
+                if (open > 0 && colon > 0 && settingsText.substring(colon + 1, open).trim().isEmpty()) {
+                    int depth = 0
+                    int i = open
+                    for (; i < settingsText.length(); i++) {
+                        def c = settingsText.charAt(i)
+                        if (c == '{' as char) depth++
+                        if (c == '}' as char && --depth == 0) break
+                    }
+                    (settingsText.substring(open, i) =~ /"([^"]+)"\s*:/).each { m -> keys << m[1] }
+                }
+                start = settingsText.indexOf("\"${category}\"", start + 1)
+            }
+            keys
+        }
+        fileTree(projectDir) { include 'src/**/*.java' }.each { f ->
+            (f.getText('UTF-8') =~ /getSpriteName\("([^"]+)",\s*"([^"]+)"\)/).each { m ->
+                if (!spriteKeys(m[1]).contains(m[2]))
+                    problems << "${f.name} asks for sprite ${m[1]}/${m[2]}, which the game's settings.json does not have"
+            }
+        }
+
         // LunaLib runs setting names and descriptions through String.format: a bare % crashes the
         // game the moment that settings tab opens. Write "percent" instead.
         file('data/config/LunaSettings.csv').readLines('UTF-8').eachWithIndex { line, i ->
@@ -125,7 +157,7 @@ tasks.register('checkReleaseFiles') {
         def tiers = new groovy.json.JsonSlurper().parseText(tierText).tiers
         if (tiers*.tier != (0..7).toList()) problems << "tiers.json must list tiers 0 to 7 in order, has ${tiers*.tier}"
         tiers.each { t ->
-            ['reward', 'fleetPoints', 'cargo', 'fuel', 'crew', 'marines', 'stake'].each { k ->
+            ['reward', 'deploymentPoints', 'cargo', 'fuel', 'crew', 'marines', 'stake'].each { k ->
                 def r = t[k]
                 if (!(r instanceof List) || r.size() != 2 || r[0] > r[1]) problems << "tiers.json tier ${t.tier}: ${k} must be [min, max]"
             }

@@ -2,23 +2,23 @@
 	# One entry per tier, 0 (pocket money) to 7 (doomstack money). First guesses, tuned by playtesting.
 	# Every pair is [min, max]. A mission rolls inside its tier's range.
 	#   reward        credits paid on success
-	#   fleetPoints   total fleet points of the hostile fleets a combat mission spawns
+	#   deploymentPoints  total deployment points (DP) of the hostile fleet a combat mission or ambush spawns
 	#   cargo         units of cargo a hauling or expedition job asks to carry
 	#   fuel          units of fuel a fuel run asks to deliver (capped so the fuel is worth less than the pay)
 	#   crew          people a crew transport job asks to carry (capped the same way)
 	#   marines       ground defence of the market a raid contract targets
 	#   stake         credits an investment asks for up front (paid back later with interest)
 	#   weight        how often this tier is rolled, relative to the others
-	# The ranges also place the player on a tier (PlayerTier): fleet points against fleetPoints min,
+	# The ranges also place the player on a tier (PlayerTier): your fleet's total DP against deploymentPoints min,
 	# colony income per month against reward min, credits on hand against stake min.
 	"tiers": [
-		{ "tier": 0, "reward": [5000, 20000],       "fleetPoints": [20, 40],     "cargo": [100, 300],     "fuel": [100, 300],    "crew": [50, 150],    "marines": [0, 150],        "stake": [5000, 15000],       "weight": 10 },
-		{ "tier": 1, "reward": [20000, 45000],      "fleetPoints": [50, 90],     "cargo": [300, 800],     "fuel": [300, 600],    "crew": [150, 300],   "marines": [100, 300],      "stake": [15000, 35000],      "weight": 10 },
-		{ "tier": 2, "reward": [45000, 80000],      "fleetPoints": [100, 170],   "cargo": [800, 1500],    "fuel": [600, 1000],   "crew": [300, 600],   "marines": [250, 600],      "stake": [35000, 60000],      "weight": 10 },
-		{ "tier": 3, "reward": [80000, 150000],     "fleetPoints": [180, 280],   "cargo": [1500, 3000],   "fuel": [1000, 1800],  "crew": [600, 1000],  "marines": [500, 1000],     "stake": [60000, 120000],     "weight": 10 },
-		{ "tier": 4, "reward": [150000, 300000],    "fleetPoints": [300, 450],   "cargo": [3000, 5000],   "fuel": [1800, 3000],  "crew": [1000, 1600], "marines": [900, 1800],     "stake": [120000, 250000],    "weight": 10 },
-		{ "tier": 5, "reward": [300000, 600000],    "fleetPoints": [450, 700],   "cargo": [5000, 8000],   "fuel": [3000, 4500],  "crew": [1600, 2500], "marines": [1500, 3000],    "stake": [250000, 500000],    "weight": 10 },
-		{ "tier": 6, "reward": [700000, 1500000],   "fleetPoints": [700, 1100],  "cargo": [8000, 12000],  "fuel": [4500, 6500],  "crew": [2500, 3500], "marines": [2500, 5000],    "stake": [500000, 1200000],   "weight": 10 },
-		{ "tier": 7, "reward": [3000000, 4000000],  "fleetPoints": [1100, 2000], "cargo": [12000, 20000], "fuel": [6500, 10000], "crew": [3500, 5000], "marines": [4000, 100000],  "stake": [2000000, 3000000],  "weight": 10 }
+		{ "tier": 0, "reward": [5000, 20000],       "deploymentPoints": [8, 12],    "cargo": [100, 300],       "fuel": [100, 300],    "crew": [50, 150],    "marines": [0, 150],        "stake": [5000, 15000],       "weight": 10 },
+		{ "tier": 1, "reward": [20000, 45000],      "deploymentPoints": [20, 30],   "cargo": [300, 800],       "fuel": [300, 600],    "crew": [150, 300],   "marines": [100, 300],      "stake": [15000, 35000],      "weight": 10 },
+		{ "tier": 2, "reward": [45000, 80000],      "deploymentPoints": [38, 52],   "cargo": [800, 1500],      "fuel": [600, 1000],   "crew": [300, 600],   "marines": [250, 600],      "stake": [35000, 60000],      "weight": 10 },
+		{ "tier": 3, "reward": [80000, 150000],     "deploymentPoints": [75, 105],  "cargo": [1500, 3500],     "fuel": [1000, 1800],  "crew": [600, 1000],  "marines": [500, 1000],     "stake": [60000, 120000],     "weight": 10 },
+		{ "tier": 4, "reward": [150000, 300000],    "deploymentPoints": [155, 205], "cargo": [3500, 7000],     "fuel": [1800, 3000],  "crew": [1000, 1600], "marines": [900, 1800],     "stake": [120000, 250000],    "weight": 10 },
+		{ "tier": 5, "reward": [300000, 600000],    "deploymentPoints": [260, 340], "cargo": [7000, 13000],    "fuel": [3000, 4500],  "crew": [1600, 2500], "marines": [1500, 3000],    "stake": [250000, 500000],    "weight": 10 },
+		{ "tier": 6, "reward": [700000, 1500000],   "deploymentPoints": [350, 450], "cargo": [13000, 24000],   "fuel": [4500, 6500],  "crew": [2500, 3500], "marines": [2500, 5000],    "stake": [500000, 1200000],   "weight": 10 },
+		{ "tier": 7, "reward": [3000000, 4000000],  "deploymentPoints": [450, 550], "cargo": [24000, 40000],   "fuel": [6500, 10000], "crew": [3500, 5000], "marines": [4000, 100000],  "stake": [2000000, 3000000],  "weight": 10 }
 	]
 }

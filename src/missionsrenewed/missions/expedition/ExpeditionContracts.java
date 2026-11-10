@@ -52,7 +52,7 @@ public final class ExpeditionContracts {
         boolean ambush = random.nextFloat() < chance;
         String enemy = EnemyFleets.pickEnemy(tier.level, origin.getFaction(), random);
         if (enemy == null) enemy = "faction:" + Factions.PIRATES;
-        int ambushPoints = Math.max(10, Math.round(tier.rollFleetPoints(random) * 0.6f * Settings.strengthMult()));
+        int ambushPoints = Math.max(6, Math.round(tier.rollDeployment(random) * 0.6f * Settings.strengthMult()));
 
         PersonAPI client = origin.getFaction().createRandomPerson(random);
         client.setRankId(Ranks.CITIZEN);

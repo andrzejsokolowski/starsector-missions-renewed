@@ -28,7 +28,7 @@ public final class CombatContracts {
         if (anchor == null) return null;
 
         int reward = Places.roundTo(tier.rollReward(random) * Settings.rewardMult(), 500);
-        int fleetPoints = Math.max(10, Math.round(tier.rollFleetPoints(random) * Settings.strengthMult()));
+        int fleetPoints = Math.max(6, Math.round(tier.rollDeployment(random) * Settings.strengthMult()));
         int advance = Places.roundTo(reward * ADVANCE_SHARE, 500);
         int penalty = Places.roundTo(reward * PENALTY_SHARE, 500);
         float days = (float) Math.ceil(Places.tripDays(origin.getPrimaryEntity().getLocationInHyperspace(),

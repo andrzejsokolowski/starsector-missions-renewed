@@ -116,7 +116,7 @@ public class ExpeditionContract extends ContractIntel {
         if (ambush && !ambushSpawned) {
             ambushSpawned = true;
             ambushFleet = EnemyFleets.spawn(enemyKey, tier, ambushFleetPoints, destination,
-                    Misc.ucFirst(EnemyFleets.enemyName(enemyKey)) + " Ambushers", 45f, new Random(seed));
+                    EnemyFleets.ANONYMOUS_NAME, 45f, new Random(seed));
             if (ambushFleet != null) {
                 Global.getSector().getCampaignUI().addMessage("Your sensor officer goes quiet, then very loud: something is waiting near "
                         + destination.getName() + ".", Misc.getNegativeHighlightColor());
@@ -164,7 +164,7 @@ public class ExpeditionContract extends ContractIntel {
     @Override
     public void addOfferTerms(TooltipMakerAPI info) {
         Color h = Misc.getHighlightColor();
-        info.addPara("Cargo: %s units of " + good() + ", supplied by the client", 0f, h, Misc.getWithDGS(units));
+        info.addPara("Cargo: %s units of " + good() + ", supplied by " + client.getNameString(), 0f, h, Misc.getWithDGS(units));
         info.addPara("Destination: the camp at %s, %s light years away", 0f, h, place(),
                 Misc.getRoundedValueMaxOneAfterDecimal(Misc.getDistanceLY(origin.getPrimaryEntity(), destination)));
         info.addPara("Deadline: %s days", 0f, h, "" + Math.round(durationDays));

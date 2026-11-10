@@ -31,7 +31,7 @@ public final class TierTable {
             loaded.add(new Tier(
                     row.getInt("tier"),
                     pair(row, "reward"),
-                    pair(row, "fleetPoints"),
+                    pair(row, "deploymentPoints"),
                     pair(row, "cargo"),
                     pair(row, "fuel"),
                     pair(row, "crew"),

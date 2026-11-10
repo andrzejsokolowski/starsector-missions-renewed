@@ -59,7 +59,7 @@ public class FuelRunContract extends DeliveryContract {
 
     @Override
     public void addOfferTerms(TooltipMakerAPI info) {
-        addDeliveryTerms(info, "Fuel: %s units, pumped into your tanks by the client");
+        addDeliveryTerms(info, "Fuel: %s units, pumped into your tanks by " + client.getNameString());
     }
 
     @Override

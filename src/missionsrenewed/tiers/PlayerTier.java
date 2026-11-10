@@ -9,7 +9,7 @@ import com.fs.starfarer.api.campaign.econ.MarketAPI;
  * Where the player stands on the tier table, so the bar roll can lean toward jobs that fit.
  *
  * Three measures, each placed on the table by the highest tier whose minimum it reaches:
- * fleet points against fleetPoints min (a fair fight), colony income per month against reward min
+ * the fleet's total deployment points against deploymentPoints min (a fair fight), colony income per month against reward min
  * (a job worth about a month of income), credits on hand against stake min (an investment the player
  * can afford). The player tier is the best of the three, because jobs test different things and a
  * rich trader with a small fleet should still see big hauling and investment jobs.
@@ -23,9 +23,13 @@ public final class PlayerTier {
         SectorAPI sector = Global.getSector();
         if (sector == null || TierTable.all().isEmpty()) return -1;
 
-        float fleetPoints = 0f;
+        float deployment = 0f;
         CampaignFleetAPI fleet = sector.getPlayerFleet();
-        if (fleet != null) fleetPoints = fleet.getFleetPoints();
+        if (fleet != null) {
+            for (com.fs.starfarer.api.fleet.FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) {
+                if (!member.isMothballed()) deployment += member.getHullSpec().getSuppliesToRecover();
+            }
+        }
 
         float income = 0f;
         for (MarketAPI market : sector.getEconomy().getMarketsCopy()) {
@@ -37,7 +41,7 @@ public final class PlayerTier {
 
         int best = 0;
         for (Tier tier : TierTable.all()) {
-            if (fleetPoints >= tier.fleetPointsMin || income >= tier.rewardMin || credits >= tier.stakeMin) {
+            if (deployment >= tier.deploymentMin || income >= tier.rewardMin || credits >= tier.stakeMin) {
                 best = Math.max(best, tier.level);
             }
         }

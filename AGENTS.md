@@ -19,7 +19,7 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 
 ## Layout
 
-- `data/config/missions_renewed/tiers.json` - tiers 0 to 7: credit reward, hostile fleet points, cargo
+- `data/config/missions_renewed/tiers.json` - tiers 0 to 7: credit reward, hostile fleet size in deployment points (`deploymentPoints`; fleets the game generates by fleet points are trimmed to it), cargo
   units, fuel units, crew and investment stake as [min, max], plus a pick weight. `TierTable` reads it with
   `getMergedJSON`, so other mods can add to it. The build checks 0 to 7 are present and every range is sane.
 - `src/missionsrenewed/bar/MissionBoardBarEvent` - the one bar event. One instance lives in
@@ -30,8 +30,8 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 - `MissionsRenewedModPlugin` - loads the tier table at startup, keeps exactly one board event per save,
   and on the first load of an existing save clears every market's roll and `$BarCMD_shownEvents` (BarCMD
   ignores events missing from that list until it expires, up to 40 days).
-- `src/missionsrenewed/tiers/PlayerTier` - places the player on the table (best of fleet points vs
-  fleetPoints min, colony income per month vs reward min, credits vs stake min). The roll multiplies that
+- `src/missionsrenewed/tiers/PlayerTier` - places the player on the table (best of fleet DP vs
+  deploymentPoints min, colony income per month vs reward min, credits vs stake min). The roll multiplies that
   tier's weight by 1 + lean and its neighbours by 1 + lean/2 (LunaLib `mr_playerLean`, default 100).
 - `src/missionsrenewed/missions/MissionFamily` - combat, hauling, fuel run, crew transport, marines,
   investment, contribution, expedition. The bar option shows "(tier N, family)". Only families with
@@ -71,6 +71,9 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   by flying within 300 units. The ambush is rolled at offer time from a shown chance and spawned when the
   player enters the system.
 - `delivery/SmugglingContract` - goods illegal at the destination. Vanilla patrol scans do the rest.
+- Combat targets and ambushes are anonymous (`EnemyFleets.ANONYMOUS_NAME`, offers say only where someone was
+  attacked): Andrzej wants the enemy to be a surprise. Never name Omega, Threat, Dwellers or modded enemies in
+  offers, intel, LunaLib text, README or the forum post.
 - Completed contracts offer the client as a potential contact (`ContactIntel.addPotentialContact`).
 - LunaLib `mr_job_<type>` (lower-case enum name) switches each type, `mr_minTier` / `mr_maxTier` bound the
   roll (swapped when crossed). `liveOffer` hides rolled offers that no longer fit, the roll skips them.

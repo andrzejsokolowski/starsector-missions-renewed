@@ -39,6 +39,9 @@ public final class EnemyFleets {
     private static final int MAX_SHIPS = 30;
     private static final String[] LOW_TIER_FACTIONS = {Factions.PIRATES, Factions.LUDDIC_PATH};
 
+    /** Every contract fleet and ambush flies under this name: the client never knows who it is. */
+    public static final String ANONYMOUS_NAME = "Unidentified Fleet";
+
     private EnemyFleets() {}
 
     /** An enemy for this tier, or null when none fits (low tiers need a faction hostile to the client). */
@@ -76,17 +79,17 @@ public final class EnemyFleets {
      * Builds the fleet, puts it in orbit around anchor and makes it hostile and aggressive. Null when the
      * enemy cannot be built (its mod was removed, for example).
      */
-    public static CampaignFleetAPI spawn(String key, int tier, float fleetPoints, SectorEntityToken anchor, String name,
+    public static CampaignFleetAPI spawn(String key, int tier, float deployment, SectorEntityToken anchor, String name,
                                          float orbitDays, Random random) {
         CampaignFleetAPI fleet = null;
         try {
             if (key != null && key.startsWith("faction:")) {
-                fleet = generated(key.substring(8), tier, fleetPoints, anchor, false, random);
+                fleet = generated(key.substring(8), tier, deployment, anchor, false, random);
             } else if (key != null && key.startsWith("group:")) {
                 EnemyGroups.Group group = EnemyGroups.get(key.substring(6));
                 if (group != null && group.available()) {
-                    fleet = group.generated ? generated(group.factionId, tier, fleetPoints, anchor, group.aiCores, random)
-                            : handBuilt(group, tier, fleetPoints, random);
+                    fleet = group.generated ? generated(group.factionId, tier, deployment, anchor, group.aiCores, random)
+                            : handBuilt(group, tier, deployment, random);
                 }
             }
         } catch (RuntimeException e) {
@@ -118,11 +121,11 @@ public final class EnemyFleets {
     }
 
     /** A fleet the game builds from the faction's own ships, scaled up with the tier. */
-    private static CampaignFleetAPI generated(String factionId, int tier, float fleetPoints, SectorEntityToken anchor,
+    private static CampaignFleetAPI generated(String factionId, int tier, float deployment, SectorEntityToken anchor,
                                               boolean aiCores, Random random) {
         if (Global.getSector().getFaction(factionId) == null) return null;
         FleetParamsV3 params = new FleetParamsV3(null, anchor.getLocationInHyperspace(), factionId,
-                Math.min(1f, 0.4f + 0.1f * tier), FleetTypes.PATROL_LARGE, fleetPoints, 0f, 0f, 0f, 0f, 0f, 0f);
+                Math.min(1f, 0.4f + 0.1f * tier), FleetTypes.PATROL_LARGE, deployment, 0f, 0f, 0f, 0f, 0f, 0f);
         params.officerLevelBonus = tier / 2;
         params.officerNumberMult = 1f + 0.2f * tier;
         if (tier >= 3) params.averageSMods = Math.min(3, tier - 2);
@@ -131,7 +134,8 @@ public final class EnemyFleets {
         if (aiCores) params.aiCores = tier >= 6 ? OfficerQuality.AI_ALPHA : OfficerQuality.AI_MIXED;
         params.random = random;
         try {
-            return FleetFactoryV3.createFleet(params);
+            // The game builds by fleet points, which run below DP for big warships: trim to the DP asked for.
+            return trimToDeployment(FleetFactoryV3.createFleet(params), deployment);
         } catch (RuntimeException e) {
             Global.getLogger(EnemyFleets.class).warn("Missions - Renewed: could not build a " + factionId + " fleet", e);
             return null;
@@ -139,7 +143,7 @@ public final class EnemyFleets {
     }
 
     /** Fills a fleet with the group's variants until the fleet points are spent. Automated ships get AI cores. */
-    private static CampaignFleetAPI handBuilt(EnemyGroups.Group group, int tier, float fleetPoints, Random random) {
+    private static CampaignFleetAPI handBuilt(EnemyGroups.Group group, int tier, float deployment, Random random) {
         WeightedRandomPicker<String> variants = new WeightedRandomPicker<>(random);
         String cheapest = null;
         for (java.util.Map.Entry<String, Float> e : group.variants.entrySet()) {
@@ -153,7 +157,7 @@ public final class EnemyFleets {
         // The variants are complete. The game's own Threat and Dweller fleets also run without an inflater,
         // which would otherwise refit the ships from the faction's weapon list on first contact.
         fleet.setInflater(null);
-        float left = fleetPoints;
+        float left = deployment;
         int ships = 0;
         while (ships < MAX_SHIPS && left > 0f) {
             String chosen = null;
@@ -208,8 +212,49 @@ public final class EnemyFleets {
         }
     }
 
+    /** Deployment points of a variant, as the refit screen shows them. */
     private static float cost(String variantId) {
         ShipVariantAPI variant = Global.getSettings().getVariant(variantId);
-        return variant == null ? 9999f : Math.max(1f, variant.getHullSpec().getFleetPoints());
+        return variant == null ? 9999f : Math.max(1f, variant.getHullSpec().getSuppliesToRecover());
+    }
+
+    private static float cost(FleetMemberAPI member) {
+        return Math.max(1f, member.getHullSpec().getSuppliesToRecover());
+    }
+
+    /** Total deployment points of a fleet. */
+    public static float deployment(CampaignFleetAPI fleet) {
+        float total = 0f;
+        for (FleetMemberAPI member : fleet.getFleetData().getMembersListCopy()) total += cost(member);
+        return total;
+    }
+
+    /**
+     * Drops ships until the fleet is at most 15 percent over the DP asked for: each time the largest ship that
+     * fits in the excess, or the smallest one when none does. The flagship always stays.
+     */
+    private static CampaignFleetAPI trimToDeployment(CampaignFleetAPI fleet, float target) {
+        if (fleet == null) return null;
+        float total = deployment(fleet);
+        while (total > target * 1.15f) {
+            FleetMemberAPI flagship = fleet.getFlagship();
+            float excess = total - target;
+            FleetMemberAPI drop = null;
+            for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
+                if (m == flagship) continue;
+                if (cost(m) <= excess && (drop == null || cost(m) > cost(drop))) drop = m;
+            }
+            if (drop == null) {
+                for (FleetMemberAPI m : fleet.getFleetData().getMembersListCopy()) {
+                    if (m != flagship && (drop == null || cost(m) < cost(drop))) drop = m;
+                }
+            }
+            if (drop == null) break;
+            fleet.getFleetData().removeFleetMember(drop);
+            total -= cost(drop);
+        }
+        fleet.getFleetData().setSyncNeeded();
+        fleet.getFleetData().syncIfNeeded();
+        return fleet;
     }
 }

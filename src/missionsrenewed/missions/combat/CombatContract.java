@@ -32,11 +32,14 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
     private final MarketAPI origin;
     private final SectorEntityToken anchor;
     private final String enemyKey;
+    /** The fleet's size in deployment points (fleet points in saves from before 0.4.3). */
     private final int fleetPoints;
     private final long seed;
 
     private CampaignFleetAPI fleet;
     private int startFleetPoints;
+    /** Deployment points when spawned. 0 in contracts signed before 0.4.3, which still count fleet points. */
+    private float startDeployment;
     private boolean playerFought;
     private boolean spawnFailed;
 
@@ -50,13 +53,22 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
         this.seed = seed;
     }
 
-    private String enemy() {
-        return EnemyFleets.enemyName(enemyKey);
+    /** Who got away and brought the news. Picked from the seed, so it never changes. */
+    private int witnessIndex() {
+        return (int) Math.floorMod(seed, 4L);
     }
 
-    private String article() {
-        String e = enemy();
-        return ("AEIOU".indexOf(Character.toUpperCase(e.charAt(0))) >= 0 ? "an " : "a ") + e;
+    private String witness() {
+        return new String[] {"a trader", "a survey crew", "a salvager", "a mining barge"}[witnessIndex()];
+    }
+
+    private String sighting() {
+        return new String[] {"A panicked trader came in two days ago", "A survey crew limped in last week",
+                "A salvager came in on half an engine", "A mining barge made port yesterday, hull still smoking"}[witnessIndex()];
+    }
+
+    private String place() {
+        return anchor.getName() + " in the " + Places.systemName(anchor);
     }
 
     @Override
@@ -71,13 +83,14 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
 
     @Override
     protected void onAccepted(TextPanelAPI text) {
-        fleet = EnemyFleets.spawn(enemyKey, tier, fleetPoints, anchor, Misc.ucFirst(enemy()) + " Fleet",
+        fleet = EnemyFleets.spawn(enemyKey, tier, fleetPoints, anchor, EnemyFleets.ANONYMOUS_NAME,
                 durationDays + 60f, new Random(seed));
         if (fleet == null) {
             spawnFailed = true;
             return;
         }
         startFleetPoints = Math.max(1, fleet.getFleetPoints());
+        startDeployment = Math.max(1f, EnemyFleets.deployment(fleet));
         fleet.addEventListener(this);
         Misc.makeImportant(fleet, IMPORTANT_REASON);
     }
@@ -91,7 +104,9 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
     public void reportBattleOccurred(CampaignFleetAPI f, CampaignFleetAPI primaryWinner, BattleAPI battle) {
         if (f != fleet || !isActive()) return;
         if (battle.isPlayerInvolved()) playerFought = true;
-        if (playerFought && (f.isEmpty() || f.getFleetPoints() <= startFleetPoints * BEATEN_SHARE)) end(State.COMPLETED, null);
+        boolean beaten = startDeployment > 0f ? EnemyFleets.deployment(f) <= startDeployment * BEATEN_SHARE
+                : f.getFleetPoints() <= startFleetPoints * BEATEN_SHARE;
+        if (playerFought && (f.isEmpty() || beaten)) end(State.COMPLETED, null);
     }
 
     @Override
@@ -130,17 +145,15 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
 
     @Override
     public void addOfferText(TextPanelAPI text) {
-        text.addPara(client.getNameString() + " speaks for " + getClientFaction().getDisplayNameWithArticle()
-                + ", and " + getClientFaction().getDisplayNameWithArticle() + " wants " + article() + " fleet gone.");
-        text.addPara("\"It sits near " + anchor.getName() + " in the " + Places.systemName(anchor) + ", and it is not leaving on its own. Break it within "
-                + Math.round(durationDays) + " days. How you do it is your business.\"");
+        text.addPara("\"" + sighting() + ". Said they were attacked near " + place() + " and barely escaped with their life.\"");
+        text.addPara("\"Go there and destroy the fleet that attacked them. You have " + Math.round(durationDays) + " days.\"");
     }
 
     @Override
     public void addOfferTerms(TooltipMakerAPI info) {
         Color h = Misc.getHighlightColor();
-        info.addPara("Target: %s fleet of about %s fleet points", 0f, h, Misc.ucFirst(article()), Misc.getWithDGS(fleetPoints));
-        info.addPara("Location: near %s, %s light years away", 0f, h, anchor.getName() + " in the " + Places.systemName(anchor),
+        info.addPara("Target: the fleet that attacked " + witness(), 0f);
+        info.addPara("Location: near %s, %s light years away", 0f, h, place(),
                 Misc.getRoundedValueMaxOneAfterDecimal(Misc.getDistanceLY(origin.getPrimaryEntity(), anchor)));
         info.addPara("Deadline: %s days", 0f, h, "" + Math.round(durationDays));
         addTerms(info, 10f);
@@ -148,7 +161,7 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
 
     @Override
     public String signText() {
-        return "You sign. " + client.getNameString() + " sends the last known coordinates to your flagship.";
+        return "You sign. " + client.getNameString() + " sends " + witness() + "'s flight log to your flagship.";
     }
 
     // ----- intel screen -----
@@ -160,7 +173,7 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
 
     @Override
     public String getIcon() {
-        return Global.getSettings().getSpriteName("intel", "bounties");
+        return Global.getSettings().getSpriteName("intel", "distress_call");
     }
 
     @Override
@@ -171,22 +184,21 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
     @Override
     protected void addJobBullets(TooltipMakerAPI info, Color tc, float pad) {
         Color h = Misc.getHighlightColor();
-        info.addPara("%s fleet near %s", pad, tc, h, Misc.ucFirst(enemy()), anchor.getName());
+        info.addPara("Destroy the fleet near %s", pad, tc, h, anchor.getName());
     }
 
     @Override
     protected void addDescriptionTop(TooltipMakerAPI info, float width) {
         info.addImage(client.getPortraitSprite(), width, 80f, 10f);
-        info.addPara(client.getNameString() + " of " + origin.getName() + " wants " + article() + " fleet of about "
-                + Misc.getWithDGS(fleetPoints) + " fleet points broken near " + anchor.getName() + " in the "
-                + Places.systemName(anchor) + ".", 10f);
+        info.addPara(client.getNameString() + " of " + origin.getName() + " wants the fleet that attacked " + witness()
+                + " near " + place() + " destroyed.", 10f);
     }
 
     @Override
     protected String endText() {
         switch (state) {
-            case COMPLETED: return "The target fleet is broken.";
-            case CANCELLED: return "The target fleet is gone, and the contract with it.";
+            case COMPLETED: return "The fleet near " + anchor.getName() + " is destroyed.";
+            case CANCELLED: return "Someone else got to the fleet first. The contract is void.";
             default: return super.endText();
         }
     }

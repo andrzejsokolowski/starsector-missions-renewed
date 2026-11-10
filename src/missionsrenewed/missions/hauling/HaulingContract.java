@@ -40,7 +40,7 @@ public class HaulingContract extends DeliveryContract {
 
     @Override
     public void addOfferTerms(TooltipMakerAPI info) {
-        addDeliveryTerms(info, "Cargo: %s units of " + getCommodity().getLowerCaseName() + ", supplied by the client");
+        addDeliveryTerms(info, "Cargo: %s units of " + getCommodity().getLowerCaseName() + ", supplied by " + client.getNameString());
     }
 
     @Override

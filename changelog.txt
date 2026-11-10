@@ -1,3 +1,11 @@
+Version 0.4.3 (2026-11-10)
+- Fixed a crash when opening the intel screen with a combat contract.
+- Combat contracts no longer say who the enemy is. You only know where someone was attacked.
+- Enemy fleets are much smaller at low tiers and are now measured in deployment points: about 10 DP at tier 0, 45 at tier 2, 180 at tier 4 and 500 at tier 7.
+- Hauling asks for more cargo at higher tiers, up to 24,000 to 40,000 units at tier 7.
+- Offers name the client who supplies the cargo, and the penalty line now reads "Contract failed".
+- Shorter LunaLib descriptions.
+
 Version 0.4.2 (2026-11-10)
 - New gold icon in mod managers (TriOS) and in LunaLib's settings.
 

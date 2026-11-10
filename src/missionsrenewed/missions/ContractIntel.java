@@ -356,7 +356,7 @@ public abstract class ContractIntel extends BaseIntelPlugin {
         Color bad = Misc.getNegativeHighlightColor();
         info.addPara("Advance on signing: %s", pad, h, Misc.getDGSCredits(advance));
         info.addPara("Payment on completion: %s", 0f, h, Misc.getDGSCredits(onSuccess));
-        info.addPara("Penalty for breach: %s", 0f, bad, Misc.getDGSCredits(penalty));
+        info.addPara("Contract failed: %s", 0f, bad, Misc.getDGSCredits(penalty));
     }
 
     @Override
