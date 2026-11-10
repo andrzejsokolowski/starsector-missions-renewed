@@ -161,7 +161,7 @@ tasks.named('check') {
 // Only what the game loads.
 def releaseFiles = copySpec {
     from(projectDir) {
-        include 'mod_info.json', 'missions_renewed.version', 'LICENSE'
+        include 'mod_info.json', 'missions_renewed.version', 'LICENSE', 'icon.png'
         include 'data/**', 'graphics/**', 'jars/MissionsRenewed.jar'
     }
 }

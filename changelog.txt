@@ -1,3 +1,6 @@
+Version 0.4.2 (2026-11-10)
+- New gold icon in mod managers (TriOS) and in LunaLib's settings.
+
 Version 0.4.1 (2026-11-10)
 - Fixed: after your first contract in a play session, opening the next offer at any bar closed it at once.
 - Threat and Shrouded Dweller contract fleets are now built like the game's own: no AI core captains, the game's Threat battle and loot rules, and Dweller drops.
