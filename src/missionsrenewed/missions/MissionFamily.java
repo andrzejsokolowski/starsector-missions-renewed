@@ -2,7 +2,7 @@ package missionsrenewed.missions;
 
 /**
  * What a mission asks of the player's fleet. The tier scales whichever of these the family uses.
- * Combat, marines and expeditions are not written yet. The design answers are on ticket MSR-1.
+ * The design answers are on ticket MSR-1.
  */
 public enum MissionFamily {
     /** Beat hostile fleets. Scales with fleet points. */
@@ -21,8 +21,11 @@ public enum MissionFamily {
     CONTRIBUTION("contribution", true),
     /** Haul material to a far location, often outside the core worlds. Scales with cargo and distance. */
     EXPEDITION("expedition", true),
-    /** Carry goods that are illegal at the destination. Patrol scans handle getting caught. */
-    SMUGGLING("smuggling", true);
+    /**
+     * Dropped in 0.4.6 (MSR-12: it played like hauling). Never offered again. The value and SmugglingContract
+     * stay so saves with an open smuggling contract or a rolled offer still load.
+     */
+    SMUGGLING("smuggling", false);
 
     /** The name shown in the bar and in the contract text. */
     public final String displayName;

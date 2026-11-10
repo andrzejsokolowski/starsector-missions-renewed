@@ -57,8 +57,6 @@ public final class Contracts {
             case CREW_TRANSPORT:
             case CONTRIBUTION:
                 return DeliveryContracts.build(family, origin, tier, random);
-            case SMUGGLING:
-                return DeliveryContracts.build(family, origin, tier, random);
             case INVESTMENT:
                 return InvestmentContracts.build(origin, tier, random);
             case COMBAT:

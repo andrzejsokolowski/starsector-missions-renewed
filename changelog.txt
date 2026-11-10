@@ -1,3 +1,7 @@
+Version 0.4.6 (2026-11-10)
+- Combat pays less from tier 4 up: 75 percent of before at tier 4, 60 at tier 5, 50 at tier 6 and 40 at tier 7.
+- Smuggling is removed. A smuggling contract you already signed can still be finished.
+
 Version 0.4.5 (2026-11-10)
 - Hauling, fuel runs and crew transport pay a third of what they did. The cargo they ask for is unchanged.
 

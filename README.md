@@ -35,8 +35,6 @@ Requires LunaLib.
   faction.
 - **Expedition**: haul supplies to a camp at a planet in an uncolonised system. Fly close to the planet to
   deliver. Something may be waiting there.
-- **Smuggling**: carry weapons, drugs or organs to a market where they are illegal. Patrols that scan you
-  take the goods and your standing.
 - Clients you satisfy may offer to become contacts, more often at higher tiers.
 
 ## Tiers
@@ -52,7 +50,8 @@ Requires LunaLib.
 | 6 | 700k to 1.5M | 13,000 to 24,000 | about 400 DP | 4,500 to 6,500 | 2,500 to 3,500 | 500k to 1.2M |
 | 7 | 3M to 4M | 24,000 to 40,000 | about 500 DP | 6,500 to 10,000 | 3,500 to 5,000 | 2M to 3M |
 
-Hauling, fuel runs and crew transport pay a third of the tier's pay: they rarely go wrong.
+Hauling, fuel runs and crew transport pay a third of the tier's pay: they rarely go wrong. Combat pays the
+full amount up to tier 3, then 75 percent at tier 4, 60 at tier 5, 50 at tier 6 and 40 at tier 7 (1.2M to 1.6M).
 
 Enemy fleets are measured in deployment points (DP), as in the refit screen. Raid targets are picked by ground defence: up to 150 at tier 0, 4,000 and more at tier 7.
 

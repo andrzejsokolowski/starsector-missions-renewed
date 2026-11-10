@@ -16,6 +16,11 @@ public final class CombatContracts {
 
     private static final float ADVANCE_SHARE = 0.1f;
     private static final float PENALTY_SHARE = 0.25f;
+    /**
+     * Share of the tier's reward a combat contract pays, by tier. The enemy fleets are small for the money
+     * at the top (500 DP at tier 7), so high tiers pay less than hauling-size rewards would suggest.
+     */
+    private static final float[] PAY_SHARE = {1f, 1f, 1f, 1f, 0.75f, 0.6f, 0.5f, 0.4f};
 
     private CombatContracts() {}
 
@@ -27,7 +32,8 @@ public final class CombatContracts {
         SectorEntityToken anchor = Places.pickPlanet(system, random);
         if (anchor == null) return null;
 
-        int reward = Places.roundTo(tier.rollReward(random) * Settings.rewardMult(), 500);
+        float share = PAY_SHARE[Math.max(0, Math.min(PAY_SHARE.length - 1, tier.level))];
+        int reward = Places.roundTo(tier.rollReward(random) * share * Settings.rewardMult(), 500);
         int fleetPoints = Math.max(6, Math.round(tier.rollDeployment(random) * Settings.strengthMult()));
         int advance = Places.roundTo(reward * ADVANCE_SHARE, 500);
         int penalty = Places.roundTo(reward * PENALTY_SHARE, 500);

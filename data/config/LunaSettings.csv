@@ -13,7 +13,6 @@ mr_job_investment,Investments,Boolean,true,,"Put up a stake now, get it back wit
 mr_job_combat,Combat,Boolean,true,,"Destroy a hostile fleet.",,,
 mr_job_marines,Marine operations,Boolean,true,,"Raid a market to knock out one of its industries, or bring your marines to a garrison.",,,
 mr_job_expedition,Expeditions,Boolean,true,,"Haul supplies to a camp in an uncolonised system.",,,
-mr_job_smuggling,Smuggling,Boolean,true,,"Carry contraband to a market where it is illegal.",,,
 mr_header_scaling,Scaling Header,Header,Scaling,,,,,
 mr_rewardMult,Reward multiplier,Double,1.0,,"Multiplies every credit reward and investment payout.",0.1,10,
 mr_strengthMult,Enemy strength multiplier,Double,1.0,,"Multiplies the size of every enemy fleet.",0.1,5,

@@ -71,7 +71,9 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 - `src/missionsrenewed/missions/expedition/` - cargo to a planet in an uncolonised system (`Places`), delivered
   by flying within 300 units. The ambush is rolled at offer time from a shown chance and spawned when the
   player enters the system.
-- `delivery/SmugglingContract` - goods illegal at the destination. Vanilla patrol scans do the rest.
+- `delivery/SmugglingContract` - dropped in 0.4.6 (MSR-12): `MissionFamily.SMUGGLING` is not playable and nothing
+  builds one. The class and the enum value stay so saves with an open contract or a rolled offer still load.
+- Combat pay: `CombatContracts.PAY_SHARE` per tier (1, 1, 1, 1, 0.75, 0.6, 0.5, 0.4) of the tier reward.
 - Combat targets and ambushes are anonymous (`EnemyFleets.ANONYMOUS_NAME`, offers say only where someone was
   attacked): Andrzej wants the enemy to be a surprise. Never name Omega, Threat, Dwellers or modded enemies in
   offers, intel, LunaLib text, README or the forum post.

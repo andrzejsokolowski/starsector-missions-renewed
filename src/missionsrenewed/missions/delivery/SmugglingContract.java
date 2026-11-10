@@ -10,6 +10,8 @@ import com.fs.starfarer.api.util.Misc;
  * Carry the client's weapons, drugs or organs to a market where they are illegal (design answer 8 on
  * MSR-1: illegal jobs). Getting caught is the game's own business: a patrol that scans the fleet takes
  * the goods and costs standing with its faction, and then the delivery comes up short.
+ *
+ * No longer offered since 0.4.6 (MSR-12). Kept so saves holding one still load and can finish it.
  */
 public class SmugglingContract extends DeliveryContract {
 
