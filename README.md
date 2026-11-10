@@ -52,6 +52,8 @@ Requires LunaLib.
 | 6 | 700k to 1.5M | 13,000 to 24,000 | about 400 DP | 4,500 to 6,500 | 2,500 to 3,500 | 500k to 1.2M |
 | 7 | 3M to 4M | 24,000 to 40,000 | about 500 DP | 6,500 to 10,000 | 3,500 to 5,000 | 2M to 3M |
 
+Hauling, fuel runs and crew transport pay a third of the tier's pay: they rarely go wrong.
+
 Enemy fleets are measured in deployment points (DP), as in the refit screen. Raid targets are picked by ground defence: up to 150 at tier 0, 4,000 and more at tier 7.
 
 Fuel and workers are capped so they are worth less than the pay, so low tiers often ask for less than

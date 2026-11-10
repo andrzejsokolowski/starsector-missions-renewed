@@ -39,6 +39,12 @@ public final class DeliveryContracts {
     };
     /** Handed-over goods stay under this share of the total pay, so running off with them never pays (design answer 6). */
     private static final float MAX_GOODS_VALUE_SHARE = 0.6f;
+    /**
+     * Hauling, fuel runs and crew transport rarely go wrong, so they pay a third of the tier's reward. Cargo
+     * amounts still come from the full reward, and the penalty still covers the goods, so running off
+     * with them never pays.
+     */
+    private static final float EASY_PAY_SHARE = 1f / 3f;
     /** A contribution pays this many times the goods' base value. */
     private static final float CONTRIBUTION_MARKUP = 2f;
     /** Colony items are asked for at these tiers, when one is priced between a sixth and two thirds of the pay. */
@@ -89,9 +95,10 @@ public final class DeliveryContracts {
         int units = roundTo(tier.rollCargo(random), 10);
         String good = pickHaulingGood(origin, destination, units, reward, random);
         if (good == null) return null;
-        int advance = roundTo(reward * ADVANCE_SHARE, 500);
+        int pay = roundTo(reward * EASY_PAY_SHARE, 500);
+        int advance = roundTo(pay * ADVANCE_SHARE, 500);
         return new HaulingContract(tier.level, client(origin, Ranks.POST_MERCHANT, random), origin, destination, good, units,
-                advance, reward - advance, handedOverPenalty(reward, advance, good, units), deadlineDays(origin, destination));
+                advance, pay - advance, handedOverPenalty(pay, advance, good, units), deadlineDays(origin, destination));
     }
 
     /** Fuel runs and crew transport: the client's own fuel or workers, capped so they are worth less than the pay. */
@@ -101,15 +108,16 @@ public final class DeliveryContracts {
         float cap = reward * MAX_GOODS_VALUE_SHARE / price(good);
         int units = (int) (Math.min(rolled, cap) / 10f) * 10;
         if (units < 10) return null;
-        int advance = roundTo(reward * ADVANCE_SHARE, 500);
-        int penalty = handedOverPenalty(reward, advance, good, units);
+        int pay = roundTo(reward * EASY_PAY_SHARE, 500);
+        int advance = roundTo(pay * ADVANCE_SHARE, 500);
+        int penalty = handedOverPenalty(pay, advance, good, units);
         float days = deadlineDays(origin, destination);
         if (family == MissionFamily.FUEL_RUN) {
             return new FuelRunContract(tier.level, client(origin, Ranks.POST_SUPPLY_OFFICER, random), origin, destination,
-                    units, advance, reward - advance, penalty, days);
+                    units, advance, pay - advance, penalty, days);
         }
         return new CrewTransportContract(tier.level, client(origin, Ranks.POST_CREW_BOSS, random), origin, destination,
-                units, advance, reward - advance, penalty, days);
+                units, advance, pay - advance, penalty, days);
     }
 
     private static ContributionContract contribution(MarketAPI origin, MarketAPI destination, Tier tier, int reward, Random random) {

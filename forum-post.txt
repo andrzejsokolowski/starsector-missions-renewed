@@ -31,7 +31,7 @@ Needs LunaLib.
 [li][b]Smuggling:[/b] carry weapons, drugs or organs to a market where they are illegal.[/li]
 [li]Docking at the destination completes a delivery job.[/li]
 [li]Clients you satisfy may offer to become contacts, more often at higher tiers.[/li]
-[li]Tier 0 hauling asks for 100 to 300 units and pays 5k to 20k. Tier 7 asks for 24,000 to 40,000 units and pays 3M to 4M. Enemy fleets grow from about 10 DP at tier 0 to about 500 DP at tier 7.[/li]
+[li]Tier 0 hauling asks for 100 to 300 units and pays 1.5k to 6.5k. Tier 7 asks for 24,000 to 40,000 units and pays 1M to 1.3M. Hauling, fuel runs and crew transport pay a third of other jobs of the same tier. Enemy fleets grow from about 10 DP at tier 0 to about 500 DP at tier 7.[/li]
 [/list]
 
 [hr][center][size=12pt][b]Settings and compatibility[/b][/size][/center][hr]
@@ -54,6 +54,8 @@ This mod is under the CC0 (Creative Commons Zero) License, allowing you to do wh
 [/spoiler]
 
 [spoiler=Version log]
+[b]0.4.5[/b]
+[list][li]Hauling, fuel runs and crew transport pay a third of what they did. The cargo they ask for is unchanged.[/li][/list]
 [b]0.4.4[/b]
 [list][li]Update checkers and mod managers now link to the forum thread.[/li][/list]
 [b]0.4.3[/b]

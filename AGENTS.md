@@ -47,7 +47,8 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   package and with the old field names, because 0.1.0 saves hold it), `FuelRunContract` (fuel tanks),
   `CrewTransportContract` (crew quarters) and `ContributionContract` (the player finds the goods, or one
   colony item at tiers 4 to 6). `DeliveryContracts.build` picks a destination (size 3+, not hostile to the
-  player or the client, 3 to 10 + 4 x tier light years). Handed-over goods stay under 60 percent of the
+  player or the client, 3 to 10 + 4 x tier light years). Hauling, fuel runs and crew transport pay a third of the rolled reward (`EASY_PAY_SHARE`);
+  the cargo cap still uses the full reward. Handed-over goods stay under 60 percent of the
   pay, and the penalty is at least advance + goods value. Deadline: twice the trip at burn 8 plus 20 days.
   `DeliveryListener` (transient, added every load) completes jobs on docking.
 - `src/missionsrenewed/missions/investment/` - stake on signing (negative advance), payout after 5 to 12

@@ -1,3 +1,6 @@
+Version 0.4.5 (2026-11-10)
+- Hauling, fuel runs and crew transport pay a third of what they did. The cargo they ask for is unchanged.
+
 Version 0.4.4 (2026-11-10)
 - Update checkers and mod managers now link to the forum thread.
 
