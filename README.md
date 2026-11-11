@@ -35,6 +35,17 @@ Requires LunaLib.
   faction.
 - **Expedition**: haul supplies to a camp at a planet in an uncolonised system. Fly close to the planet to
   deliver. Something may be waiting there.
+- **Defense**: a fleet will attack a market of the client's faction in a set number of days. Be there and
+  destroy it, or leave it with a quarter of its strength. The market's station fights with you.
+- **Famous ship lead**: pay for the location of one named ship, sized by the tier. It is a pristine derelict
+  you can recover (guarded from tier 3), or the flagship of a hostile fleet, always recoverable once beaten.
+  S-mods from tier 3.
+- **Ship deal**: a client wants a given hull and pays more than it is worth when you hand one over at their
+  bar, or a client sells you a pristine ship (S-mods from tier 3) below its value.
+- **Conquest**: capture a market of a faction hostile to the client. Tier 3 and up, and only with
+  Nexerelin, which adds invasions. Market size grows with the tier.
+- **Salvage lead**: pay for the location of a debris field. Its loot grows with the tier, with rare tech,
+  AI cores and blueprints at high tiers.
 - Clients you satisfy may offer to become contacts, more often at higher tiers.
 
 ## Tiers

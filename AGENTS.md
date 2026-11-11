@@ -77,6 +77,25 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 - Combat targets and ambushes are anonymous (`EnemyFleets.ANONYMOUS_NAME`, offers say only where someone was
   attacked): Andrzej wants the enemy to be a surprise. Never name Omega, Threat, Dwellers or modded enemies in
   offers, intel, LunaLib text, README or the forum post.
+- 0.6.0 job types:
+  - `defense/` - `DefenseContract`: a fleet (`EnemyFleets.spawnAttacking`, ATTACK_LOCATION on the market's primary
+    entity) arrives at a same-faction market on a set day; beaten with the player in the fight = done, beaten
+    without the player = void, still there at the deadline = failed. `pickEnemy(..., mustBeHostile)` keeps
+    the attackers hostile to the market so its station fights.
+  - `lead/ShipLeadContract`: negative advance (the price of the lead), no pay or penalty. A pristine derelict
+    (`BaseThemeGenerator.addSalvageEntity` WRECK + `ShipRecoverySpecialData`, guards from tier 3) or a pirate or
+    Pather flagship tagged `Tags.VARIANT_ALWAYS_RECOVERABLE`. `ships/Hulls` picks stock variants by the tier's DP
+    band (`Hulls.DP_BAND`), skipping stations, modules, unboardable, hidden, civilian, automated and D-hulls.
+  - `ships/ShipOrderContract` (client buys a hull from the player; handed over at the client's bar through
+    `bar/HandOverBarEvent`, never the flagship) and `ShipSaleContract` (client sells the player a pristine ship;
+    completes on signing). `ShipDealContracts` picks one of the two.
+  - `conquest/` - Nexerelin only (`ConquestContracts.canOffer`), `MissionFamily.minTier` 3. Done when the market
+    passes to the client's faction, the player's faction or the player's commission faction.
+  - `lead/SalvageLeadContract`: `Misc.addDebrisField` with BASIC loot worth half the tier reward and extra
+    drop-group rolls by tier (`EXTRA_DROPS`); reaching the field completes the lead, the loot is the game's own
+    salvage screen.
+  - `MissionFamily.minTier` + `Contracts.canOffer(family, market, tier)`: the bar rolls the tier first, then the
+    types offered at it. Test mode greys out tiers below a type's minimum.
 - Completed contracts offer the client as a potential contact (`ContactIntel.addPotentialContact`).
 - LunaLib `mr_job_<type>` (lower-case enum name) switches each type, `mr_minTier` / `mr_maxTier` bound the
   roll (swapped when crossed). `liveOffer` hides rolled offers that no longer fit, the roll skips them.

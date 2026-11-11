@@ -46,9 +46,23 @@ public final class EnemyFleets {
 
     /** An enemy for this tier, or null when none fits (low tiers need a faction hostile to the client). */
     public static String pickEnemy(int tier, FactionAPI clientFaction, Random random) {
+        return pickEnemy(tier, clientFaction, false, random);
+    }
+
+    /**
+     * As pickEnemy. With mustBeHostile, groups whose faction is not hostile to the client are left out, and
+     * when none is left the pick falls back to pirates or Pathers: an attack on a market needs an enemy the
+     * market's station actually fights.
+     */
+    public static String pickEnemy(int tier, FactionAPI clientFaction, boolean mustBeHostile, Random random) {
         WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
         if (tier >= GROUP_MIN_TIER) {
-            for (EnemyGroups.Group group : EnemyGroups.forTier(tier)) picker.add("group:" + group.id, group.weight);
+            for (EnemyGroups.Group group : EnemyGroups.forTier(tier)) {
+                FactionAPI faction = Global.getSector().getFaction(group.factionId);
+                if (mustBeHostile && clientFaction != null && (faction == null || !faction.isHostileTo(clientFaction))) continue;
+                picker.add("group:" + group.id, group.weight);
+            }
+            if (picker.isEmpty() && mustBeHostile) return pickEnemy(GROUP_MIN_TIER - 1, clientFaction, false, random);
         } else {
             for (String factionId : LOW_TIER_FACTIONS) {
                 FactionAPI faction = Global.getSector().getFaction(factionId);
@@ -81,6 +95,36 @@ public final class EnemyFleets {
      */
     public static CampaignFleetAPI spawn(String key, int tier, float deployment, SectorEntityToken anchor, String name,
                                          float orbitDays, Random random) {
+        CampaignFleetAPI fleet = build(key, tier, deployment, anchor, name, random);
+        if (fleet == null) return null;
+        anchor.getContainingLocation().addEntity(fleet);
+        float angle = random.nextFloat() * 360f;
+        float radius = anchor.getRadius() + 200f + random.nextFloat() * 300f;
+        fleet.setLocation(anchor.getLocation().x + (float) Math.cos(Math.toRadians(angle)) * radius,
+                anchor.getLocation().y + (float) Math.sin(Math.toRadians(angle)) * radius);
+        fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, anchor, orbitDays, "lying in wait");
+        // Without this a fleet that outlives its job would sit there hostile for the rest of the game.
+        fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, anchor, 30f);
+        return fleet;
+    }
+
+    /** Builds the fleet and places it a little way out from target, attacking it for `days`. Null when it cannot be built. */
+    public static CampaignFleetAPI spawnAttacking(String key, int tier, float deployment, SectorEntityToken target, String name,
+                                                  float days, Random random) {
+        CampaignFleetAPI fleet = build(key, tier, deployment, target, name, random);
+        if (fleet == null) return null;
+        target.getContainingLocation().addEntity(fleet);
+        float angle = random.nextFloat() * 360f;
+        float radius = target.getRadius() + 2000f;
+        fleet.setLocation(target.getLocation().x + (float) Math.cos(Math.toRadians(angle)) * radius,
+                target.getLocation().y + (float) Math.sin(Math.toRadians(angle)) * radius);
+        fleet.addAssignment(FleetAssignment.ATTACK_LOCATION, target, days, "attacking " + target.getName());
+        fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, target, 30f);
+        return fleet;
+    }
+
+    /** Builds the fleet with the contract flags (hostile, aggressive, no standing loss), not yet in any location. */
+    public static CampaignFleetAPI build(String key, int tier, float deployment, SectorEntityToken anchor, String name, Random random) {
         CampaignFleetAPI fleet = null;
         try {
             if (key != null && key.startsWith("faction:")) {
@@ -108,15 +152,6 @@ public final class EnemyFleets {
         // Fighting a contract target never costs standing, whoever it flies for.
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_REP_IMPACT, true);
         fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_LOW_REP_IMPACT, true);
-
-        anchor.getContainingLocation().addEntity(fleet);
-        float angle = random.nextFloat() * 360f;
-        float radius = anchor.getRadius() + 200f + random.nextFloat() * 300f;
-        fleet.setLocation(anchor.getLocation().x + (float) Math.cos(Math.toRadians(angle)) * radius,
-                anchor.getLocation().y + (float) Math.sin(Math.toRadians(angle)) * radius);
-        fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, anchor, orbitDays, "lying in wait");
-        // Without this a fleet that outlives its job would sit there hostile for the rest of the game.
-        fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, anchor, 30f);
         return fleet;
     }
 

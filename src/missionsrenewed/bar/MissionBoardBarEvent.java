@@ -11,6 +11,8 @@ import missionsrenewed.Settings;
 import missionsrenewed.missions.ContractIntel;
 import missionsrenewed.missions.Contracts;
 import missionsrenewed.missions.MissionFamily;
+import missionsrenewed.missions.ships.Hulls;
+import missionsrenewed.missions.ships.ShipOrderContract;
 import missionsrenewed.tiers.PlayerTier;
 import missionsrenewed.tiers.Tier;
 import missionsrenewed.tiers.TierTable;
@@ -69,7 +71,19 @@ public class MissionBoardBarEvent extends BaseBarEvent {
     @Override
     public boolean shouldShowAtMarket(MarketAPI market) {
         if (Settings.testMode() && market != null && market.getPrimaryEntity() != null) return true;
-        return liveOffer(market) != null;
+        return liveOffer(market) != null || !ordersAt(market).isEmpty();
+    }
+
+    /** Open ship orders whose client sits in this market's bar. */
+    private static List<ShipOrderContract> ordersAt(MarketAPI market) {
+        List<ShipOrderContract> result = new java.util.ArrayList<>();
+        if (market == null) return result;
+        for (ContractIntel contract : ContractIntel.open()) {
+            if (contract instanceof ShipOrderContract && ((ShipOrderContract) contract).getMarket() == market) {
+                result.add((ShipOrderContract) contract);
+            }
+        }
+        return result;
     }
 
     @Override
@@ -79,6 +93,11 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         if (offer != null) {
             dialog.getTextPanel().addPara("A spacer at a corner table has a datapad full of contracts and is looking for a captain.");
             dialog.getOptionPanel().addOption("Look over the contract (tier " + offer.tier + ", " + offer.family.displayName + ")", this);
+        }
+        for (ShipOrderContract order : ordersAt(market)) {
+            // Same trick as the test screen: an unregistered bar event as the option's data.
+            dialog.getOptionPanel().addOption("Hand over " + Hulls.aClassName(order.hull()) + " to "
+                    + order.getClientPerson().getNameString(), new HandOverBarEvent(order));
         }
         if (Settings.testMode()) {
             // BarCMD runs whichever bar event an option carries, so the test screen needs no registration.
@@ -94,7 +113,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
      */
     private static Offer liveOffer(MarketAPI market) {
         Offer offer = offerAt(market);
-        if (offer == null || !Contracts.canOffer(offer.family, market) || !Settings.jobEnabled(offer.family)) return null;
+        if (offer == null || !Contracts.canOffer(offer.family, market, offer.tier) || !Settings.jobEnabled(offer.family)) return null;
         if (offer.tier < Settings.minTier() || offer.tier > Settings.maxTier()) return null;
         return offer;
     }
@@ -174,11 +193,11 @@ public class MissionBoardBarEvent extends BaseBarEvent {
 
     private static String roll(Random random, MarketAPI market) {
         if (random.nextFloat() >= Settings.barChance()) return "none";
-        List<MissionFamily> families = Contracts.offeredAt(market);
-        families.removeIf(family -> !Settings.jobEnabled(family));
-        if (families.isEmpty()) return "none";
         Tier tier = TierTable.pick(random, PlayerTier.estimate(), Settings.playerLean(), Settings.minTier(), Settings.maxTier());
         if (tier == null) return "none";
+        List<MissionFamily> families = Contracts.offeredAt(market, tier.level);
+        families.removeIf(family -> !Settings.jobEnabled(family));
+        if (families.isEmpty()) return "none";
         return tier.level + "|" + families.get(random.nextInt(families.size())).name();
     }
 

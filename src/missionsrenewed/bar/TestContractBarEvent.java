@@ -60,6 +60,10 @@ public class TestContractBarEvent extends BaseBarEvent {
         text.addPara("[Test mode] Pick a tier for the " + family.displayName + ".", Misc.getGrayColor());
         for (Tier tier : TierTable.all()) {
             options.addOption("Tier " + tier.level, tier.level);
+            if (tier.level < family.minTier) {
+                options.setEnabled(tier.level, false);
+                options.setTooltip(tier.level, "Offered from tier " + family.minTier + ".");
+            }
         }
         options.addOption("Back", Option.BACK);
     }

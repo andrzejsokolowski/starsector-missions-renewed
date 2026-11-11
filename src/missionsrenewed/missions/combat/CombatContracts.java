@@ -24,6 +24,11 @@ public final class CombatContracts {
 
     private CombatContracts() {}
 
+    /** Share of the tier reward a fight pays at this tier (combat and defense). */
+    public static float payShare(int tier) {
+        return PAY_SHARE[Math.max(0, Math.min(PAY_SHARE.length - 1, tier))];
+    }
+
     public static CombatContract build(MarketAPI origin, Tier tier, Random random) {
         String enemy = EnemyFleets.pickEnemy(tier.level, origin.getFaction(), random);
         if (enemy == null) return null;
@@ -32,7 +37,7 @@ public final class CombatContracts {
         SectorEntityToken anchor = Places.pickPlanet(system, random);
         if (anchor == null) return null;
 
-        float share = PAY_SHARE[Math.max(0, Math.min(PAY_SHARE.length - 1, tier.level))];
+        float share = payShare(tier.level);
         int reward = Places.roundTo(tier.rollReward(random) * share * Settings.rewardMult()
                 * Settings.payMult(missionsrenewed.missions.MissionFamily.COMBAT), 500);
         int fleetPoints = Math.max(6, Math.round(tier.rollDeployment(random) * Settings.strengthMult()));

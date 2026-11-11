@@ -3,6 +3,11 @@ package missionsrenewed.missions;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import missionsrenewed.missions.combat.CombatContracts;
+import missionsrenewed.missions.conquest.ConquestContracts;
+import missionsrenewed.missions.defense.DefenseContracts;
+import missionsrenewed.missions.lead.SalvageLeadContracts;
+import missionsrenewed.missions.lead.ShipLeadContracts;
+import missionsrenewed.missions.ships.ShipDealContracts;
 import missionsrenewed.missions.delivery.DeliveryContracts;
 import missionsrenewed.missions.expedition.ExpeditionContracts;
 import missionsrenewed.missions.investment.InvestmentContracts;
@@ -18,18 +23,24 @@ public final class Contracts {
 
     private Contracts() {}
 
-    /** Whether this market's bar can offer the type at all (investments need an honest faction). */
+    /** Whether this market's bar can offer the type at all (investments need an honest faction, conquest Nexerelin). */
     public static boolean canOffer(MissionFamily family, MarketAPI market) {
         if (!family.playable) return false;
         if (family == MissionFamily.INVESTMENT) return InvestmentContracts.canOffer(market);
+        if (family == MissionFamily.CONQUEST) return ConquestContracts.canOffer(market);
         return true;
     }
 
-    /** The types this market's bar can offer. */
-    public static List<MissionFamily> offeredAt(MarketAPI market) {
+    /** canOffer, and the tier is at least the type's lowest tier (conquest: 3). */
+    public static boolean canOffer(MissionFamily family, MarketAPI market, int tier) {
+        return tier >= family.minTier && canOffer(family, market);
+    }
+
+    /** The types this market's bar can offer at this tier. */
+    public static List<MissionFamily> offeredAt(MarketAPI market, int tier) {
         List<MissionFamily> result = new ArrayList<>();
         for (MissionFamily family : MissionFamily.values()) {
-            if (canOffer(family, market)) result.add(family);
+            if (canOffer(family, market, tier)) result.add(family);
         }
         return result;
     }
@@ -50,7 +61,7 @@ public final class Contracts {
 
     /** A contract of this type and tier offered at origin, or null when nothing fits (no destination in range). */
     public static ContractIntel build(MissionFamily family, MarketAPI origin, Tier tier, Random random) {
-        if (!canOffer(family, origin)) return null;
+        if (!canOffer(family, origin, tier.level)) return null;
         switch (family) {
             case HAULING:
             case FUEL_RUN:
@@ -65,6 +76,16 @@ public final class Contracts {
                 return RaidContracts.build(origin, tier, random);
             case EXPEDITION:
                 return ExpeditionContracts.build(origin, tier, random);
+            case DEFENSE:
+                return DefenseContracts.build(origin, tier, random);
+            case SHIP_LEAD:
+                return ShipLeadContracts.build(origin, tier, random);
+            case SHIP_DEAL:
+                return ShipDealContracts.build(origin, tier, random);
+            case CONQUEST:
+                return ConquestContracts.build(origin, tier, random);
+            case SALVAGE_LEAD:
+                return SalvageLeadContracts.build(origin, tier, random);
             default:
                 return null;
         }

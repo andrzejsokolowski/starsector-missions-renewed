@@ -1,3 +1,11 @@
+Version 0.6.0 (2026-11-11)
+- New job type: defense. A fleet will attack a market of the client's faction in a set number of days. Be there and destroy it.
+- New job type: famous ship leads. Pay for the location of one named ship sized by the tier: a pristine derelict to recover, or the flagship of a hostile fleet.
+- New job type: ship deals. A client pays well for a hull you bring to their bar, or sells you a pristine ship below its value.
+- New job type: conquest, tier 3 and up. Capture a market of a faction hostile to the client. Needs Nexerelin.
+- New job type: salvage leads. Pay for the location of a debris field with loot by tier.
+- LunaLib switches for the new job types, and pay settings for defense, ship orders, conquest and salvage lead loot.
+
 Version 0.5.0 (2026-11-10)
 - New LunaLib section "Pay per job type": a pay multiplier for each job type, on top of the reward multiplier. It changes the money, not the cargo or marines asked for.
 
