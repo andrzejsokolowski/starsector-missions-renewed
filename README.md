@@ -7,8 +7,9 @@ Requires LunaLib.
 
 ## How it works
 
-- Every bar has a chance (50 percent by default) to offer a contract. The bar option shows its tier and
-  job type, for example "Look over the contract (tier 5, hauling)".
+- Every bar has a chance (50 percent by default) to have a mission board. "Open the mission board" lists
+  2 to 5 contracts, more at bigger markets, each with its own tier and job type, for example "Tier 5
+  hauling". Ship hand-overs are on the board too.
 - Tiers are random, but lean a little toward your fleet size, colony income and credits.
 - Each contract pays an advance when you sign and the rest on completion. Missing the deadline or
   abandoning the contract charges a penalty, even if that leaves you in debt, and costs reputation with
@@ -73,12 +74,12 @@ the table says.
 
 ## Settings (LunaLib)
 
-- Chance of an offer per bar.
+- Chance of a mission board per bar.
 - Lean toward your strength: 0 makes the tier roll fully random.
 - Lowest and highest tier: bars only offer contracts in this range.
 - Job types: turn each one on or off.
 - Reward multiplier and enemy strength multiplier.
-- Debug: test mode, off by default. Every bar gets an option to spawn any job type at any tier (ignoring
+- Debug: test mode, off by default. Every bar gets a mission board with an option to spawn any job type at any tier (ignoring
   the job type and tier settings), and open contracts get buttons to complete or fail them at once. For
   testing, not for normal play.
 

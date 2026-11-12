@@ -17,13 +17,18 @@ import missionsrenewed.tiers.PlayerTier;
 import missionsrenewed.tiers.Tier;
 import missionsrenewed.tiers.TierTable;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 /**
- * The one bar event Missions - Renewed adds. It lives in PortsideBarData for good and decides per
- * market whether that bar has a tiered offer.
+ * The one bar event Missions - Renewed adds: the mission board. It lives in PortsideBarData for good and
+ * decides per market whether that bar has a board. The board lists several contracts (each with its own
+ * tier and job type), the hand-overs for open ship orders at this market and, in test mode, the test
+ * spawner. Hand-overs and the test spawner are their own BaseBarEvents, run as a sub-screen of the board.
  *
  * Why always-show: BarCMD shows at most a few random events per visit and sorts isAlwaysShow()
  * events first without counting them, so this is the only way to give every bar the same chance
@@ -33,26 +38,42 @@ import java.util.Random;
  * own list of shown events ($BarCMD_shownEvents), so both refresh together. The seed comes from
  * BarEventManager.getSeed, which changes over time and not on reload, so reloading a save does not
  * re-roll a bar. The tier roll leans toward the player's own tier (PlayerTier), by the LunaLib lean
- * setting. The contract itself is built on first look and kept in market memory for the rest of the
- * offer's time, so looking twice shows the same terms.
- *
- * In test mode (LunaLib) every bar also gets an option that opens TestContractBarEvent.
+ * setting. Each contract is built on first look and kept in market memory for the rest of the board's
+ * time, so looking twice shows the same terms.
  */
 public class MissionBoardBarEvent extends BaseBarEvent {
 
     public static final String EVENT_ID = "missions_renewed_board";
-    /** Market memory: "none", or "<tier>|<FAMILY>" for an open offer. */
+    /**
+     * Market memory: "none", or the board's lines joined by ';', each "<tier>|<FAMILY>" or "-" once signed.
+     * 0.6.0 and older stored a single line, which reads as a board of one.
+     */
     public static final String OFFER_KEY = "$missions_renewed_offer";
-    /** Market memory: the unsigned contract behind the offer, once the player has looked at it. */
+    /** Market memory: the unsigned contract behind line 0. Line i > 0 uses this key + i. */
     public static final String CONTRACT_KEY = "$missions_renewed_contract";
+    /** Most lines a board holds. */
+    public static final int MAX_LINES = 5;
+    private static final String TAKEN = "-";
     private static final float MIN_DAYS = 20f;
     private static final float MAX_DAYS = 40f;
 
-    private enum Option { ACCEPT, DECLINE, LEAVE }
+    private enum Option { ACCEPT, BACK, TEST, LEAVE }
+
+    /** A contract line on the board, by its index in OFFER_KEY. */
+    private static final class Line {
+        final int index;
+
+        Line(int index) {
+            this.index = index;
+        }
+    }
 
     /** The contract on the table during this conversation. */
     private transient ContractIntel shown;
-    private transient MarketAPI shownAt;
+    private transient int shownLine;
+    private transient MarketAPI market;
+    /** A hand-over or the test spawner, while it runs inside the board. */
+    private transient BaseBarEvent sub;
 
     @Override
     public String getBarEventId() {
@@ -71,12 +92,12 @@ public class MissionBoardBarEvent extends BaseBarEvent {
     @Override
     public boolean shouldShowAtMarket(MarketAPI market) {
         if (Settings.testMode() && market != null && market.getPrimaryEntity() != null) return true;
-        return liveOffer(market) != null || !ordersAt(market).isEmpty();
+        return !liveLines(market).isEmpty() || !ordersAt(market).isEmpty();
     }
 
     /** Open ship orders whose client sits in this market's bar. */
     private static List<ShipOrderContract> ordersAt(MarketAPI market) {
-        List<ShipOrderContract> result = new java.util.ArrayList<>();
+        List<ShipOrderContract> result = new ArrayList<>();
         if (market == null) return result;
         for (ContractIntel contract : ContractIntel.open()) {
             if (contract instanceof ShipOrderContract && ((ShipOrderContract) contract).getMarket() == market) {
@@ -88,34 +109,12 @@ public class MissionBoardBarEvent extends BaseBarEvent {
 
     @Override
     public void addPromptAndOption(InteractionDialogAPI dialog, Map<String, MemoryAPI> memoryMap) {
-        MarketAPI market = dialog.getInteractionTarget().getMarket();
-        Offer offer = liveOffer(market);
-        if (offer != null) {
-            dialog.getTextPanel().addPara("A spacer at a corner table has a datapad full of contracts and is looking for a captain.");
-            dialog.getOptionPanel().addOption("Look over the contract (tier " + offer.tier + ", " + offer.family.displayName + ")", this);
+        MarketAPI here = dialog.getInteractionTarget().getMarket();
+        int count = liveLines(here).size();
+        if (count > 0) {
+            dialog.getTextPanel().addPara("The mission board has " + count + (count == 1 ? " contract" : " contracts") + " posted.");
         }
-        for (ShipOrderContract order : ordersAt(market)) {
-            // Same trick as the test screen: an unregistered bar event as the option's data.
-            dialog.getOptionPanel().addOption("Hand over " + Hulls.aClassName(order.hull()) + " to "
-                    + order.getClientPerson().getNameString(), new HandOverBarEvent(order));
-        }
-        if (Settings.testMode()) {
-            // BarCMD runs whichever bar event an option carries, so the test screen needs no registration.
-            TestContractBarEvent test = new TestContractBarEvent();
-            dialog.getOptionPanel().addOption("[Test mode] Spawn a contract", test);
-            dialog.setOptionColor(test, Misc.getGrayColor());
-        }
-    }
-
-    /**
-     * This market's offer if it exists, its type can be offered here, and the LunaLib job type and tier
-     * settings still allow it. An offer rolled before a setting changed is hidden, not re-rolled.
-     */
-    private static Offer liveOffer(MarketAPI market) {
-        Offer offer = offerAt(market);
-        if (offer == null || !Contracts.canOffer(offer.family, market, offer.tier) || !Settings.jobEnabled(offer.family)) return null;
-        if (offer.tier < Settings.minTier() || offer.tier > Settings.maxTier()) return null;
-        return offer;
+        dialog.getOptionPanel().addOption("Open the mission board", this);
     }
 
     @Override
@@ -126,79 +125,186 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         // after init).
         done = false;
         noContinue = false;
-        shownAt = dialog.getInteractionTarget().getMarket();
-        shown = contractAt(shownAt);
+        shown = null;
+        sub = null;
+        market = dialog.getInteractionTarget().getMarket();
+        showBoard();
+    }
+
+    /** The list: one option per contract line, then hand-overs, the test spawner and Leave. */
+    private void showBoard() {
         options.clearOptions();
-        if (shown != null) {
-            OfferScreen.show(dialog, shown, Option.ACCEPT, Option.DECLINE, "Decline", false);
-            return;
+        dialog.getVisualPanel().fadeVisualOut();
+        List<Integer> lines = liveLines(market);
+        List<ShipOrderContract> orders = ordersAt(market);
+        if (lines.isEmpty() && orders.isEmpty()) {
+            text.addPara("There are no contracts on the board.");
         }
-        // The roll fell through, for example no market in range takes the cargo.
-        closeOffer(shownAt);
-        text.addPara("The spacer scrolls through the datapad, frowns and pockets it. Whatever the job was, it has fallen through.");
+        List<Offer> offers = offersAt(market);
+        for (int i : lines) {
+            Offer offer = offers.get(i);
+            options.addOption("Tier " + offer.tier + " " + offer.family.displayName, new Line(i));
+        }
+        for (ShipOrderContract order : orders) {
+            options.addOption("Hand over " + Hulls.aClassName(order.hull()) + " to "
+                    + order.getClientPerson().getNameString(), order);
+        }
+        if (Settings.testMode()) {
+            options.addOption("[Test mode] Spawn a contract", Option.TEST);
+            dialog.setOptionColor(Option.TEST, Misc.getGrayColor());
+        }
         options.addOption("Leave", Option.LEAVE);
+    }
+
+    /** Runs a hand-over or the test spawner inside the board. Its Leave returns to the board. */
+    private void runSub(BaseBarEvent event) {
+        sub = event;
+        sub.init(dialog, memoryMap);
+        if (sub.isDialogFinished()) {
+            sub = null;
+            showBoard();
+        }
     }
 
     @Override
     public void optionSelected(String optionText, Object optionData) {
-        if (optionData == Option.ACCEPT && shown != null) {
-            closeOffer(shownAt);
+        if (sub != null) {
+            sub.optionSelected(optionText, optionData);
+            if (sub.isDialogFinished()) {
+                sub = null;
+                showBoard();
+            }
+            return;
+        }
+        if (optionData instanceof Line) {
+            shownLine = ((Line) optionData).index;
+            shown = contractAt(market, shownLine);
+            options.clearOptions();
+            if (shown == null) {
+                // The roll fell through, for example no market in range takes the cargo.
+                closeLine(market, shownLine);
+                text.addPara("That contract is no longer on offer.");
+                showBoard();
+                return;
+            }
+            OfferScreen.show(dialog, shown, Option.ACCEPT, Option.BACK, "Back to the board", false);
+        } else if (optionData == Option.ACCEPT && shown != null) {
+            closeLine(market, shownLine);
             text.addPara(shown.signText());
             shown.accept(text);
             shown = null;
-            done = true;
-        } else if (optionData == Option.DECLINE || optionData == Option.LEAVE) {
+            showBoard();
+        } else if (optionData == Option.BACK) {
+            shown = null;
+            showBoard();
+        } else if (optionData instanceof ShipOrderContract) {
+            runSub(new HandOverBarEvent((ShipOrderContract) optionData));
+        } else if (optionData == Option.TEST) {
+            // The test spawner, built fresh each time.
+            runSub(new TestContractBarEvent());
+        } else if (optionData == Option.LEAVE) {
             shown = null;
             noContinue = true;
             done = true;
         }
     }
 
-    /** The open offer at this market, rolling a new one when the last roll has expired. */
-    static Offer offerAt(MarketAPI market) {
-        if (market == null || market.isHidden() || market.getPrimaryEntity() == null) return null;
+    // ----- the board's lines in market memory -----
+
+    /**
+     * The indices of this market's lines that are still on offer: not signed, the type can be offered
+     * here, and the LunaLib job type and tier settings still allow it. A line rolled before a setting
+     * changed is hidden, not re-rolled.
+     */
+    private static List<Integer> liveLines(MarketAPI market) {
+        List<Integer> live = new ArrayList<>();
+        List<Offer> offers = offersAt(market);
+        for (int i = 0; i < offers.size(); i++) {
+            Offer offer = offers.get(i);
+            if (offer == null || !Contracts.canOffer(offer.family, market, offer.tier) || !Settings.jobEnabled(offer.family)) continue;
+            if (offer.tier < Settings.minTier() || offer.tier > Settings.maxTier()) continue;
+            live.add(i);
+        }
+        return live;
+    }
+
+    /** This market's lines (null where signed or unreadable), rolling a new board when the last has expired. */
+    static List<Offer> offersAt(MarketAPI market) {
+        List<Offer> offers = new ArrayList<>();
+        if (market == null || market.isHidden() || market.getPrimaryEntity() == null) return offers;
         MemoryAPI memory = market.getMemoryWithoutUpdate();
         if (!memory.contains(OFFER_KEY)) {
-            memory.unset(CONTRACT_KEY);
+            clearContracts(memory);
             Random random = new Random(BarEventManager.getInstance().getSeed(market.getPrimaryEntity(), null, EVENT_ID));
             memory.set(OFFER_KEY, roll(random, market), MIN_DAYS + (MAX_DAYS - MIN_DAYS) * random.nextFloat());
         }
-        return Offer.parse(memory.getString(OFFER_KEY));
+        String value = memory.getString(OFFER_KEY);
+        if (value == null || value.equals("none")) return offers;
+        for (String part : value.split(";")) offers.add(Offer.parse(part));
+        return offers;
     }
 
-    /** The unsigned contract behind this market's offer, built on first look. Null when it cannot be built. */
-    private static ContractIntel contractAt(MarketAPI market) {
-        Offer offer = offerAt(market);
-        if (offer == null) return null;
+    private static String contractKey(int line) {
+        return line == 0 ? CONTRACT_KEY : CONTRACT_KEY + line;
+    }
+
+    private static void clearContracts(MemoryAPI memory) {
+        for (int i = 0; i < MAX_LINES; i++) memory.unset(contractKey(i));
+    }
+
+    /** The unsigned contract behind one line, built on first look. Null when it cannot be built. */
+    private static ContractIntel contractAt(MarketAPI market, int line) {
+        List<Offer> offers = offersAt(market);
+        if (line < 0 || line >= offers.size() || offers.get(line) == null) return null;
+        Offer offer = offers.get(line);
         MemoryAPI memory = market.getMemoryWithoutUpdate();
-        Object stored = memory.get(CONTRACT_KEY);
+        Object stored = memory.get(contractKey(line));
         if (stored instanceof ContractIntel) return (ContractIntel) stored;
 
         Tier tier = TierTable.get(offer.tier);
         if (tier == null) return null;
-        Random random = new Random(BarEventManager.getInstance().getSeed(market.getPrimaryEntity(), null, EVENT_ID + "_contract"));
+        String salt = EVENT_ID + "_contract" + (line == 0 ? "" : "_" + line);
+        Random random = new Random(BarEventManager.getInstance().getSeed(market.getPrimaryEntity(), null, salt));
         ContractIntel contract = Contracts.safeBuild(offer.family, market, tier, random);
-        if (contract != null) memory.set(CONTRACT_KEY, contract, memory.getExpire(OFFER_KEY));
+        if (contract != null) memory.set(contractKey(line), contract, memory.getExpire(OFFER_KEY));
         return contract;
     }
 
-    /** Marks this market's offer as taken for the rest of its time. */
-    private static void closeOffer(MarketAPI market) {
+    /** Marks one line as signed for the rest of the board's time. */
+    private static void closeLine(MarketAPI market, int line) {
         if (market == null) return;
         MemoryAPI memory = market.getMemoryWithoutUpdate();
+        String value = memory.getString(OFFER_KEY);
         float expire = memory.contains(OFFER_KEY) ? memory.getExpire(OFFER_KEY) : MIN_DAYS;
-        memory.set(OFFER_KEY, "none", expire > 0f ? expire : MIN_DAYS);
-        memory.unset(CONTRACT_KEY);
+        memory.unset(contractKey(line));
+        if (value == null || value.equals("none")) return;
+        String[] parts = value.split(";");
+        if (line < 0 || line >= parts.length) return;
+        parts[line] = TAKEN;
+        memory.set(OFFER_KEY, String.join(";", parts), expire > 0f ? expire : MIN_DAYS);
     }
 
+    /** Lines on a board: 2 at size 3 and below, one more per size, up to MAX_LINES. */
+    private static int lineCount(MarketAPI market) {
+        return Math.max(2, Math.min(MAX_LINES, market.getSize() - 1));
+    }
+
+    /** Rolls a board: the bar chance, then each line's own tier and job type, never the same pair twice. */
     private static String roll(Random random, MarketAPI market) {
         if (random.nextFloat() >= Settings.barChance()) return "none";
-        Tier tier = TierTable.pick(random, PlayerTier.estimate(), Settings.playerLean(), Settings.minTier(), Settings.maxTier());
-        if (tier == null) return "none";
-        List<MissionFamily> families = Contracts.offeredAt(market, tier.level);
-        families.removeIf(family -> !Settings.jobEnabled(family));
-        if (families.isEmpty()) return "none";
-        return tier.level + "|" + families.get(random.nextInt(families.size())).name();
+        List<String> lines = new ArrayList<>();
+        Set<String> seen = new HashSet<>();
+        int count = lineCount(market);
+        for (int attempt = 0; attempt < count * 3 && lines.size() < count; attempt++) {
+            Tier tier = TierTable.pick(random, PlayerTier.estimate(), Settings.playerLean(), Settings.minTier(), Settings.maxTier());
+            if (tier == null) break;
+            List<MissionFamily> families = Contracts.offeredAt(market, tier.level);
+            families.removeIf(family -> !Settings.jobEnabled(family));
+            if (families.isEmpty()) continue;
+            String line = tier.level + "|" + families.get(random.nextInt(families.size())).name();
+            if (seen.add(line)) lines.add(line);
+        }
+        return lines.isEmpty() ? "none" : String.join(";", lines);
     }
 
     /**
@@ -222,7 +328,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
             MemoryAPI memory = market.getMemoryWithoutUpdate();
             memory.unset(OFFER_KEY);
-            memory.unset(CONTRACT_KEY);
+            clearContracts(memory);
             // BarCMD only considers events named in this list until it expires, so a bar visited
             // before install would not look at this event for up to 40 days.
             memory.unset("$BarCMD_shownEvents");
@@ -239,7 +345,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         }
 
         static Offer parse(String value) {
-            if (value == null || value.equals("none")) return null;
+            if (value == null || value.equals("none") || value.equals(TAKEN)) return null;
             String[] parts = value.split("\\|");
             if (parts.length != 2) return null;
             try {

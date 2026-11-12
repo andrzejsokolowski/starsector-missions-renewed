@@ -22,9 +22,11 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 - `data/config/missions_renewed/tiers.json` - tiers 0 to 7: credit reward, hostile fleet size in deployment points (`deploymentPoints`; fleets the game generates by fleet points are trimmed to it), cargo
   units, fuel units, crew and investment stake as [min, max], plus a pick weight. `TierTable` reads it with
   `getMergedJSON`, so other mods can add to it. The build checks 0 to 7 are present and every range is sane.
-- `src/missionsrenewed/bar/MissionBoardBarEvent` - the one bar event. One instance lives in
-  `PortsideBarData` for good (`isAlwaysShow`, never pinned by `wasShownAtMarket`). Each market rolls
-  `$missions_renewed_offer` in its memory for 20 to 40 days ("none" or "<tier>|<FAMILY>"), seeded by
+- `src/missionsrenewed/bar/MissionBoardBarEvent` - the one bar event, the mission board (0.7.0, MSR-24). One
+  instance lives in `PortsideBarData` for good (`isAlwaysShow`, never pinned by `wasShownAtMarket`). The bar
+  shows one option, "Open the mission board". Each market rolls `$missions_renewed_offer` in its memory for
+  20 to 40 days: "none", or 2 to 5 lines joined by ';' (market size - 1, `MAX_LINES` 5), each "<tier>|<FAMILY>"
+  with its own tier roll, or "-" once signed. A pre-0.7.0 single line reads as a board of one. Seeded by
   `BarEventManager.getSeed` so a reload does not re-roll. BarCMD caps the events per visit but does not
   count always-show ones, which is why this is not a normal bar event creator.
 - `MissionsRenewedModPlugin` - loads the tier table at startup, keeps exactly one board event per save,
@@ -99,14 +101,16 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 - Completed contracts offer the client as a potential contact (`ContactIntel.addPotentialContact`).
 - LunaLib `mr_job_<type>` (lower-case enum name) switches each type, `mr_minTier` / `mr_maxTier` bound the
   roll (swapped when crossed). `liveOffer` hides rolled offers that no longer fit, the roll skips them.
-- Test mode (LunaLib `mr_testMode`, in the Debug section, ignores the job and tier settings): the board event adds an option carrying a fresh
-  `TestContractBarEvent` (BarCMD runs any bar event that is an option's data, so it is never registered).
+- Test mode (LunaLib `mr_testMode`, in the Debug section, ignores the job and tier settings): the board adds an option that runs a fresh
+  `TestContractBarEvent` as a sub-screen (the board forwards `optionSelected` to it and shows the board again
+  when it sets `done`; `HandOverBarEvent` runs the same way, so neither is ever registered).
   It builds any type and tier on the spot and ignores the open contract limit. Intel gets Complete now and
   Fail now buttons.
 - `DeliveryListener` also puts the board event on `$BarCMD_shownEvents` when a market is opened: BarCMD
   ignores events missing from that list until it expires, which hid new offers and the test option.
-- The bar keeps the unsigned contract in market memory (`$missions_renewed_contract`) for the rest of the
-  offer's time, so looking twice shows the same terms.
+- The bar keeps each line's unsigned contract in market memory (`$missions_renewed_contract` for line 0,
+  that key + the line number for the others) for the rest of the board's time, so looking twice shows the same
+  terms. Signing marks only that line taken.
 - `src/missionsrenewed/Settings` - LunaLib reads with defaults. `payMult(family)` (`mr_pay_<type>`) scales the money of
   one job type on top of `rewardMult`; builders keep the rolled reward for cargo, goods and marine amounts and use
   the multiplied pay only for advance, payment and penalty.

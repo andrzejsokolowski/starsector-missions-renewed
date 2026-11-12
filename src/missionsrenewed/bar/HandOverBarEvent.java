@@ -12,8 +12,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Hands a ship over for an open ship order. Never registered: MissionBoardBarEvent puts a fresh one on an
- * option at the order's market, and BarCMD runs any bar event that is an option's data.
+ * Hands a ship over for an open ship order. Never registered: MissionBoardBarEvent runs a fresh one as a
+ * sub-screen of the board at the order's market, and returns to the board when this one is done.
  */
 public class HandOverBarEvent extends BaseBarEvent {
 
@@ -42,7 +42,7 @@ public class HandOverBarEvent extends BaseBarEvent {
         } else {
             options.addOption("Hand over a ship", Option.PICK);
         }
-        options.addOption("Leave", Option.LEAVE);
+        options.addOption("Back to the board", Option.LEAVE);
     }
 
     private void pick() {
@@ -57,7 +57,7 @@ public class HandOverBarEvent extends BaseBarEvent {
                         text.addPara(order.getClientPerson().getNameString() + " signs for the " + ship.getShipName() + ".");
                         order.handOver(ship, text);
                         options.clearOptions();
-                        options.addOption("Leave", Option.LEAVE);
+                        options.addOption("Back to the board", Option.LEAVE);
                     }
 
                     @Override

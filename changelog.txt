@@ -1,3 +1,7 @@
+Version 0.7.0 (2026-11-12)
+- New mission board: one "Open the mission board" option at the bar lists 2 to 5 contracts, more at bigger markets, each with its own tier and job type. Signing one leaves the others on the board.
+- Ship hand-overs and the test mode spawner moved onto the board.
+
 Version 0.6.0 (2026-11-11)
 - New job type: defense. A fleet will attack a market of the client's faction in a set number of days. Be there and destroy it.
 - New job type: famous ship leads. Pay for the location of one named ship sized by the tier: a pristine derelict to recover, or the flagship of a hostile fleet.

@@ -16,8 +16,8 @@ import java.util.Random;
 
 /**
  * Test mode (LunaLib): pick any job type and tier and get that contract at this bar. Never registered
- * with the bar. MissionBoardBarEvent hands a fresh one to the bar as an option, and BarCMD runs any
- * bar event that is an option's data. Ignores the open contract limit so several jobs can be tested at once.
+ * with the bar. MissionBoardBarEvent runs a fresh one as a sub-screen of the board and returns to the
+ * board when this one is done. Ignores the open contract limit so several jobs can be tested at once.
  */
 public class TestContractBarEvent extends BaseBarEvent {
 
@@ -52,7 +52,7 @@ public class TestContractBarEvent extends BaseBarEvent {
                 options.setTooltip(f, "Not offered by " + market.getFaction().getDisplayNameWithArticle() + ".");
             }
         }
-        options.addOption("Leave", Option.LEAVE);
+        options.addOption("Back to the board", Option.LEAVE);
     }
 
     private void showTiers() {
@@ -91,7 +91,7 @@ public class TestContractBarEvent extends BaseBarEvent {
             shown = null;
             options.clearOptions();
             options.addOption("Spawn another contract", Option.AGAIN);
-            options.addOption("Leave", Option.LEAVE);
+            options.addOption("Back to the board", Option.LEAVE);
         } else if (optionData == Option.BACK || optionData == Option.AGAIN) {
             shown = null;
             showFamilies();
