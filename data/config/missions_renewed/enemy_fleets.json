@@ -1,6 +1,8 @@
 {
-	# Enemy groups for combat contracts and expedition ambushes at tiers 5 to 7 (design answer 5 on
-	# MSR-1: no pirates or Pathers from tier 5). Tiers 0 to 4 use pirate and Pather fleets built by the game.
+	# Enemy groups for combat contracts and expedition ambushes at tiers 5 to 7. Tiers 0 to 4 use pirate and
+	# Pather fleets built by the game. At tiers 5 to 7 most enemies are elite war fleets of a faction hostile
+	# to the client (weight 60 in all, see EnemyFleets); these groups share the rest by their weights.
+	# Omega, Threat and Dwellers almost never attack anyone in the lore, so they are rare (Andrzej, 2026-11-12).
 	# Other mods can add groups to this file: the game merges every mod's copy.
 	#   name        shown in the contract, "a <name> fleet"
 	#   faction     the fleet's faction. A group whose faction is not loaded is skipped.
@@ -11,9 +13,12 @@
 	#   weight      how often this group is picked among those that fit
 	#   aiCores     true: automated ships get AI core captains. Off for Threat and Dwellers, which the
 	#               game itself never crews.
+	#   limits      hand-built: base hull id -> most of that hull in one fleet
+	#   strength    share of the tier's DP the fleet gets, for ships far stronger than their DP (default 1)
 	"groups": {
 		"omega": {
-			"name": "Omega", "faction": "omega", "minTier": 5, "maxTier": 7, "weight": 10, "aiCores": true,
+			"name": "Omega", "faction": "omega", "minTier": 7, "maxTier": 7, "weight": 1, "aiCores": true,
+			"limits": {"tesseract": 1}, "strength": 0.5,
 			"variants": {
 				"tesseract_Attack": 1, "tesseract_Attack2": 1, "tesseract_Defense": 1, "tesseract_Disruptor": 1,
 				"tesseract_Shieldbreaker": 1, "tesseract_Strike": 1,
@@ -24,7 +29,7 @@
 			}
 		},
 		"threat": {
-			"name": "Threat", "faction": "threat", "minTier": 5, "maxTier": 7, "weight": 10,
+			"name": "Threat", "faction": "threat", "minTier": 5, "maxTier": 7, "weight": 1.5,
 			"variants": {
 				"overseer_unit_Type250": 1, "hive_unit_Type350": 1,
 				"standoff_unit_Type300": 2, "standoff_unit_Type301": 2, "standoff_unit_Type302": 2,
@@ -33,7 +38,7 @@
 			}
 		},
 		"dweller": {
-			"name": "Shrouded Dweller", "faction": "dweller", "minTier": 5, "maxTier": 7, "weight": 10,
+			"name": "Shrouded Dweller", "faction": "dweller", "minTier": 5, "maxTier": 7, "weight": 1.5,
 			"variants": {
 				"shrouded_maw_Ravenous": 0.3, "shrouded_eye_Darkened": 2, "shrouded_maelstrom_Menacing": 2,
 				"shrouded_tendril_Roiling": 3

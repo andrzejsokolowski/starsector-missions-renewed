@@ -28,8 +28,10 @@ import java.util.Random;
  * Picks and builds the enemy fleets of combat contracts and expedition ambushes.
  *
  * Tiers 0 to 4: pirate or Pather fleets built by the game, picked among those hostile to the client.
- * Tiers 5 to 7: a group from enemy_fleets.json (Omega, Threat, Shrouded Dwellers, modded groups), never
- * pirates or Pathers (design answer 5 on MSR-1). An enemy is named by a key: "faction:pirates" or "group:omega".
+ * Tiers 5 to 7: mostly an elite war fleet of a faction hostile to the client (never pirates or Pathers, design
+ * answer 5 on MSR-1, unless no other faction is hostile); sometimes a group from enemy_fleets.json (modded
+ * groups, and rarely Omega, Threat or Shrouded Dwellers: Andrzej, 2026-11-12). An enemy is named by a key:
+ * "faction:pirates" or "group:omega".
  */
 public final class EnemyFleets {
 
@@ -38,6 +40,12 @@ public final class EnemyFleets {
     /** Most ships a hand-built fleet gets, whatever its fleet points. */
     private static final int MAX_SHIPS = 30;
     private static final String[] LOW_TIER_FACTIONS = {Factions.PIRATES, Factions.LUDDIC_PATH};
+    /** Pick weight shared by every faction hostile to the client at tiers 5 to 7; the groups' weights are next to it. */
+    private static final float HOSTILE_FACTION_WEIGHT = 60f;
+    /** Never picked as a hostile faction: the strange ones come only through their groups. */
+    private static final java.util.Set<String> NOT_A_WAR_FLEET = new java.util.HashSet<>(java.util.Arrays.asList(
+            Factions.PLAYER, Factions.PIRATES, Factions.LUDDIC_PATH, Factions.OMEGA, Factions.THREAT, Factions.DWELLER,
+            Factions.REMNANTS, Factions.DERELICT, Factions.SCAVENGERS, Factions.NEUTRAL, Factions.POOR, Factions.SLEEPER));
 
     /** Every contract fleet and ambush flies under this name: the client never knows who it is. */
     public static final String ANONYMOUS_NAME = "Unidentified Fleet";
@@ -57,11 +65,24 @@ public final class EnemyFleets {
     public static String pickEnemy(int tier, FactionAPI clientFaction, boolean mustBeHostile, Random random) {
         WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
         if (tier >= GROUP_MIN_TIER) {
+            java.util.Set<String> groupFactions = new java.util.HashSet<>();
             for (EnemyGroups.Group group : EnemyGroups.forTier(tier)) {
+                groupFactions.add(group.factionId);
                 FactionAPI faction = Global.getSector().getFaction(group.factionId);
                 if (mustBeHostile && clientFaction != null && (faction == null || !faction.isHostileTo(clientFaction))) continue;
                 picker.add("group:" + group.id, group.weight);
             }
+            List<String> hostile = warFleetFactions(clientFaction, groupFactions);
+            if (hostile.isEmpty()) {
+                // Nobody but pirates and Pathers is at war with the client: they send their best instead.
+                for (String factionId : LOW_TIER_FACTIONS) {
+                    FactionAPI faction = Global.getSector().getFaction(factionId);
+                    if (faction != null && faction != clientFaction && (clientFaction == null || faction.isHostileTo(clientFaction))) {
+                        hostile.add(factionId);
+                    }
+                }
+            }
+            for (String factionId : hostile) picker.add("faction:" + factionId, HOSTILE_FACTION_WEIGHT / hostile.size());
             if (picker.isEmpty() && mustBeHostile) return pickEnemy(GROUP_MIN_TIER - 1, clientFaction, false, random);
         } else {
             for (String factionId : LOW_TIER_FACTIONS) {
@@ -71,6 +92,20 @@ public final class EnemyFleets {
             }
         }
         return picker.pick();
+    }
+
+    /** Factions at war with the client that field real war fleets: shown on the intel screen, with ships, not a group's. */
+    private static List<String> warFleetFactions(FactionAPI clientFaction, java.util.Set<String> groupFactions) {
+        List<String> result = new java.util.ArrayList<>();
+        if (clientFaction == null) return result;
+        for (FactionAPI faction : Global.getSector().getAllFactions()) {
+            String id = faction.getId();
+            if (faction == clientFaction || NOT_A_WAR_FLEET.contains(id) || groupFactions.contains(id)) continue;
+            if (!faction.isShowInIntelTab() || !faction.isHostileTo(clientFaction)) continue;
+            if (faction.getKnownShips() == null || faction.getKnownShips().isEmpty()) continue;
+            result.add(id);
+        }
+        return result;
     }
 
     /** "pirate", "Pather", "Omega": as in "a pirate fleet". */
@@ -183,8 +218,9 @@ public final class EnemyFleets {
             } else if (key != null && key.startsWith("group:")) {
                 EnemyGroups.Group group = EnemyGroups.get(key.substring(6));
                 if (group != null && group.available()) {
-                    fleet = group.generated ? generated(group.factionId, tier, deployment, anchor, group.aiCores, random)
-                            : handBuilt(group, tier, deployment, random);
+                    float dp = deployment * group.strength;
+                    fleet = group.generated ? generated(group.factionId, tier, dp, anchor, group.aiCores, random)
+                            : handBuilt(group, tier, dp, random);
                 }
             }
         } catch (RuntimeException e) {
@@ -245,17 +281,19 @@ public final class EnemyFleets {
         fleet.setInflater(null);
         float left = deployment;
         int ships = 0;
+        java.util.Map<String, Integer> counts = new java.util.HashMap<>();
         while (ships < MAX_SHIPS && left > 0f) {
             String chosen = null;
             for (int i = 0; i < 12 && chosen == null; i++) {
                 String v = variants.pick();
-                if (cost(v) <= left) chosen = v;
+                if (cost(v) <= left && underLimit(group, v, counts)) chosen = v;
             }
             if (chosen == null) {
                 if (ships > 0 || cheapest == null) break;
                 chosen = cheapest;
             }
             fleet.getFleetData().addFleetMember(chosen);
+            counts.merge(baseHull(chosen), 1, Integer::sum);
             left -= cost(chosen);
             ships++;
         }
@@ -283,6 +321,16 @@ public final class EnemyFleets {
         }
         addFactionExtras(fleet, group.factionId);
         return fleet;
+    }
+
+    private static String baseHull(String variantId) {
+        return Global.getSettings().getVariant(variantId).getHullSpec().getBaseHullId();
+    }
+
+    /** Whether one more of this variant's hull stays within the group's limits. */
+    private static boolean underLimit(EnemyGroups.Group group, String variantId, java.util.Map<String, Integer> counts) {
+        Integer max = group.limits.get(baseHull(variantId));
+        return max == null || counts.getOrDefault(baseHull(variantId), 0) < max;
     }
 
     /** What the game itself gives its Threat and Dweller fleets: the Threat battle and loot rules, the Dweller drops. */

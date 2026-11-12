@@ -26,8 +26,12 @@ public final class ShipDealContracts {
 
     /** A wanted ship pays its hull value times this, plus a little per tier, times its Starship Legends fame. */
     private static final float WANTED_MARKUP = 1.3f;
-    /** A sale asks this share of the hull's value. */
+    /** A sale asks this share of the hull's value for a pristine ship. */
     private static final float SALE_PRICE_SHARE = 0.65f;
+    /** Share of sales where the ship is pristine (Andrzej, 2026-11-12: pristine should be rare). */
+    private static final float PRISTINE_CHANCE = 0.15f;
+    /** Each D-mod takes this share of the hull's value off the price. */
+    private static final float DMOD_DISCOUNT = 0.07f;
 
     private ShipDealContracts() {}
 
@@ -69,9 +73,18 @@ public final class ShipDealContracts {
         if (variantId == null) variantId = Hulls.pickVariant(tier.level, null, random);
         if (variantId == null) return null;
         ShipHullSpecAPI hull = Global.getSettings().getVariant(variantId).getHullSpec();
-        int price = Places.roundTo(hull.getBaseValue() * SALE_PRICE_SHARE, 500);
+        int dMods = 0;
+        if (random.nextFloat() >= PRISTINE_CHANCE) {
+            WeightedRandomPicker<Integer> count = new WeightedRandomPicker<>(random);
+            count.add(1, 4f);
+            count.add(2, 3f);
+            count.add(3, 2f);
+            count.add(4, 1f);
+            dMods = count.pick();
+        }
+        int price = Places.roundTo(hull.getBaseValue() * (SALE_PRICE_SHARE - DMOD_DISCOUNT * dMods), 500);
         return new ShipSaleContract(tier.level, client(origin, Ranks.POST_ARMS_DEALER, random), origin, variantId,
-                Hulls.sModsForTier(tier.level), Hulls.shipName(random), price);
+                Hulls.sModsForTier(tier.level), dMods, random.nextLong(), Hulls.shipName(random), price);
     }
 
     private static PersonAPI client(MarketAPI origin, String post, Random random) {

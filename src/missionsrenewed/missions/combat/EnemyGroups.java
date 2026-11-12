@@ -33,9 +33,15 @@ public final class EnemyGroups {
         public final boolean aiCores;
         /** Variant id to pick weight. Empty for generated groups. */
         public final Map<String, Float> variants;
+        /** Base hull id to the most of that hull one hand-built fleet gets. */
+        public final Map<String, Integer> limits;
+        /** Share of the tier's DP the fleet gets: below 1 for ships much stronger than their DP. */
+        public final float strength;
 
         Group(String id, String name, String factionId, int minTier, int maxTier, float weight, boolean generated,
-              boolean aiCores, Map<String, Float> variants) {
+              boolean aiCores, Map<String, Float> variants, Map<String, Integer> limits, float strength) {
+            this.limits = limits;
+            this.strength = strength;
             this.id = id;
             this.name = name;
             this.factionId = factionId;
@@ -76,9 +82,18 @@ public final class EnemyGroups {
                     variants.put(variant, (float) v.getDouble(variant));
                 }
             }
+            Map<String, Integer> limits = new LinkedHashMap<>();
+            JSONObject l = row.optJSONObject("limits");
+            if (l != null) {
+                Iterator<?> lk = l.keys();
+                while (lk.hasNext()) {
+                    String hull = (String) lk.next();
+                    limits.put(hull, l.getInt(hull));
+                }
+            }
             loaded.add(new Group(id, row.getString("name"), row.getString("faction"), row.optInt("minTier", 5),
                     row.optInt("maxTier", 7), (float) row.optDouble("weight", 10), row.optBoolean("generated", false),
-                    row.optBoolean("aiCores", false), variants));
+                    row.optBoolean("aiCores", false), variants, limits, (float) row.optDouble("strength", 1)));
         }
         groups = Collections.unmodifiableList(loaded);
         LOG.info("Missions - Renewed: loaded " + groups.size() + " enemy groups");

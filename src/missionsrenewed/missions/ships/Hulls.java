@@ -101,6 +101,44 @@ public final class Hulls {
         return picker.pick();
     }
 
+    /**
+     * A famous ship for a lead: a warship (no freighters, tankers, liners or troop transports) in the tier's DP band.
+     * From tier 4, pirate and Luddic Path refits are left out and better hulls, by their value, are more likely:
+     * a tier 7 lead is a dreadnought, not a patched-up freighter (Andrzej, 2026-11-12). Falls back to pickVariant.
+     */
+    public static String pickFamous(int tier, Random random) {
+        WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
+        java.util.Map<String, Integer> perHull = new java.util.HashMap<>();
+        List<String> fitting = new ArrayList<>();
+        for (String id : usableVariants()) {
+            ShipHullSpecAPI hull = Global.getSettings().getVariant(id).getHullSpec();
+            float dp = dp(hull);
+            if (dp < minDP(tier) || dp > maxDP(tier)) continue;
+            Set<ShipTypeHints> hints = hull.getHints();
+            if (hints.contains(ShipTypeHints.FREIGHTER) || hints.contains(ShipTypeHints.TANKER)
+                    || hints.contains(ShipTypeHints.LINER) || hints.contains(ShipTypeHints.TRANSPORT)) continue;
+            if (tier >= 4 && isRefit(hull)) continue;
+            fitting.add(id);
+            perHull.merge(hull.getBaseHullId(), 1, Integer::sum);
+        }
+        float exponent = tier / 4f;
+        for (String id : fitting) {
+            ShipHullSpecAPI hull = Global.getSettings().getVariant(id).getHullSpec();
+            float value = Math.max(1000f, hull.getBaseValue()) / 100000f;
+            picker.add(id, (float) Math.pow(value, exponent) / perHull.get(hull.getBaseHullId()));
+        }
+        String pick = picker.pick();
+        return pick != null ? pick : pickVariant(tier, null, random);
+    }
+
+    /** A pirate or Luddic Path refit, by the hull's manufacturer. */
+    private static boolean isRefit(ShipHullSpecAPI hull) {
+        String maker = hull.getManufacturer();
+        if (maker == null) return false;
+        maker = maker.toLowerCase(java.util.Locale.ROOT);
+        return maker.contains("pirate") || maker.contains("path");
+    }
+
     /** A copy of the variant the game treats as its own (not the stock one), with up to sMods hull mods made S-mods. */
     public static ShipVariantAPI withSMods(String variantId, int sMods) {
         ShipVariantAPI variant = Global.getSettings().getVariant(variantId).clone();

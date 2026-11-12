@@ -38,16 +38,18 @@ Requires LunaLib.
   costs standing with its owner), or garrison duty: bring your own marines to a market of the client's
   faction.
 - **Expedition**: haul supplies to a camp at a planet in an uncolonised system. Fly close to the planet to
-  deliver. Something may be waiting there; the client tells you how likely that is.
+  deliver. Something may be waiting there; the terms say who is taking an interest in the route and how much
+  ("Pirate interest: Severe").
 - **Defense**: a fleet is gathering outside a market of the client's faction. It attacks when you arrive in
   the system. Destroy it, or leave it with a quarter of its strength. The market's station fights with you.
   The offer shows a glimpse of the fleet.
-- **Famous ship lead**: pay for the location of one named ship, sized by the tier. It is a pristine derelict
+- **Famous ship lead**: pay for the location of one named warship, better the higher the tier. It is a pristine derelict
   you can recover (guarded from tier 3), or the flagship of a hostile fleet, always recoverable once beaten.
   S-mods from tier 3.
 - **Ship deal**: a client wants one ship from your fleet (never the flagship) and pays well over its value on
-  the spot, more for a ship Starship Legends rates as well known; or a client sells you a pristine ship
-  (S-mods from tier 3) below its value. The offer shows the ship.
+  the spot, more for a ship Starship Legends rates as well known; or a client sells you a ship (S-mods from
+  tier 3) below its value, usually used with a few D-mods and cheaper for it, rarely pristine. The offer shows
+  the ship.
 - **Conquest**: capture a market of a faction hostile to the client. Tier 5 and up, and only with
   Nexerelin, which adds invasions. Size 3 at tier 5, size 4 at tier 6, size 5 at tier 7. Story markets are
   never targets.

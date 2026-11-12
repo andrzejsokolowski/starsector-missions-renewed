@@ -28,7 +28,7 @@ public final class ShipLeadContracts {
     private ShipLeadContracts() {}
 
     public static ShipLeadContract build(MarketAPI origin, Tier tier, Random random) {
-        String variantId = Hulls.pickVariant(tier.level, null, random);
+        String variantId = Hulls.pickFamous(tier.level, random);
         if (variantId == null) return null;
         ShipHullSpecAPI hull = Global.getSettings().getVariant(variantId).getHullSpec();
         StarSystemAPI system = Places.pickSystem(origin, 4f, 10f + 4f * tier.level, false, random);

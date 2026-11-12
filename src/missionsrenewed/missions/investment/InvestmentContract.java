@@ -146,7 +146,7 @@ public class InvestmentContract extends ContractIntel {
         Color h = Misc.getHighlightColor();
         info.addPara("Stake on signing: %s", pad, Misc.getNegativeHighlightColor(), Misc.getDGSCredits(stake));
         info.addPara("Payout after %s months: %s", 0f, h, "" + months, Misc.getDGSCredits(stake + profit));
-        info.addPara("Risk, in the client's words: %s", 0f, risk == RISKY ? Misc.getNegativeHighlightColor() : h, riskWord());
+        info.addPara("Risk: %s", 0f, risk == RISKY ? Misc.getNegativeHighlightColor() : h, Misc.ucFirst(riskWord()));
         info.addPara("No early withdrawal", 0f);
     }
 

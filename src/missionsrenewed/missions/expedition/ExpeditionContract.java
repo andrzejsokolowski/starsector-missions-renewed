@@ -70,12 +70,19 @@ public class ExpeditionContract extends ContractIntel {
         return destination.getName() + " in the " + Places.systemName(destination);
     }
 
-    /** The risk in one word, for the terms box and the intel screen. */
+    /** How much attention the route draws, in one word, for the terms box and the intel screen. */
     private String ambushWord() {
-        if (ambushChance < 0.2f) return "unlikely";
-        if (ambushChance < 0.4f) return "possible";
-        if (ambushChance < 0.6f) return "likely";
-        return "almost certain";
+        if (ambushChance < 0.2f) return "Low";
+        if (ambushChance < 0.4f) return "Moderate";
+        if (ambushChance < 0.6f) return "High";
+        return "Severe";
+    }
+
+    /** Who is taking an interest: "Pirate interest", "Terrorist interest" (the Luddic Path) or "Enemy interest". */
+    private String interestLabel() {
+        if (("faction:" + com.fs.starfarer.api.impl.campaign.ids.Factions.PIRATES).equals(enemyKey)) return "Pirate interest";
+        if (("faction:" + com.fs.starfarer.api.impl.campaign.ids.Factions.LUDDIC_PATH).equals(enemyKey)) return "Terrorist interest";
+        return "Enemy interest";
     }
 
     /** What the client has heard about the place. They know rumors, not odds. */
@@ -178,7 +185,7 @@ public class ExpeditionContract extends ContractIntel {
                 Misc.getRoundedValueMaxOneAfterDecimal(Misc.getDistanceLY(origin.getPrimaryEntity(), destination)));
         info.addPara("Deadline: %s days", 0f, h, "" + Math.round(durationDays));
         Color odds = ambushChance < 0.4f ? h : Misc.getNegativeHighlightColor();
-        info.addPara("Ambush: %s", 0f, odds, ambushWord());
+        info.addPara(interestLabel() + ": %s", 0f, odds, ambushWord());
         addTerms(info, 10f);
     }
 
@@ -214,8 +221,8 @@ public class ExpeditionContract extends ContractIntel {
     protected void addDescriptionTop(TooltipMakerAPI info, float width) {
         info.addImages(width, 80f, 10f, 20f, getIcon(), client.getPortraitSprite());
         info.addPara(client.getNameString() + " of " + origin.getName() + " has trusted you with " + Misc.getWithDGS(units)
-                + " units of " + good() + " for the camp at " + place() + ". Fly close to the planet to deliver. Ambush: "
-                + ambushWord() + ".", 10f);
+                + " units of " + good() + " for the camp at " + place() + ". Fly close to the planet to deliver. " + interestLabel()
+                + ": " + ambushWord() + ".", 10f);
     }
 
     @Override

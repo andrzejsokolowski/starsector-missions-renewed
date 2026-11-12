@@ -60,8 +60,13 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 - `src/missionsrenewed/missions/combat/` - `CombatContract` (a fleet spawned on signing near a planet,
   preferably in an uncolonised system; done when the player fights it and it is destroyed or down to a
   quarter of its fleet points; void if someone else kills it). `EnemyFleets` picks and builds enemies:
-  tiers 0 to 4 pirates or Pathers from FleetFactoryV3, tiers 5 to 7 a group from
-  `data/config/missions_renewed/enemy_fleets.json` (hand-built from variants with no inflater, AI cores on
+  tiers 0 to 4 pirates or Pathers from FleetFactoryV3. Tiers 5 to 7 (0.8.1, Andrzej: the strange enemies
+  "pretty much never attack anything"): an elite FleetFactoryV3 war fleet of a faction hostile to the client
+  (`warFleetFactions`: shown in the intel tab, has ships, not pirates, Pathers, Omega, Threat, Dwellers,
+  Remnants, derelicts or a group's faction; pirates and Pathers only when no other faction is hostile), sharing
+  `HOSTILE_FACTION_WEIGHT` 60 against the groups' own weights in
+  `data/config/missions_renewed/enemy_fleets.json` (Threat and Dwellers 1.5, Omega 1 and tier 7 only with at
+  most one Tesseract and half the DP via `limits` and `strength`, modded groups 5). Groups are hand-built from variants with no inflater, AI cores on
   automated ships only where `aiCores` is true, plus the game's ThreatFIDConfig or Dweller drop groups as
   its own fleets have them; or generated from a modded faction, `aiCores` then sets FleetParamsV3.aiCores;
   groups whose faction is missing are skipped). Every contract fleet ends with GO_TO_LOCATION_AND_DESPAWN.
@@ -89,11 +94,14 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
     mustBeHostile)` keeps the attackers hostile to the market so its station fights.
   - `lead/ShipLeadContract`: negative advance (the price of the lead), no pay or penalty. A pristine derelict
     (`BaseThemeGenerator.addSalvageEntity` WRECK + `ShipRecoverySpecialData`, guards from tier 3) or a pirate or
-    Pather flagship tagged `Tags.VARIANT_ALWAYS_RECOVERABLE`. `ships/Hulls` picks stock variants by the tier's DP
+    Pather flagship tagged `Tags.VARIANT_ALWAYS_RECOVERABLE`. The famous ship comes from `Hulls.pickFamous`
+    (0.8.1): warships only, no pirate or Path refits from tier 4, weighted by hull value to the power tier/4.
+    `ships/Hulls` picks stock variants by the tier's DP
     band (`Hulls.DP_BAND`), skipping stations, modules, unboardable, hidden, civilian, automated and D-hulls.
   - `ships/ShipWantedContract` (0.8.0: a client wants one named ship from the player's fleet in the tier's DP band,
     never the flagship; pays hull value x (1.3 + 0.05 x tier) x Starship Legends fame on signing) and
-    `ShipSaleContract` (client sells the player a pristine ship; completes on signing). `ShipDealContracts` picks
+    `ShipSaleContract` (client sells the player a ship; completes on signing; since 0.8.1 pristine only 15
+    percent of the time, otherwise 1 to 4 D-mods from `conditionSeed` and 7 percent of hull value off per D-mod). `ShipDealContracts` picks
     one of the two. `ShipOrderContract` + `bar/HandOverBarEvent` (0.6.0 hull orders) stay only for old saves.
   - `compat/Legends` reads Starship Legends fame (`RepRecord.getTier().ordinal()`, 0 to 5) through
     `LegendsBridge`, the only class that names its types, compiled against its jar (`compileOnly`) and only

@@ -1,3 +1,10 @@
+Version 0.8.1 (2026-11-12)
+- Tier 5 to 7 combat, defense and expedition enemies are now mostly elite war fleets of a faction at war with the client. Anything stranger is very rare.
+- Famous ship leads bring better warships at higher tiers: no freighters or transports, and no pirate or Luddic Path refits from tier 4.
+- Ship sales: most ships for sale are used, with 1 to 4 D-mods and a lower price. Pristine ships are rare.
+- Investment terms read "Risk: Safe" (or Guaranteed, Risky).
+- Expedition terms say who is taking an interest in the route and how much, for example "Pirate interest: Severe".
+
 Version 0.8.0 (2026-11-12)
 - Offers show the ship on the right for ship deals and famous ship leads.
 - Combat and defense offers show a glimpse of the enemy fleet: its biggest ships and an estimate of its size in DP.
