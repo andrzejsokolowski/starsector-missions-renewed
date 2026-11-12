@@ -20,8 +20,8 @@ public final class DefenseContracts {
 
     private static final float ADVANCE_SHARE = 0.1f;
     private static final float PENALTY_SHARE = 0.25f;
-    /** Days the attackers stay after they arrive. The contract runs out with them. */
-    private static final float HOLD_DAYS = 20f;
+    /** Days on top of the round trip before the contract runs out. */
+    private static final float SPARE_DAYS = 30f;
 
     private DefenseContracts() {}
 
@@ -47,12 +47,12 @@ public final class DefenseContracts {
         int penalty = Places.roundTo(reward * PENALTY_SHARE, 500);
         float trip = Places.tripDays(origin.getPrimaryEntity().getLocationInHyperspace(),
                 target.getPrimaryEntity().getLocationInHyperspace());
-        float arrival = (float) Math.ceil(Math.max(15f, trip * 1.5f + 10f));
+        float days = (float) Math.ceil(Math.max(30f, trip * 2f + SPARE_DAYS));
 
         PersonAPI client = origin.getFaction().createRandomPerson(random);
         client.setRankId(Ranks.CITIZEN);
         client.setPostId(Ranks.POST_STATION_COMMANDER);
-        return new DefenseContract(tier.level, client, origin, target, enemy, deployment, random.nextLong(), arrival,
-                advance, reward - advance, penalty, arrival + HOLD_DAYS);
+        return new DefenseContract(tier.level, client, origin, target, enemy, deployment, random.nextLong(), 0f,
+                advance, reward - advance, penalty, days);
     }
 }

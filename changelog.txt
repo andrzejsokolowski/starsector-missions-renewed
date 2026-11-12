@@ -1,3 +1,15 @@
+Version 0.8.0 (2026-11-12)
+- Offers show the ship on the right for ship deals and famous ship leads.
+- Combat and defense offers show a glimpse of the enemy fleet: its biggest ships and an estimate of its size in DP.
+- Ship deals: instead of ordering a hull for later, a client now asks for one ship from your fleet and pays well over its value on the spot. With Starship Legends, well-known ships fetch more.
+- Defense: the attacking fleet appears as soon as you sign and waits outside the market. It attacks when you arrive in the system.
+- Investments: no more pulling out early. Each venture is guaranteed, safe or risky, in the client's words. Safe ventures rarely fail and return half the stake; risky ones pay much more but can lose all of it.
+- Conquest: from tier 5 only. Tier 5 asks for a size 3 market, tier 6 size 4, tier 7 size 5. Story markets such as Chicomoztoc and Gilead are never targets.
+- Salvage leads: more colony items, AI cores, hull mods and blueprints at higher tiers, and a few battered scavenger ships guard the field.
+- Expeditions say how likely an ambush is in words (unlikely, possible, likely, almost certain) instead of a percentage.
+- Offers are written in the client's own voice.
+- New LunaLib setting "Proving yourself", on by default: clients offer work one tier above what you have done. Finish 3 contracts of a tier (or higher) to open the next one; the number is a setting too. Buying or selling ships and investments do not count.
+
 Version 0.7.1 (2026-11-12)
 - Contracts per mission board now follow market size: 1 or 2 at size 4 and 5, 2 or 3 at size 6, 3 or 4 at size 7, 4 or 5 at size 8, always 5 at size 9 and up. Size 3 markets rarely have a board, with 1 contract. Smaller markets have none.
 

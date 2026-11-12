@@ -19,7 +19,7 @@ final class OfferScreen {
                      String backLabel, boolean ignoreLimit) {
         TextPanelAPI text = dialog.getTextPanel();
         OptionPanelAPI options = dialog.getOptionPanel();
-        dialog.getVisualPanel().showPersonInfo(contract.getClientPerson(), true);
+        contract.showOfferVisual(dialog);
         contract.addOfferText(text);
         TooltipMakerAPI terms = text.beginTooltip();
         contract.addOfferTerms(terms);

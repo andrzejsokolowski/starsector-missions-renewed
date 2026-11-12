@@ -31,11 +31,10 @@ public class HaulingContract extends DeliveryContract {
     @Override
     public void addOfferText(TextPanelAPI text) {
         String good = getCommodity().getLowerCaseName();
-        text.addPara(client.getNameString() + " has a hold's worth of " + good
-                + " that needs to be somewhere else, and no patience for slow captains.");
-        text.addPara("\"" + Misc.getWithDGS(units) + " units, my crates, your holds. Delivered to "
-                + destination.getName() + " within " + Math.round(durationDays)
-                + " days. Short or late, and the breach clause applies.\"");
+        text.addPara("\"I've got " + Misc.getWithDGS(units) + " units of " + good + " that need to be at "
+                + destination.getName() + " within " + Math.round(durationDays) + " days. My crates, your holds.\"");
+        text.addPara("\"We don't take captains who show up late, or who get ideas about selling my cargo on the side. "
+                + "Try either and you'll pay the breach fee, and I will make sure you pay it.\"");
     }
 
     @Override

@@ -14,6 +14,7 @@ import missionsrenewed.missions.MissionFamily;
 import missionsrenewed.missions.ships.Hulls;
 import missionsrenewed.missions.ships.ShipOrderContract;
 import missionsrenewed.tiers.PlayerTier;
+import missionsrenewed.tiers.Proving;
 import missionsrenewed.tiers.Tier;
 import missionsrenewed.tiers.TierTable;
 
@@ -140,6 +141,13 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         if (lines.isEmpty() && orders.isEmpty()) {
             text.addPara("There are no contracts on the board.");
         }
+        int unlocked = Proving.highestUnlocked();
+        if (unlocked < 7) {
+            int left = Proving.stillNeeded();
+            text.addPara("Clients trust you with contracts up to tier " + unlocked + ". Finish " + left
+                    + (left == 1 ? " more contract" : " more contracts") + " of tier " + unlocked + " or higher to be offered tier "
+                    + (unlocked + 1) + ".", Misc.getGrayColor());
+        }
         List<Offer> offers = offersAt(market);
         for (int i : lines) {
             Offer offer = offers.get(i);
@@ -222,7 +230,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         for (int i = 0; i < offers.size(); i++) {
             Offer offer = offers.get(i);
             if (offer == null || !Contracts.canOffer(offer.family, market, offer.tier) || !Settings.jobEnabled(offer.family)) continue;
-            if (offer.tier < Settings.minTier() || offer.tier > Settings.maxTier()) continue;
+            if (offer.tier < Settings.minTier() || offer.tier > Settings.maxTier() || offer.tier > Proving.highestUnlocked()) continue;
             live.add(i);
         }
         return live;
@@ -311,10 +319,12 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         if (random.nextFloat() >= Settings.barChance()) return "none";
         int count = lineCount(market, random);
         if (count <= 0) return "none";
+        int maxTier = Math.min(Settings.maxTier(), Proving.highestUnlocked());
+        int minTier = Math.min(Settings.minTier(), maxTier);
         List<String> lines = new ArrayList<>();
         Set<String> seen = new HashSet<>();
         for (int attempt = 0; attempt < count * 3 && lines.size() < count; attempt++) {
-            Tier tier = TierTable.pick(random, PlayerTier.estimate(), Settings.playerLean(), Settings.minTier(), Settings.maxTier());
+            Tier tier = TierTable.pick(random, PlayerTier.estimate(), Settings.playerLean(), minTier, maxTier);
             if (tier == null) break;
             List<MissionFamily> families = Contracts.offeredAt(market, tier.level);
             families.removeIf(family -> !Settings.jobEnabled(family));

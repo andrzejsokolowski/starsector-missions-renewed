@@ -39,7 +39,8 @@ public final class SalvageLeadContracts {
         PersonAPI client = origin.getFaction().createRandomPerson(random);
         client.setRankId(Ranks.CITIZEN);
         client.setPostId(Ranks.POST_SPACER);
-        return new SalvageLeadContract(tier.level, client, origin, anchor, loot, radius, random.nextLong(), fee,
+        int scavengers = Math.max(6, Math.round(tier.rollDeployment(random) * 0.25f * Settings.strengthMult()));
+        return new SalvageLeadContract(tier.level, client, origin, anchor, loot, radius, random.nextLong(), fee, scavengers,
                 Math.max(45f, days));
     }
 }

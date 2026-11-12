@@ -33,7 +33,7 @@ public enum MissionFamily {
     /** A client buys a given hull from you, or sells you a ship below its value. Scales with ship DP. */
     SHIP_DEAL("ship deal", true),
     /** Capture a market for the client's faction. Tier 3 and up, and only with Nexerelin. Scales with market size. */
-    CONQUEST("conquest", true, 3),
+    CONQUEST("conquest", true, 5),
     /** Pay for the location of a debris field full of salvage. Scales with the loot. */
     SALVAGE_LEAD("salvage lead", true);
 

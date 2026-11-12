@@ -28,26 +28,31 @@ Requires LunaLib.
   delivery. Needs free crew quarters.
 - **Contribution**: bring goods you find or buy yourself to a construction project at another market.
   The pay covers the goods about twice over. At tiers 4 to 6 the project may ask for a colony item.
-- **Investment**: put up a stake, get it back with profit after 5 to 12 months. Pulling out early
-  returns half the stake. Pirates and the Luddic Path do not offer them.
+- **Investment**: put up a stake, get it back with profit after 5 to 12 months. No pulling out. The client
+  calls the venture guaranteed, safe or risky: safe ones rarely fail and return half the stake when they
+  do, risky ones pay much more but can lose all of it. Pirates and the Luddic Path do not offer them.
 - **Combat**: someone was attacked near a planet in a nearby system and got away. Find the fleet that did
-  it and destroy it. The job is done when it is destroyed or left with a quarter of its strength.
+  it and destroy it. The job is done when it is destroyed or left with a quarter of its strength. The offer
+  shows a glimpse of the fleet.
 - **Marine operation**: a raid on a market hostile to the client to knock out a named industry (raiding
   costs standing with its owner), or garrison duty: bring your own marines to a market of the client's
   faction.
 - **Expedition**: haul supplies to a camp at a planet in an uncolonised system. Fly close to the planet to
-  deliver. Something may be waiting there.
-- **Defense**: a fleet will attack a market of the client's faction in a set number of days. Be there and
-  destroy it, or leave it with a quarter of its strength. The market's station fights with you.
+  deliver. Something may be waiting there; the client tells you how likely that is.
+- **Defense**: a fleet is gathering outside a market of the client's faction. It attacks when you arrive in
+  the system. Destroy it, or leave it with a quarter of its strength. The market's station fights with you.
+  The offer shows a glimpse of the fleet.
 - **Famous ship lead**: pay for the location of one named ship, sized by the tier. It is a pristine derelict
   you can recover (guarded from tier 3), or the flagship of a hostile fleet, always recoverable once beaten.
   S-mods from tier 3.
-- **Ship deal**: a client wants a given hull and pays more than it is worth when you hand one over at their
-  bar, or a client sells you a pristine ship (S-mods from tier 3) below its value.
-- **Conquest**: capture a market of a faction hostile to the client. Tier 3 and up, and only with
-  Nexerelin, which adds invasions. Market size grows with the tier.
-- **Salvage lead**: pay for the location of a debris field. Its loot grows with the tier, with rare tech,
-  AI cores and blueprints at high tiers.
+- **Ship deal**: a client wants one ship from your fleet (never the flagship) and pays well over its value on
+  the spot, more for a ship Starship Legends rates as well known; or a client sells you a pristine ship
+  (S-mods from tier 3) below its value. The offer shows the ship.
+- **Conquest**: capture a market of a faction hostile to the client. Tier 5 and up, and only with
+  Nexerelin, which adds invasions. Size 3 at tier 5, size 4 at tier 6, size 5 at tier 7. Story markets are
+  never targets.
+- **Salvage lead**: pay for the location of a debris field. Its loot grows with the tier, with colony items,
+  AI cores and blueprints at high tiers. A few battered scavenger ships are already there.
 - Clients you satisfy may offer to become contacts, more often at higher tiers.
 
 ## Tiers
@@ -78,6 +83,9 @@ the table says.
 - Chance of a mission board per bar.
 - Lean toward your strength: 0 makes the tier roll fully random.
 - Lowest and highest tier: bars only offer contracts in this range.
+- Proving yourself (on by default): clients offer work one tier above what you have done. Finish 3
+  contracts of a tier or higher (a setting) to open the next tier. Ship purchases and sales and investments
+  do not count.
 - Job types: turn each one on or off.
 - Reward multiplier and enemy strength multiplier.
 - Debug: test mode, off by default. Every bar gets a mission board with an option to spawn any job type at any tier (ignoring

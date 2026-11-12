@@ -72,10 +72,11 @@ public class RaidContract extends ContractIntel {
 
     @Override
     public void addOfferText(TextPanelAPI text) {
-        text.addPara(client.getNameString() + " wants the " + industryName + " at " + target.getName()
-                + " out of action, and would rather nobody from " + getClientFaction().getDisplayNameWithArticle() + " be seen doing it.");
-        text.addPara("\"Put marines on the ground at " + target.getName() + " and break the " + industryName + " within "
-                + Math.round(durationDays) + " days. Bring enough of them. The garrison there is not asleep.\"");
+        text.addPara("\"The " + industryName + " at " + target.getName() + " has been a thorn in our side for too long. "
+                + "I want it out of action, and I don't want anyone from " + getClientFaction().getDisplayNameWithArticle()
+                + " seen doing it.\"");
+        text.addPara("\"Put your marines on the ground and break it within " + Math.round(durationDays)
+                + " days. Bring plenty of them. That garrison isn't asleep.\"");
     }
 
     @Override

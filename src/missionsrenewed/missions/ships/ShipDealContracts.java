@@ -1,12 +1,14 @@
 package missionsrenewed.missions.ships;
 
 import com.fs.starfarer.api.Global;
-import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
 import com.fs.starfarer.api.characters.PersonAPI;
 import com.fs.starfarer.api.combat.ShipHullSpecAPI;
+import com.fs.starfarer.api.fleet.FleetMemberAPI;
 import com.fs.starfarer.api.impl.campaign.ids.Ranks;
+import com.fs.starfarer.api.util.WeightedRandomPicker;
 import missionsrenewed.Settings;
+import missionsrenewed.compat.Legends;
 import missionsrenewed.missions.ContractIntel;
 import missionsrenewed.missions.MissionFamily;
 import missionsrenewed.missions.Places;
@@ -16,56 +18,41 @@ import java.util.HashSet;
 import java.util.Random;
 import java.util.Set;
 
-/** Builds ship deals: half the time a client orders a hull from the player, half the time sells one. */
+/**
+ * Builds ship deals: half the time a client wants one ship from the player's fleet, half the time sells one.
+ * When the player has no ship that fits the tier, the deal is a sale.
+ */
 public final class ShipDealContracts {
 
-    /** An order pays the hull's value times this, plus a little per tier. */
-    private static final float ORDER_MARKUP = 1.3f;
-    private static final float ORDER_PENALTY_SHARE = 0.1f;
-    private static final float ORDER_DAYS = 120f;
+    /** A wanted ship pays its hull value times this, plus a little per tier, times its Starship Legends fame. */
+    private static final float WANTED_MARKUP = 1.3f;
     /** A sale asks this share of the hull's value. */
     private static final float SALE_PRICE_SHARE = 0.65f;
 
     private ShipDealContracts() {}
 
     public static ContractIntel build(MarketAPI origin, Tier tier, Random random) {
-        boolean orderFirst = random.nextBoolean();
-        ContractIntel first = orderFirst ? order(origin, tier, random) : sale(origin, tier, random);
+        boolean wantedFirst = random.nextBoolean();
+        ContractIntel first = wantedFirst ? wanted(origin, tier, random) : sale(origin, tier, random);
         if (first != null) return first;
-        return orderFirst ? sale(origin, tier, random) : order(origin, tier, random);
+        return wantedFirst ? sale(origin, tier, random) : wanted(origin, tier, random);
     }
 
-    /** Base hull ids the factions with markets know, so an ordered hull can be bought somewhere. */
-    private static Set<String> buyableHulls() {
-        Set<String> factions = new HashSet<>();
-        for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
-            if (!market.isHidden() && market.isInEconomy()) factions.add(market.getFactionId());
+    /** A ship from the player's fleet in the tier's DP band, never the flagship. Better known ships are wanted more. */
+    static ShipWantedContract wanted(MarketAPI origin, Tier tier, Random random) {
+        WeightedRandomPicker<FleetMemberAPI> picker = new WeightedRandomPicker<>(random);
+        for (FleetMemberAPI member : Global.getSector().getPlayerFleet().getFleetData().getMembersListCopy()) {
+            if (member.isFlagship() || member.isFighterWing() || member.getHullSpec() == null) continue;
+            float dp = Hulls.dp(member.getHullSpec());
+            if (dp < Hulls.minDP(tier.level) || dp > Hulls.maxDP(tier.level)) continue;
+            picker.add(member, 1f + 2f * Legends.fame(member));
         }
-        Set<String> hulls = new HashSet<>();
-        for (String factionId : factions) {
-            FactionAPI faction = Global.getSector().getFaction(factionId);
-            if (faction == null) continue;
-            for (String hullId : faction.getKnownShips()) {
-                try {
-                    ShipHullSpecAPI spec = Global.getSettings().getHullSpec(hullId);
-                    if (spec != null) hulls.add(spec.getBaseHullId());
-                } catch (RuntimeException ignored) {
-                    // A hull a removed mod left in a faction's list.
-                }
-            }
-        }
-        return hulls;
-    }
-
-    static ShipOrderContract order(MarketAPI origin, Tier tier, Random random) {
-        String variantId = Hulls.pickVariant(tier.level, buyableHulls(), random);
-        if (variantId == null) return null;
-        ShipHullSpecAPI hull = Global.getSettings().getVariant(variantId).getHullSpec();
-        int pay = Places.roundTo(hull.getBaseValue() * (ORDER_MARKUP + 0.05f * tier.level) * Settings.rewardMult()
-                * Settings.payMult(MissionFamily.SHIP_DEAL), 500);
-        int penalty = Places.roundTo(pay * ORDER_PENALTY_SHARE, 500);
-        return new ShipOrderContract(tier.level, client(origin, Ranks.POST_TRADER, random), origin, hull.getBaseHullId(),
-                pay, penalty, ORDER_DAYS);
+        FleetMemberAPI member = picker.pick();
+        if (member == null) return null;
+        int fame = Legends.fame(member);
+        int pay = Places.roundTo(member.getHullSpec().getBaseValue() * (WANTED_MARKUP + 0.05f * tier.level) * Legends.payMult(fame)
+                * Settings.rewardMult() * Settings.payMult(MissionFamily.SHIP_DEAL), 500);
+        return new ShipWantedContract(tier.level, client(origin, Ranks.POST_TRADER, random), origin, member, fame, pay);
     }
 
     static ShipSaleContract sale(MarketAPI origin, Tier tier, Random random) {
@@ -75,7 +62,7 @@ public final class ShipDealContracts {
                 ShipHullSpecAPI spec = Global.getSettings().getHullSpec(hullId);
                 if (spec != null) own.add(spec.getBaseHullId());
             } catch (RuntimeException ignored) {
-                // See buyableHulls.
+                // A hull a removed mod left in a faction's list.
             }
         }
         String variantId = Hulls.pickVariant(tier.level, own, random);

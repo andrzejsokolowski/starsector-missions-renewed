@@ -4,6 +4,7 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.BattleAPI;
 import com.fs.starfarer.api.campaign.CampaignEventListener.FleetDespawnReason;
 import com.fs.starfarer.api.campaign.CampaignFleetAPI;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -74,8 +75,17 @@ public class ShipLeadContract extends ContractIntel implements FleetEventListene
         this.fee = fee;
     }
 
+    /** The ship as the offer shows it. */
+    private transient FleetMemberAPI shown;
+
     private ShipHullSpecAPI hull() {
         return Global.getSettings().getVariant(variantId).getHullSpec();
+    }
+
+    @Override
+    public void showOfferVisual(InteractionDialogAPI dialog) {
+        if (shown == null) shown = Hulls.member(Hulls.withSMods(variantId, sMods), shipName);
+        dialog.getVisualPanel().showFleetMemberInfo(shown, true);
     }
 
     private String place() {

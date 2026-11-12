@@ -40,10 +40,11 @@ public class GarrisonContract extends DeliveryContract {
 
     @Override
     public void addOfferText(TextPanelAPI text) {
-        text.addPara(client.getNameString() + " is raising a garrison for " + destination.getName()
-                + " and is short of trained troops.");
-        text.addPara("\"" + Misc.getWithDGS(units) + " marines, yours, at " + destination.getName() + " within "
-                + Math.round(durationDays) + " days. They sign on with us for good, and you are paid for every one.\"");
+        text.addPara("\"" + destination.getName() + " needs a garrison, and we're short of anyone who can hold a rifle. "
+                + "I hear you have marines.\"");
+        text.addPara("\"Bring me " + Misc.getWithDGS(units) + " of them at " + destination.getName() + " within "
+                + Math.round(durationDays) + " days. They'll sign on with us for good, and we pay well for soldiers "
+                + "who already know which end of the gun to point.\"");
     }
 
     @Override

@@ -50,11 +50,10 @@ public class FuelRunContract extends DeliveryContract {
 
     @Override
     public void addOfferText(TextPanelAPI text) {
-        text.addPara(client.getNameString() + " holds a fuel contract with " + destination.getName()
-                + " and a tanker that broke down three systems short.");
-        text.addPara("\"" + Misc.getWithDGS(units) + " units, pumped into your tanks here. Every unit is metered on arrival at "
-                + destination.getName() + ", within " + Math.round(durationDays)
-                + " days. What you burn on the way, you make up yourself.\"");
+        text.addPara("\"My tanker broke down three systems short, and " + destination.getName() + " is still waiting on "
+                + Misc.getWithDGS(units) + " units of fuel. I'll pump it into your tanks right here.\"");
+        text.addPara("\"Get it there within " + Math.round(durationDays) + " days. They meter every unit when you dock, "
+                + "so whatever you burn on the way, you replace out of your own pocket.\"");
     }
 
     @Override

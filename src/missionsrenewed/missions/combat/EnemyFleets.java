@@ -97,6 +97,11 @@ public final class EnemyFleets {
                                          float orbitDays, Random random) {
         CampaignFleetAPI fleet = build(key, tier, deployment, anchor, name, random);
         if (fleet == null) return null;
+        return placeOrbiting(fleet, anchor, orbitDays, random);
+    }
+
+    /** Puts an already built fleet in orbit around anchor, lying in wait for orbitDays, then leaving. */
+    public static CampaignFleetAPI placeOrbiting(CampaignFleetAPI fleet, SectorEntityToken anchor, float orbitDays, Random random) {
         anchor.getContainingLocation().addEntity(fleet);
         float angle = random.nextFloat() * 360f;
         float radius = anchor.getRadius() + 200f + random.nextFloat() * 300f;
@@ -108,18 +113,64 @@ public final class EnemyFleets {
         return fleet;
     }
 
-    /** Builds the fleet and places it a little way out from target, attacking it for `days`. Null when it cannot be built. */
-    public static CampaignFleetAPI spawnAttacking(String key, int tier, float deployment, SectorEntityToken target, String name,
-                                                  float days, Random random) {
-        CampaignFleetAPI fleet = build(key, tier, deployment, target, name, random);
-        if (fleet == null) return null;
+    /**
+     * Puts an already built fleet well out from target, waiting there quietly (other fleets leave it alone) until
+     * startAttack is called. Used by defense contracts: the attack begins when the player arrives.
+     */
+    public static CampaignFleetAPI placeGathering(CampaignFleetAPI fleet, SectorEntityToken target, float days, Random random) {
         target.getContainingLocation().addEntity(fleet);
         float angle = random.nextFloat() * 360f;
-        float radius = target.getRadius() + 2000f;
-        fleet.setLocation(target.getLocation().x + (float) Math.cos(Math.toRadians(angle)) * radius,
-                target.getLocation().y + (float) Math.sin(Math.toRadians(angle)) * radius);
+        float radius = target.getRadius() + 2500f;
+        float x = target.getLocation().x + (float) Math.cos(Math.toRadians(angle)) * radius;
+        float y = target.getLocation().y + (float) Math.sin(Math.toRadians(angle)) * radius;
+        fleet.setLocation(x, y);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORES_OTHER_FLEETS, true);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.FLEET_IGNORED_BY_OTHER_FLEETS, true);
+        SectorEntityToken spot = target.getContainingLocation().createToken(x, y);
+        fleet.addAssignment(FleetAssignment.HOLD, spot, days, "gathering for an attack on " + target.getName());
+        fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, target, 30f);
+        return fleet;
+    }
+
+    /** Sends a gathering fleet at its target for `days`. */
+    public static void startAttack(CampaignFleetAPI fleet, SectorEntityToken target, float days) {
+        fleet.getMemoryWithoutUpdate().unset(MemFlags.FLEET_IGNORES_OTHER_FLEETS);
+        fleet.getMemoryWithoutUpdate().unset(MemFlags.FLEET_IGNORED_BY_OTHER_FLEETS);
+        fleet.clearAssignments();
         fleet.addAssignment(FleetAssignment.ATTACK_LOCATION, target, days, "attacking " + target.getName());
         fleet.addAssignment(FleetAssignment.GO_TO_LOCATION_AND_DESPAWN, target, 30f);
+    }
+
+    /**
+     * Scavengers picking at a debris field: the game's scavenger ships at the lowest quality (many D-mods), no
+     * officers, hostile to the player. Null when they cannot be built.
+     */
+    public static CampaignFleetAPI scavengers(int tier, float deployment, SectorEntityToken anchor, Random random) {
+        if (Global.getSector().getFaction(Factions.SCAVENGERS) == null) return null;
+        CampaignFleetAPI fleet;
+        try {
+            FleetParamsV3 params = new FleetParamsV3(null, anchor.getLocationInHyperspace(), Factions.SCAVENGERS,
+                    0f, FleetTypes.SCAVENGER_MEDIUM, deployment, 0f, 0f, 0f, 0f, 0f, 0f);
+            params.qualityOverride = 0f;
+            params.withOfficers = false;
+            params.ignoreMarketFleetSizeMult = true;
+            params.random = random;
+            fleet = trimToDeployment(FleetFactoryV3.createFleet(params), deployment);
+        } catch (RuntimeException e) {
+            Global.getLogger(EnemyFleets.class).warn("Missions - Renewed: could not build scavengers", e);
+            return null;
+        }
+        if (fleet == null || fleet.isEmpty()) return null;
+        fleet.setName("Scavengers");
+        fleet.setNoFactionInName(true);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_HOSTILE, true);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_MAKE_AGGRESSIVE, true);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_JUMP, true);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_NO_REP_IMPACT, true);
+        fleet.getMemoryWithoutUpdate().set(MemFlags.MEMORY_KEY_LOW_REP_IMPACT, true);
+        anchor.getContainingLocation().addEntity(fleet);
+        fleet.setLocation(anchor.getLocation().x, anchor.getLocation().y);
+        fleet.addAssignment(FleetAssignment.ORBIT_AGGRESSIVE, anchor, 1000f, "picking over the debris");
         return fleet;
     }
 

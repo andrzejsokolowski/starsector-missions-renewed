@@ -54,7 +54,9 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   pay, and the penalty is at least advance + goods value. Deadline: twice the trip at burn 8 plus 20 days.
   `DeliveryListener` (transient, added every load) completes jobs on docking.
 - `src/missionsrenewed/missions/investment/` - stake on signing (negative advance), payout after 5 to 12
-  months, half the stake back on early withdrawal, stake refunded if the market dies. No pirates or Pathers.
+  months, stake refunded if the market dies. No pirates or Pathers. Since 0.8.0 (MSR-7) no withdrawal
+  (`canAbandon` false) and a hidden `failChance` by risk: guaranteed 0, safe 5-15 percent (fails return half
+  the stake), risky 30-50 percent (fails lose all); profit x0.6 / x1 / x2.2. The client says the risk in words.
 - `src/missionsrenewed/missions/combat/` - `CombatContract` (a fleet spawned on signing near a planet,
   preferably in an uncolonised system; done when the player fights it and it is destroyed or down to a
   quarter of its fleet points; void if someone else kills it). `EnemyFleets` picks and builds enemies:
@@ -80,25 +82,44 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   attacked): Andrzej wants the enemy to be a surprise. Never name Omega, Threat, Dwellers or modded enemies in
   offers, intel, LunaLib text, README or the forum post.
 - 0.6.0 job types:
-  - `defense/` - `DefenseContract`: a fleet (`EnemyFleets.spawnAttacking`, ATTACK_LOCATION on the market's primary
-    entity) arrives at a same-faction market on a set day; beaten with the player in the fight = done, beaten
-    without the player = void, still there at the deadline = failed. `pickEnemy(..., mustBeHostile)` keeps
-    the attackers hostile to the market so its station fights.
+  - `defense/` - `DefenseContract` (0.8.0): the fleet spawns on signing 2500 units out from a same-faction market
+    (`EnemyFleets.placeGathering`: HOLD, ignored by and ignoring other fleets) and attacks (`startAttack`,
+    ATTACK_LOCATION) when the player enters the system. Beaten with the player in the fight = done, beaten
+    without the player = void, still there at the deadline (round trip + 30 days) = failed. `pickEnemy(...,
+    mustBeHostile)` keeps the attackers hostile to the market so its station fights.
   - `lead/ShipLeadContract`: negative advance (the price of the lead), no pay or penalty. A pristine derelict
     (`BaseThemeGenerator.addSalvageEntity` WRECK + `ShipRecoverySpecialData`, guards from tier 3) or a pirate or
     Pather flagship tagged `Tags.VARIANT_ALWAYS_RECOVERABLE`. `ships/Hulls` picks stock variants by the tier's DP
     band (`Hulls.DP_BAND`), skipping stations, modules, unboardable, hidden, civilian, automated and D-hulls.
-  - `ships/ShipOrderContract` (client buys a hull from the player; handed over at the client's bar through
-    `bar/HandOverBarEvent`, never the flagship) and `ShipSaleContract` (client sells the player a pristine ship;
-    completes on signing). `ShipDealContracts` picks one of the two.
-  - `conquest/` - Nexerelin only (`ConquestContracts.canOffer`), `MissionFamily.minTier` 3. Done when the market
-    passes to the client's faction, the player's faction or the player's commission faction.
+  - `ships/ShipWantedContract` (0.8.0: a client wants one named ship from the player's fleet in the tier's DP band,
+    never the flagship; pays hull value x (1.3 + 0.05 x tier) x Starship Legends fame on signing) and
+    `ShipSaleContract` (client sells the player a pristine ship; completes on signing). `ShipDealContracts` picks
+    one of the two. `ShipOrderContract` + `bar/HandOverBarEvent` (0.6.0 hull orders) stay only for old saves.
+  - `compat/Legends` reads Starship Legends fame (`RepRecord.getTier().ordinal()`, 0 to 5) through
+    `LegendsBridge`, the only class that names its types, compiled against its jar (`compileOnly`) and only
+    called when the mod is enabled.
+  - Offers that are about one ship show it on the right (`ContractIntel.showOfferVisual`, the game's
+    `VisualPanelAPI.showFleetMemberInfo(member, true)` as vanilla's SurplusShipHull does). Combat and defense
+    offers build their fleet from the seed at offer time and show a glimpse (`combat/FleetPreview`,
+    `addShipList` like PersonBountyIntel); signing spawns that same fleet.
+  - `conquest/` - Nexerelin only (`ConquestContracts.canOffer`), `MissionFamily.minTier` 5; market size 3 / 4 / 5
+    at tier 5 / 6 / 7 (MSR-22). Never story markets (`isStoryMarket`: a list of core ids, `Misc.isStoryCritical`,
+    `Tags.NOT_RANDOM_MISSION_TARGET`). Done when the market passes to the client's faction, the player's faction
+    or the player's commission faction.
   - `lead/SalvageLeadContract`: `Misc.addDebrisField` with BASIC loot worth half the tier reward and extra
-    drop-group rolls by tier (`EXTRA_DROPS`); reaching the field completes the lead, the loot is the game's own
-    salvage screen.
+    drop-group rolls by tier (`EXTRA_DROPS`, raised in 0.8.0); reaching the field completes the lead, the loot is
+    the game's own salvage screen. A scavenger fleet guards it (`EnemyFleets.scavengers`: scavenger faction,
+    quality 0, no officers, a quarter of the tier's DP).
   - `MissionFamily.minTier` + `Contracts.canOffer(family, market, tier)`: the bar rolls the tier first, then the
     types offered at it. Test mode greys out tiers below a type's minimum.
 - Completed contracts offer the client as a potential contact (`ContactIntel.addPotentialContact`).
+- Proving yourself (LunaLib `mr_proving`, default on, `mr_provingCount` default 3, MSR-25): `tiers/Proving` counts
+  completed contracts per tier in sector memory (`$missions_renewed_done_tier_<n>`); the board offers up to one
+  tier above the highest tier with enough completions at or above it. `countsAsProof` is false for ship sales,
+  wanted ships and investments. Test mode ignores it.
+- Offer text is the client talking, in character (Andrzej, 2026-11-12): no narrator lines that explain the
+  rules ("the breach clause applies"), no exact odds the client could not know. The terms box under it stays
+  plain.
 - LunaLib `mr_job_<type>` (lower-case enum name) switches each type, `mr_minTier` / `mr_maxTier` bound the
   roll (swapped when crossed). `liveOffer` hides rolled offers that no longer fit, the roll skips them.
 - Test mode (LunaLib `mr_testMode`, in the Debug section, ignores the job and tier settings): the board adds an option that runs a fresh

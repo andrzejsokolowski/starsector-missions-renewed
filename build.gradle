@@ -22,6 +22,8 @@ dependencies {
     compileOnly fileTree(dir: "${starsectorPath}/starsector-core", include: '*.jar')
     // LunaLib supplies the settings page. Found wherever the mod happens to be installed.
     compileOnly fileTree(dir: "${starsectorPath}/mods", include: '**/LunaLib.jar')
+    // Starship Legends (optional): ship fame for ship deals. Only compat/LegendsBridge uses it.
+    compileOnly fileTree(dir: "${starsectorPath}/mods", include: '**/StarshipLegends.jar')
 }
 
 jar {

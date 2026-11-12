@@ -27,16 +27,23 @@ public final class InvestmentContracts {
         return !Factions.LUDDIC_PATH.equals(faction.getId()) && market.getSize() >= 4;
     }
 
+    /** Profit multiplier and hidden failure chance [min, max] per risk: guaranteed, safe, risky. */
+    private static final float[] PROFIT_MULT = {0.6f, 1f, 2.2f};
+    private static final float[][] FAIL_CHANCE = {{0f, 0f}, {0.05f, 0.15f}, {0.3f, 0.5f}};
+
     public static InvestmentContract build(MarketAPI origin, Tier tier, Random random) {
         if (!canOffer(origin)) return null;
         int months = MIN_MONTHS + random.nextInt(MAX_MONTHS - MIN_MONTHS + 1);
         int stake = roundTo(tier.rollStake(random), 1000);
-        int profit = roundTo(tier.rollReward(random) * Settings.rewardMult()
+        float roll = random.nextFloat();
+        int risk = roll < 0.25f ? InvestmentContract.GUARANTEED : roll < 0.7f ? InvestmentContract.SAFE : InvestmentContract.RISKY;
+        float fail = FAIL_CHANCE[risk][0] + random.nextFloat() * (FAIL_CHANCE[risk][1] - FAIL_CHANCE[risk][0]);
+        int profit = roundTo(tier.rollReward(random) * Settings.rewardMult() * PROFIT_MULT[risk]
                 * Settings.payMult(missionsrenewed.missions.MissionFamily.INVESTMENT) * months / MONTHS_FOR_FULL_REWARD, 500);
         PersonAPI client = origin.getFaction().createRandomPerson(random);
         client.setRankId(Ranks.CITIZEN);
         client.setPostId(Ranks.POST_INVESTOR);
-        return new InvestmentContract(tier.level, client, origin, stake, profit, months);
+        return new InvestmentContract(tier.level, client, origin, stake, profit, months, risk, fail, random.nextLong());
     }
 
     private static int roundTo(float value, int step) {

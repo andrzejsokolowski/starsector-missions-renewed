@@ -101,16 +101,16 @@ public class ContributionContract extends DeliveryContract {
     @Override
     public void addOfferText(TextPanelAPI text) {
         if (specialId != null) {
-            text.addPara(client.getNameString() + " speaks for a consortium at " + destination.getName()
-                    + " that has the capital for a " + goodsName() + " and no way to find one.");
-            text.addPara("\"Bring a working " + goodsName() + " to " + destination.getName() + " within "
-                    + Math.round(durationDays) + " days. Where it came from is nobody's business.\"");
+            text.addPara("\"Our consortium at " + destination.getName() + " has the money for a " + goodsName()
+                    + ", but nobody will sell us one.\"");
+            text.addPara("\"Find a working one and bring it to " + destination.getName() + " within "
+                    + Math.round(durationDays) + " days. I won't ask where you got it.\"");
             return;
         }
-        text.addPara(client.getNameString() + " is gathering " + goodsName() + " for a construction project at "
-                + destination.getName() + ", and the local suppliers have run dry.");
-        text.addPara("\"" + Misc.getWithDGS(units) + " units at " + destination.getName() + " within "
-                + Math.round(durationDays) + " days. Buy it, dig it up, salvage it, I do not care. The project pays well.\"");
+        text.addPara("\"We're building at " + destination.getName() + ", and the local suppliers ran out of "
+                + goodsName() + " a month ago. I need " + Misc.getWithDGS(units) + " units of it there within "
+                + Math.round(durationDays) + " days.\"");
+        text.addPara("\"Buy it wherever it's cheap and haul it over. The project pays well, but it can't wait.\"");
     }
 
     @Override

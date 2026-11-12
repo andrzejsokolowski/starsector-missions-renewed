@@ -19,7 +19,8 @@ import java.awt.Color;
 import java.util.Random;
 
 /**
- * Destroy a hostile fleet lying in wait near a planet. The fleet is built when the contract is signed.
+ * Destroy a hostile fleet lying in wait near a planet. The fleet is built from the contract's seed when the offer
+ * is first shown (the offer shows a glimpse of it) and the same fleet is spawned when the contract is signed.
  * The job is done when the player fights it and it is destroyed or left with a quarter of its fleet
  * points or less. If someone else destroys it first, or it cannot be built, the contract is void.
  */
@@ -37,6 +38,8 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
     private final long seed;
 
     private CampaignFleetAPI fleet;
+    /** The fleet built for the offer, not yet in space. Rebuilt from the seed after a reload. */
+    private transient CampaignFleetAPI prepared;
     private int startFleetPoints;
     /** Deployment points when spawned. 0 in contracts signed before 0.4.3, which still count fleet points. */
     private float startDeployment;
@@ -81,10 +84,16 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
         return com.fs.starfarer.api.impl.campaign.ids.Tags.CONTACT_MILITARY;
     }
 
+    private CampaignFleetAPI prepared() {
+        if (prepared == null) prepared = EnemyFleets.build(enemyKey, tier, fleetPoints, anchor, EnemyFleets.ANONYMOUS_NAME, new Random(seed));
+        return prepared;
+    }
+
     @Override
     protected void onAccepted(TextPanelAPI text) {
-        fleet = EnemyFleets.spawn(enemyKey, tier, fleetPoints, anchor, EnemyFleets.ANONYMOUS_NAME,
-                durationDays + 60f, new Random(seed));
+        CampaignFleetAPI built = prepared();
+        prepared = null;
+        fleet = built == null ? null : EnemyFleets.placeOrbiting(built, anchor, durationDays + 60f, new Random(seed + 1));
         if (fleet == null) {
             spawnFailed = true;
             return;
@@ -156,6 +165,7 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
         info.addPara("Location: near %s, %s light years away", 0f, h, place(),
                 Misc.getRoundedValueMaxOneAfterDecimal(Misc.getDistanceLY(origin.getPrimaryEntity(), anchor)));
         info.addPara("Deadline: %s days", 0f, h, "" + Math.round(durationDays));
+        FleetPreview.add(info, prepared(), getClientFaction().getBaseUIColor(), 10f);
         addTerms(info, 10f);
     }
 

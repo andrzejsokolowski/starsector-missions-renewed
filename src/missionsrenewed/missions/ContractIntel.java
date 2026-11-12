@@ -2,6 +2,7 @@ package missionsrenewed.missions;
 
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionAPI;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.RepLevel;
 import com.fs.starfarer.api.campaign.ReputationActionResponsePlugin.ReputationAdjustmentResult;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
@@ -21,6 +22,7 @@ import com.fs.starfarer.api.ui.SectorMapAPI;
 import com.fs.starfarer.api.ui.TooltipMakerAPI;
 import com.fs.starfarer.api.util.Misc;
 import missionsrenewed.Settings;
+import missionsrenewed.tiers.Proving;
 
 import java.awt.Color;
 import java.util.ArrayList;
@@ -104,6 +106,11 @@ public abstract class ContractIntel extends BaseIntelPlugin {
 
     // ----- the offer in the bar -----
 
+    /** The picture on the right of the offer: the client by default, the ship for ship deals and leads. */
+    public void showOfferVisual(InteractionDialogAPI dialog) {
+        dialog.getVisualPanel().showPersonInfo(client, true);
+    }
+
     /** What the client says when the player looks at the contract. */
     public abstract void addOfferText(TextPanelAPI text);
 
@@ -174,7 +181,10 @@ public abstract class ContractIntel extends BaseIntelPlugin {
         }
         float rep = repOnEnd(result);
         if (rep != 0f) settledRep = adjustRep(rep, text);
-        if (result == State.COMPLETED) offerContact(text);
+        if (result == State.COMPLETED) {
+            offerContact(text);
+            if (countsAsProof()) Proving.recordCompleted(tier);
+        }
         onEnded(result);
         sendUpdateIfPlayerHasIntel(result, text);
         endAfterDelay();
@@ -223,6 +233,16 @@ public abstract class ContractIntel extends BaseIntelPlugin {
         } catch (RuntimeException e) {
             Global.getLogger(ContractIntel.class).warn("Missions - Renewed: contact offer failed", e);
         }
+    }
+
+    /** True when finishing this contract counts toward "Proving yourself". Buying and selling ships do not. */
+    protected boolean countsAsProof() {
+        return true;
+    }
+
+    /** False for contracts the player cannot walk away from (investments). */
+    protected boolean canAbandon() {
+        return true;
     }
 
     /** The kind of contact this client becomes: trade by default. */
@@ -368,7 +388,7 @@ public abstract class ContractIntel extends BaseIntelPlugin {
             addTerms(info, opad);
             Color base = getFactionForUIColors().getBaseUIColor();
             Color dark = getFactionForUIColors().getDarkUIColor();
-            info.addButton(abandonLabel(), BUTTON_ABANDON, base, dark, (int) width, 20f, opad * 2f);
+            if (canAbandon()) info.addButton(abandonLabel(), BUTTON_ABANDON, base, dark, (int) width, 20f, opad * 2f);
             if (Settings.testMode()) {
                 info.addPara("Test mode:", Misc.getGrayColor(), opad);
                 info.addButton("Complete now", BUTTON_TEST_COMPLETE, base, dark, (int) width, 20f, 3f);

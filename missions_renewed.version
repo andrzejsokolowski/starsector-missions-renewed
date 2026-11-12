@@ -5,8 +5,8 @@
 	"modThreadId":36287,
 	"modVersion": {
 		"major":0,
-		"minor":7,
-		"patch":1
+		"minor":8,
+		"patch":0
 	},
 	"starsectorVersion":"0.98a-RC8",
 	"directDownloadURL":"https://github.com/andrzejsokolowski/starsector-missions-renewed/releases/latest/download/MissionsRenewed.zip"

@@ -22,8 +22,8 @@ import java.util.Random;
 /**
  * Haul the client's supplies to a camp at a planet in an uncolonised system (design answer 10 on MSR-1).
  * Flying close to the planet with all the cargo delivers it. Each expedition rolls whether an ambush
- * waits there. The offer tells the odds, never the answer. The ambush fleet appears when the player
- * enters the destination system.
+ * waits there. The client only knows rumors, so the offer says how likely trouble is in words, never a number
+ * and never the answer. The ambush fleet appears when the player enters the destination system.
  */
 public class ExpeditionContract extends ContractIntel {
 
@@ -70,12 +70,20 @@ public class ExpeditionContract extends ContractIntel {
         return destination.getName() + " in the " + Places.systemName(destination);
     }
 
-    /** How the offer describes the odds. The last line is Andrzej's wording from the design answers. */
-    private String ambushText() {
-        if (ambushChance < 0.2f) return "Low chance of ambush";
-        if (ambushChance < 0.4f) return "Some chance of ambush";
-        if (ambushChance < 0.6f) return "High chance of ambush";
-        return "Very likely chance of ambush, go in prepared for a fight";
+    /** The risk in one word, for the terms box and the intel screen. */
+    private String ambushWord() {
+        if (ambushChance < 0.2f) return "unlikely";
+        if (ambushChance < 0.4f) return "possible";
+        if (ambushChance < 0.6f) return "likely";
+        return "almost certain";
+    }
+
+    /** What the client has heard about the place. They know rumors, not odds. */
+    private String ambushRumor() {
+        if (ambushChance < 0.2f) return "Nobody's reported trouble out there. Should be a quiet trip, but nobody patrols that far, so I can't promise.";
+        if (ambushChance < 0.4f) return "There's talk of ships out there that don't answer hails. Probably nothing. Probably.";
+        if (ambushChance < 0.6f) return "The last crew we sent out saw drive plumes on their scopes the whole way. Expect company.";
+        return "Our last convoy never came back. Whatever got them is still out there. Go in ready for a fight.";
     }
 
     @Override
@@ -156,9 +164,10 @@ public class ExpeditionContract extends ContractIntel {
 
     @Override
     public void addOfferText(TextPanelAPI text) {
-        text.addPara(client.getNameString() + " is backing a survey camp at " + place() + ", well past the last patrol route.");
-        text.addPara("\"" + Misc.getWithDGS(units) + " units of " + good() + ", my crates, your holds. The camp needs them within "
-                + Math.round(durationDays) + " days. Out there, nobody comes to help.\"");
+        text.addPara("\"We're building a camp at " + place() + ", well past the last patrol route, and it needs "
+                + Misc.getWithDGS(units) + " units of " + good() + " within " + Math.round(durationDays) + " days.\"");
+        text.addPara("\"I need a captain with the cargo space who can also defend it. " + ambushRumor()
+                + " You take this on at your own risk.\"");
     }
 
     @Override
@@ -169,7 +178,7 @@ public class ExpeditionContract extends ContractIntel {
                 Misc.getRoundedValueMaxOneAfterDecimal(Misc.getDistanceLY(origin.getPrimaryEntity(), destination)));
         info.addPara("Deadline: %s days", 0f, h, "" + Math.round(durationDays));
         Color odds = ambushChance < 0.4f ? h : Misc.getNegativeHighlightColor();
-        info.addPara("%s (%s)", 0f, odds, ambushText(), Math.round(ambushChance * 100f) + " percent");
+        info.addPara("Ambush: %s", 0f, odds, ambushWord());
         addTerms(info, 10f);
     }
 
@@ -205,8 +214,8 @@ public class ExpeditionContract extends ContractIntel {
     protected void addDescriptionTop(TooltipMakerAPI info, float width) {
         info.addImages(width, 80f, 10f, 20f, getIcon(), client.getPortraitSprite());
         info.addPara(client.getNameString() + " of " + origin.getName() + " has trusted you with " + Misc.getWithDGS(units)
-                + " units of " + good() + " for the camp at " + place() + ". Fly close to the planet to deliver. "
-                + ambushText() + ".", 10f);
+                + " units of " + good() + " for the camp at " + place() + ". Fly close to the planet to deliver. Ambush: "
+                + ambushWord() + ".", 10f);
     }
 
     @Override

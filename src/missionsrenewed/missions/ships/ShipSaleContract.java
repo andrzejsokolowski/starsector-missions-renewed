@@ -1,6 +1,7 @@
 package missionsrenewed.missions.ships;
 
 import com.fs.starfarer.api.Global;
+import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -35,8 +36,22 @@ public class ShipSaleContract extends ContractIntel {
         this.price = price;
     }
 
+    /** The ship as the offer shows it. Not the one handed over: signing builds that one fresh. */
+    private transient FleetMemberAPI shown;
+
     private ShipHullSpecAPI hull() {
         return Global.getSettings().getVariant(variantId).getHullSpec();
+    }
+
+    @Override
+    public void showOfferVisual(InteractionDialogAPI dialog) {
+        if (shown == null) shown = Hulls.member(Hulls.withSMods(variantId, sMods), shipName);
+        dialog.getVisualPanel().showFleetMemberInfo(shown, true);
+    }
+
+    @Override
+    protected boolean countsAsProof() {
+        return false;
     }
 
     @Override

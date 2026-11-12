@@ -51,6 +51,16 @@ public final class Settings {
         return Math.max(integer("mr_minTier", 0), integer("mr_maxTier", 7));
     }
 
+    /** Proving yourself: higher tiers open only after enough contracts of the tier below. */
+    public static boolean proving() {
+        return bool("mr_proving", true);
+    }
+
+    /** Contracts of a tier (or higher) that open the next tier. */
+    public static int provingCount() {
+        return Math.max(1, integer("mr_provingCount", 3));
+    }
+
     /** Test mode: every bar offers any contract on request, and the intel screen can finish or fail one at once. */
     public static boolean testMode() {
         return bool("mr_testMode", false);

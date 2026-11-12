@@ -45,11 +45,11 @@ public class CrewTransportContract extends DeliveryContract {
 
     @Override
     public void addOfferText(TextPanelAPI text) {
-        text.addPara(client.getNameString() + " hires out work crews, and " + destination.getName()
-                + " has paid for " + Misc.getWithDGS(units) + " of them.");
-        text.addPara("\"Every one of them is on the manifest, and every one of them gets off at "
-                + destination.getName() + " within " + Math.round(durationDays)
-                + " days. Fed, breathing, and all present.\"");
+        text.addPara("\"" + destination.getName() + " paid for " + Misc.getWithDGS(units)
+                + " of my workers, and they're packed and ready. They need a ride, and they need it within "
+                + Math.round(durationDays) + " days.\"");
+        text.addPara("\"Feed them, keep the air on, and don't lose anybody. If they don't all walk off at "
+                + destination.getName() + ", that's on you.\"");
     }
 
     @Override

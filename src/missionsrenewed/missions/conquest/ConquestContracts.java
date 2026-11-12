@@ -15,13 +15,29 @@ import missionsrenewed.tiers.Tier;
 
 import java.util.Random;
 
-/** Builds conquest offers (tier 3 and up, Nexerelin only): a hostile market whose size fits the tier. */
+/** Builds conquest offers (tier 5 and up, Nexerelin only): a hostile market of size 3, 4 or 5 by tier, never a story market. */
 public final class ConquestContracts {
 
     private static final float ADVANCE_SHARE = 0.1f;
     private static final float PENALTY_SHARE = 0.25f;
-    /** Market sizes per tier, from tier 3: [min, max]. */
-    private static final int[][] SIZES = {{3, 4}, {4, 5}, {5, 6}, {6, 7}, {7, 99}};
+    /** Market size per tier, from tier 5 (Andrzej, MSR-22): tier 5 size 3, tier 6 size 4, tier 7 size 5. */
+    private static final int[] SIZES = {3, 4, 5};
+    /**
+     * Markets the story or a faction leans on, never offered even when the game does not flag them: faction
+     * capitals and quest worlds of the core sector.
+     */
+    private static final java.util.Set<String> STORY_MARKETS = new java.util.HashSet<>(java.util.Arrays.asList(
+            "chicomoztoc", "gilead", "hesperus", "jangala", "ancyra_market", "sindria", "kazeron", "culann", "eochu_bres", "ancyra",
+            "kantas_den", "chalcedon", "new_maxios", "port_tse", "fikenhild", "volturn", "asharu", "galatia_academy",
+            "station_galatia_academy", "mazalot", "agreus", "nortia"));
+
+    /** Story-critical, a quest world, or flagged by the game or a mod as no target for random missions. */
+    static boolean isStoryMarket(MarketAPI market) {
+        if (STORY_MARKETS.contains(market.getId())) return true;
+        if (Misc.isStoryCritical(market)) return true;
+        return market.getPrimaryEntity() != null && (market.getPrimaryEntity().hasTag(com.fs.starfarer.api.impl.campaign.ids.Tags.NOT_RANDOM_MISSION_TARGET)
+                || STORY_MARKETS.contains(market.getPrimaryEntity().getId()));
+    }
 
     private ConquestContracts() {}
 
@@ -32,13 +48,13 @@ public final class ConquestContracts {
 
     public static ConquestContract build(MarketAPI origin, Tier tier, Random random) {
         if (tier.level < MissionFamily.CONQUEST.minTier || !canOffer(origin)) return null;
-        int[] size = SIZES[Math.min(SIZES.length - 1, tier.level - MissionFamily.CONQUEST.minTier)];
+        int size = SIZES[Math.min(SIZES.length - 1, tier.level - MissionFamily.CONQUEST.minTier)];
         WeightedRandomPicker<MarketAPI> targets = new WeightedRandomPicker<>(random);
         float maxLY = 10f + 4f * tier.level;
         for (MarketAPI market : Global.getSector().getEconomy().getMarketsCopy()) {
             if (market == origin || market.isHidden() || !market.isInEconomy() || market.isPlayerOwned()) continue;
             if (market.getPrimaryEntity() == null || Factions.PLAYER.equals(market.getFactionId())) continue;
-            if (market.getSize() < size[0] || market.getSize() > size[1]) continue;
+            if (market.getSize() != size || isStoryMarket(market)) continue;
             if (!market.getFaction().isHostileTo(origin.getFaction())) continue;
             if (Misc.getDistanceLY(origin.getPrimaryEntity(), market.getPrimaryEntity()) > maxLY) continue;
             targets.add(market, 1f);
