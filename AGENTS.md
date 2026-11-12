@@ -25,7 +25,7 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 - `src/missionsrenewed/bar/MissionBoardBarEvent` - the one bar event, the mission board (0.7.0, MSR-24). One
   instance lives in `PortsideBarData` for good (`isAlwaysShow`, never pinned by `wasShownAtMarket`). The bar
   shows one option, "Open the mission board". Each market rolls `$missions_renewed_offer` in its memory for
-  20 to 40 days: "none", or 2 to 5 lines joined by ';' (market size - 1, `MAX_LINES` 5), each "<tier>|<FAMILY>"
+  20 to 40 days: "none", or 1 to 5 lines joined by ';' (`lineCount` by market size, Andrzej's table on MSR-24: size 3 rarely 1, 4: 1-2, 5: 1-2 mostly 2, 6: 2-3, 7: 3-4, 8: 4-5, 9+: 5, size 2 and below none), each "<tier>|<FAMILY>"
   with its own tier roll, or "-" once signed. A pre-0.7.0 single line reads as a board of one. Seeded by
   `BarEventManager.getSeed` so a reload does not re-roll. BarCMD caps the events per visit but does not
   count always-show ones, which is why this is not a normal bar event creator.

@@ -284,17 +284,35 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         memory.set(OFFER_KEY, String.join(";", parts), expire > 0f ? expire : MIN_DAYS);
     }
 
-    /** Lines on a board: 2 at size 3 and below, one more per size, up to MAX_LINES. */
-    private static int lineCount(MarketAPI market) {
-        return Math.max(2, Math.min(MAX_LINES, market.getSize() - 1));
+    /** "Rarely" in Andrzej's line counts. */
+    private static final float RARE = 0.25f;
+
+    /**
+     * Lines on a board by market size (Andrzej's table, MSR-24): size 3 rarely 1 (else no board), 4: 1, rarely 2,
+     * 5: 1 or 2, mostly 2, 6: 2, rarely 3, 7: 3, rarely 4, 8: 4, rarely 5, 9 and up: 5. Size 2 and below: none.
+     */
+    private static int lineCount(MarketAPI market, Random random) {
+        int size = market.getSize();
+        if (size <= 2) return 0;
+        float r = random.nextFloat();
+        switch (size) {
+            case 3: return r < RARE ? 1 : 0;
+            case 4: return r < RARE ? 2 : 1;
+            case 5: return r < 0.7f ? 2 : 1;
+            case 6: return r < RARE ? 3 : 2;
+            case 7: return r < RARE ? 4 : 3;
+            case 8: return r < RARE ? 5 : 4;
+            default: return MAX_LINES;
+        }
     }
 
     /** Rolls a board: the bar chance, then each line's own tier and job type, never the same pair twice. */
     private static String roll(Random random, MarketAPI market) {
         if (random.nextFloat() >= Settings.barChance()) return "none";
+        int count = lineCount(market, random);
+        if (count <= 0) return "none";
         List<String> lines = new ArrayList<>();
         Set<String> seen = new HashSet<>();
-        int count = lineCount(market);
         for (int attempt = 0; attempt < count * 3 && lines.size() < count; attempt++) {
             Tier tier = TierTable.pick(random, PlayerTier.estimate(), Settings.playerLean(), Settings.minTier(), Settings.maxTier());
             if (tier == null) break;

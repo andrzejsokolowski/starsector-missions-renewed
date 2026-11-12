@@ -1,6 +1,6 @@
 fieldID,fieldName,fieldType,defaultValue,secondaryValue,fieldDescription,minValue,maxValue,tab
 mr_header_bar,Bar Header,Header,Bar offers,,,,,
-mr_barChance,Chance of a mission board per bar,Int,50,,"Chance in percent that a bar has a mission board. The board lists 2 to 5 contracts, more at bigger markets. Each bar rolls again about every 20 to 40 days.",0,100,
+mr_barChance,Chance of a mission board per bar,Int,50,,"Chance in percent that a bar has a mission board. The board lists 1 to 5 contracts, more at bigger markets. Size 3 markets rarely have one, smaller markets never. Each bar rolls again about every 20 to 40 days.",0,100,
 mr_playerLean,Lean toward your strength,Int,100,,"How much the tier roll favours tiers that match your fleet size, colony income and credits. 0 is fully random. 100 makes the matching tier twice as likely and its neighbours one and a half times. Every tier in the range below stays possible.",0,300,
 mr_minTier,Lowest tier,Int,0,,"Bars never offer contracts below this tier. If it is set above the highest tier, the two swap.",0,7,
 mr_maxTier,Highest tier,Int,7,,"Bars never offer contracts above this tier.",0,7,

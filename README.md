@@ -8,8 +8,9 @@ Requires LunaLib.
 ## How it works
 
 - Every bar has a chance (50 percent by default) to have a mission board. "Open the mission board" lists
-  2 to 5 contracts, more at bigger markets, each with its own tier and job type, for example "Tier 5
-  hauling". Ship hand-overs are on the board too.
+  1 to 5 contracts by market size, each with its own tier and job type, for example "Tier 5 hauling":
+  1 or 2 at size 4 and 5, 2 or 3 at size 6, 3 or 4 at size 7, 4 or 5 at size 8, always 5 at size 9 and up.
+  Size 3 markets rarely have a board, with 1 contract. Smaller markets have none. Ship hand-overs are on the board too.
 - Tiers are random, but lean a little toward your fleet size, colony income and credits.
 - Each contract pays an advance when you sign and the rest on completion. Missing the deadline or
   abandoning the contract charges a penalty, even if that leaves you in debt, and costs reputation with

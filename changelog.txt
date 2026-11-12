@@ -1,3 +1,6 @@
+Version 0.7.1 (2026-11-12)
+- Contracts per mission board now follow market size: 1 or 2 at size 4 and 5, 2 or 3 at size 6, 3 or 4 at size 7, 4 or 5 at size 8, always 5 at size 9 and up. Size 3 markets rarely have a board, with 1 contract. Smaller markets have none.
+
 Version 0.7.0 (2026-11-12)
 - New mission board: one "Open the mission board" option at the bar lists 2 to 5 contracts, more at bigger markets, each with its own tier and job type. Signing one leaves the others on the board.
 - Ship hand-overs and the test mode spawner moved onto the board.
