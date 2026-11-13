@@ -144,9 +144,13 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         int unlocked = Proving.highestUnlocked();
         if (unlocked < 7) {
             int left = Proving.stillNeeded();
+            int next = Proving.nextUnlocked();
+            String opens = next == unlocked + 1 ? "tier " + next
+                    : next == unlocked + 2 ? "tiers " + (unlocked + 1) + " and " + next
+                    : "tiers " + (unlocked + 1) + " to " + next;
             text.addPara("Clients trust you with contracts up to tier " + unlocked + ". Finish " + left
-                    + (left == 1 ? " more contract" : " more contracts") + " of tier " + unlocked + " or higher to be offered tier "
-                    + (unlocked + 1) + ".", Misc.getGrayColor());
+                    + (left == 1 ? " more contract" : " more contracts") + " of tier " + Proving.provingFrom()
+                    + " or higher to be offered " + opens + ".", Misc.getGrayColor());
         }
         List<Offer> offers = offersAt(market);
         for (int i : lines) {

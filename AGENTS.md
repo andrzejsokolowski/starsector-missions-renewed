@@ -60,7 +60,7 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 - `src/missionsrenewed/missions/combat/` - `CombatContract` (a fleet spawned on signing near a planet,
   preferably in an uncolonised system; done when the player fights it and it is destroyed or down to a
   quarter of its fleet points; void if someone else kills it). `EnemyFleets` picks and builds enemies:
-  tiers 0 to 4 pirates or Pathers from FleetFactoryV3. Tiers 5 to 7 (0.8.1, Andrzej: the strange enemies
+  tiers 0 to 4 pirates or Pathers from FleetFactoryV3 (Tahlan's `tahlan_legioinfernalis` counts as pirates, 0.8.2). Tiers 5 to 7 (0.8.1, Andrzej: the strange enemies
   "pretty much never attack anything"): an elite FleetFactoryV3 war fleet of a faction hostile to the client
   (`warFleetFactions`: shown in the intel tab, has ships, not pirates, Pathers, Omega, Threat, Dwellers,
   Remnants, derelicts or a group's faction; pirates and Pathers only when no other faction is hostile), sharing
@@ -95,7 +95,9 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   - `lead/ShipLeadContract`: negative advance (the price of the lead), no pay or penalty. A pristine derelict
     (`BaseThemeGenerator.addSalvageEntity` WRECK + `ShipRecoverySpecialData`, guards from tier 3) or a pirate or
     Pather flagship tagged `Tags.VARIANT_ALWAYS_RECOVERABLE`. The famous ship comes from `Hulls.pickFamous`
-    (0.8.1): warships only, no pirate or Path refits from tier 4, weighted by hull value to the power tier/4.
+    (0.8.2, Andrzej's percentile rule): every usable warship base hull (no freighter, tanker, liner or transport
+    hints) sorted by base value, cut into 8 equal slices, the tier's slice drawn evenly. `Hulls.famousSMods`:
+    1 / 2 / 3 S-mods at tiers 0-2 / 3-5 / 6-7. The lead fee is capped at half the tier's `rewardMax`.
     `ships/Hulls` picks stock variants by the tier's DP
     band (`Hulls.DP_BAND`), skipping stations, modules, unboardable, hidden, civilian, automated and D-hulls.
   - `ships/ShipWantedContract` (0.8.0: a client wants one named ship from the player's fleet in the tier's DP band,
@@ -121,9 +123,10 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   - `MissionFamily.minTier` + `Contracts.canOffer(family, market, tier)`: the bar rolls the tier first, then the
     types offered at it. Test mode greys out tiers below a type's minimum.
 - Completed contracts offer the client as a potential contact (`ContactIntel.addPotentialContact`).
-- Proving yourself (LunaLib `mr_proving`, default on, `mr_provingCount` default 3, MSR-25): `tiers/Proving` counts
-  completed contracts per tier in sector memory (`$missions_renewed_done_tier_<n>`); the board offers up to one
-  tier above the highest tier with enough completions at or above it. `countsAsProof` is false for ship sales,
+- Proving yourself (LunaLib `mr_proving`, default on, `mr_provingCount` default 3, `mr_provingStep` default 2,
+  MSR-25): `tiers/Proving` counts completed contracts per tier in sector memory (`$missions_renewed_done_tier_<n>`).
+  Tiers open in steps (0.8.2): with step 2, 0-1 open; provingCount completions at tier 0+ open 2-3, at 2+ open
+  4-5, at 4+ open 6-7. `countsAsProof` is false for ship sales,
   wanted ships and investments. Test mode ignores it.
 - Offer text is the client talking, in character (Andrzej, 2026-11-12): no narrator lines that explain the
   rules ("the breach clause applies"), no exact odds the client could not know. The terms box under it stays

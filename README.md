@@ -43,9 +43,11 @@ Requires LunaLib.
 - **Defense**: a fleet is gathering outside a market of the client's faction. It attacks when you arrive in
   the system. Destroy it, or leave it with a quarter of its strength. The market's station fights with you.
   The offer shows a glimpse of the fleet.
-- **Famous ship lead**: pay for the location of one named warship, better the higher the tier. It is a pristine derelict
-  you can recover (guarded from tier 3), or the flagship of a hostile fleet, always recoverable once beaten.
-  S-mods from tier 3.
+- **Famous ship lead**: pay for the location of one named warship. Every warship in the game is sorted by price
+  into 8 equal groups, tier 0 the cheapest and tier 7 the most expensive, and the ship is drawn from its tier's
+  group. It is a pristine derelict you can recover (guarded from tier 3), or the flagship of a hostile fleet,
+  always recoverable once beaten. Always S-modded: 1 at tiers 0 to 2, 2 at 3 to 5, 3 at 6 and 7. The lead never
+  costs more than half of what a contract of its tier pays.
 - **Ship deal**: a client wants one ship from your fleet (never the flagship) and pays well over its value on
   the spot, more for a ship Starship Legends rates as well known; or a client sells you a ship (S-mods from
   tier 3) below its value, usually used with a few D-mods and cheaper for it, rarely pristine. The offer shows
@@ -85,9 +87,9 @@ the table says.
 - Chance of a mission board per bar.
 - Lean toward your strength: 0 makes the tier roll fully random.
 - Lowest and highest tier: bars only offer contracts in this range.
-- Proving yourself (on by default): clients offer work one tier above what you have done. Finish 3
-  contracts of a tier or higher (a setting) to open the next tier. Ship purchases and sales and investments
-  do not count.
+- Proving yourself (on by default): tiers open two at a time (a setting). Tiers 0 and 1 are open from the
+  start; 3 contracts (a setting) of tier 0 or higher open 2 and 3, 3 of tier 2 or higher open 4 and 5, 3 of
+  tier 4 or higher open 6 and 7. Ship purchases and sales and investments do not count.
 - Job types: turn each one on or off.
 - Reward multiplier and enemy strength multiplier.
 - Debug: test mode, off by default. Every bar gets a mission board with an option to spawn any job type at any tier (ignoring

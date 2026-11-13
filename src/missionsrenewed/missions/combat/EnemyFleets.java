@@ -39,12 +39,14 @@ public final class EnemyFleets {
     public static final int GROUP_MIN_TIER = 5;
     /** Most ships a hand-built fleet gets, whatever its fleet points. */
     private static final int MAX_SHIPS = 30;
-    private static final String[] LOW_TIER_FACTIONS = {Factions.PIRATES, Factions.LUDDIC_PATH};
+    /** Tahlan Shipworks' Legio Infernalis: a pirate faction (Andrzej, 2026-11-13). Skipped when Tahlan is not installed. */
+    public static final String LEGIO = "tahlan_legioinfernalis";
+    private static final String[] LOW_TIER_FACTIONS = {Factions.PIRATES, Factions.LUDDIC_PATH, LEGIO};
     /** Pick weight shared by every faction hostile to the client at tiers 5 to 7; the groups' weights are next to it. */
     private static final float HOSTILE_FACTION_WEIGHT = 60f;
     /** Never picked as a hostile faction: the strange ones come only through their groups. */
     private static final java.util.Set<String> NOT_A_WAR_FLEET = new java.util.HashSet<>(java.util.Arrays.asList(
-            Factions.PLAYER, Factions.PIRATES, Factions.LUDDIC_PATH, Factions.OMEGA, Factions.THREAT, Factions.DWELLER,
+            Factions.PLAYER, Factions.PIRATES, Factions.LUDDIC_PATH, LEGIO, Factions.OMEGA, Factions.THREAT, Factions.DWELLER,
             Factions.REMNANTS, Factions.DERELICT, Factions.SCAVENGERS, Factions.NEUTRAL, Factions.POOR, Factions.SLEEPER));
 
     /** Every contract fleet and ambush flies under this name: the client never knows who it is. */
@@ -74,7 +76,7 @@ public final class EnemyFleets {
             }
             List<String> hostile = warFleetFactions(clientFaction, groupFactions);
             if (hostile.isEmpty()) {
-                // Nobody but pirates and Pathers is at war with the client: they send their best instead.
+                // Nobody but pirates (Legio Infernalis included) and Pathers is at war with the client: they send their best.
                 for (String factionId : LOW_TIER_FACTIONS) {
                     FactionAPI faction = Global.getSector().getFaction(factionId);
                     if (faction != null && faction != clientFaction && (clientFaction == null || faction.isHostileTo(clientFaction))) {
@@ -111,7 +113,7 @@ public final class EnemyFleets {
     /** "pirate", "Pather", "Omega": as in "a pirate fleet". */
     public static String enemyName(String key) {
         if (key == null) return "hostile";
-        if (key.equals("faction:" + Factions.PIRATES)) return "pirate";
+        if (key.equals("faction:" + Factions.PIRATES) || key.equals("faction:" + LEGIO)) return "pirate";
         if (key.equals("faction:" + Factions.LUDDIC_PATH)) return "Pather";
         if (key.startsWith("group:")) {
             EnemyGroups.Group group = EnemyGroups.get(key.substring(6));

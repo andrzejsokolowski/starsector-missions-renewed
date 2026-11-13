@@ -1,3 +1,10 @@
+Version 0.8.2 (2026-11-13)
+- Famous ship leads pick by price: all warships are sorted by value and split into 8 equal groups, tier 0 the cheapest and tier 7 the most expensive, and the ship is drawn at random from its tier's group. One very expensive modded ship no longer pushes every tier up.
+- Famous ships always have S-mods: 1 at tiers 0 to 2, 2 at tiers 3 to 5, 3 at tiers 6 and 7.
+- A famous ship lead never costs more than half of what a contract of its tier pays.
+- Proving yourself opens tiers two at a time: tiers 0 and 1 are open from the start, 3 contracts of tier 0 or higher open 2 and 3, 3 of tier 2 or higher open 4 and 5, and 3 of tier 4 or higher open 6 and 7. New LunaLib setting for how many tiers open at once.
+- With Tahlan Shipworks, the Legio Infernalis turns up wherever pirates do.
+
 Version 0.8.1 (2026-11-12)
 - Tier 5 to 7 combat, defense and expedition enemies are now mostly elite war fleets of a faction at war with the client. Anything stranger is very rare.
 - Famous ship leads bring better warships at higher tiers: no freighters or transports, and no pirate or Luddic Path refits from tier 4.

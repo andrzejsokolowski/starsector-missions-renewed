@@ -80,7 +80,8 @@ public class ExpeditionContract extends ContractIntel {
 
     /** Who is taking an interest: "Pirate interest", "Terrorist interest" (the Luddic Path) or "Enemy interest". */
     private String interestLabel() {
-        if (("faction:" + com.fs.starfarer.api.impl.campaign.ids.Factions.PIRATES).equals(enemyKey)) return "Pirate interest";
+        if (("faction:" + com.fs.starfarer.api.impl.campaign.ids.Factions.PIRATES).equals(enemyKey)
+                || ("faction:" + EnemyFleets.LEGIO).equals(enemyKey)) return "Pirate interest";
         if (("faction:" + com.fs.starfarer.api.impl.campaign.ids.Factions.LUDDIC_PATH).equals(enemyKey)) return "Terrorist interest";
         return "Enemy interest";
     }

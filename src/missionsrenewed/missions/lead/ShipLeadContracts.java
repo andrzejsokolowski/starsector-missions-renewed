@@ -15,15 +15,17 @@ import missionsrenewed.tiers.Tier;
 
 import java.util.Random;
 
-/** Builds famous ship leads: a ship sized by the tier's DP band, as a derelict or a fleet flagship. */
+/** Builds famous ship leads: a ship from the tier's eighth of all warships by price, as a derelict or a fleet flagship. */
 public final class ShipLeadContracts {
 
     /** Share of leads where the ship leads a fleet instead of drifting as a derelict (tier 1 and up). */
     private static final float FLAGSHIP_CHANCE = 0.4f;
     /** Derelicts get guards from this tier. */
     private static final int GUARDED_FROM_TIER = 3;
-    /** The lead costs this share of the ship's value. */
+    /** The lead costs this share of the ship's value, plus 5 percent per S-mod... */
     private static final float FEE_SHARE = 0.15f;
+    /** ...but never more than this share of what a tier's contract pays, so a 40 million credit hull stays affordable. */
+    private static final float FEE_CAP_SHARE = 0.5f;
 
     private ShipLeadContracts() {}
 
@@ -49,8 +51,9 @@ public final class ShipLeadContracts {
             escortDeployment = Math.max(6, Math.round(tier.rollDeployment(random) * 0.5f * Settings.strengthMult()));
         }
 
-        int sMods = Hulls.sModsForTier(tier.level);
-        int fee = Places.roundTo(Math.max(2000f, hull.getBaseValue() * (FEE_SHARE + 0.05f * sMods)), 500);
+        int sMods = Hulls.famousSMods(tier.level);
+        float cap = tier.rewardMax * FEE_CAP_SHARE;
+        int fee = Places.roundTo(Math.max(2000f, Math.min(cap, hull.getBaseValue() * (FEE_SHARE + 0.05f * sMods))), 500);
         float days = (float) Math.ceil(Places.tripDays(origin.getPrimaryEntity().getLocationInHyperspace(),
                 system.getLocation()) * 2f + 60f);
 

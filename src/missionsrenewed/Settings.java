@@ -56,9 +56,14 @@ public final class Settings {
         return bool("mr_proving", true);
     }
 
-    /** Contracts of a tier (or higher) that open the next tier. */
+    /** Contracts of a tier (or higher) that open the next tiers. */
     public static int provingCount() {
         return Math.max(1, integer("mr_provingCount", 3));
+    }
+
+    /** How many tiers Proving yourself opens at once: 2 opens 0-1, then 2-3, 4-5, 6-7. */
+    public static int provingStep() {
+        return Math.max(1, Math.min(7, integer("mr_provingStep", 2)));
     }
 
     /** Test mode: every bar offers any contract on request, and the intel screen can finish or fail one at once. */

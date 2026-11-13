@@ -30,6 +30,7 @@ public final class Hulls {
     };
 
     private static List<String> usable;
+    private static final int TIERS = 8;
 
     private Hulls() {}
 
@@ -102,41 +103,46 @@ public final class Hulls {
     }
 
     /**
-     * A famous ship for a lead: a warship (no freighters, tankers, liners or troop transports) in the tier's DP band.
-     * From tier 4, pirate and Luddic Path refits are left out and better hulls, by their value, are more likely:
-     * a tier 7 lead is a dreadnought, not a patched-up freighter (Andrzej, 2026-11-12). Falls back to pickVariant.
+     * A famous ship for a lead, by price percentile (Andrzej, 2026-11-13): every warship hull in the game (no
+     * freighters, tankers, liners or troop transports) sorted by hull value, cut into 8 equal slices, tier 0 the
+     * cheapest eighth and tier 7 the dearest. The hull is drawn evenly from the tier's slice, then one of its
+     * variants. A 40 million credit modded hull sits in tier 7 next to 2 million credit ones instead of pushing
+     * every tier up. Falls back to pickVariant when no warship is usable.
      */
     public static String pickFamous(int tier, Random random) {
-        WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
-        java.util.Map<String, Integer> perHull = new java.util.HashMap<>();
-        List<String> fitting = new ArrayList<>();
+        java.util.Map<String, List<String>> variantsByHull = new java.util.HashMap<>();
+        java.util.Map<String, Float> valueByHull = new java.util.HashMap<>();
         for (String id : usableVariants()) {
             ShipHullSpecAPI hull = Global.getSettings().getVariant(id).getHullSpec();
-            float dp = dp(hull);
-            if (dp < minDP(tier) || dp > maxDP(tier)) continue;
             Set<ShipTypeHints> hints = hull.getHints();
             if (hints.contains(ShipTypeHints.FREIGHTER) || hints.contains(ShipTypeHints.TANKER)
                     || hints.contains(ShipTypeHints.LINER) || hints.contains(ShipTypeHints.TRANSPORT)) continue;
-            if (tier >= 4 && isRefit(hull)) continue;
-            fitting.add(id);
-            perHull.merge(hull.getBaseHullId(), 1, Integer::sum);
+            String base = hull.getBaseHullId();
+            variantsByHull.computeIfAbsent(base, k -> new ArrayList<>()).add(id);
+            valueByHull.merge(base, hull.getBaseValue(), Math::max);
         }
-        float exponent = tier / 4f;
-        for (String id : fitting) {
-            ShipHullSpecAPI hull = Global.getSettings().getVariant(id).getHullSpec();
-            float value = Math.max(1000f, hull.getBaseValue()) / 100000f;
-            picker.add(id, (float) Math.pow(value, exponent) / perHull.get(hull.getBaseHullId()));
-        }
-        String pick = picker.pick();
-        return pick != null ? pick : pickVariant(tier, null, random);
+        if (variantsByHull.isEmpty()) return pickVariant(tier, null, random);
+        List<String> hulls = new ArrayList<>(variantsByHull.keySet());
+        // Sorted the same way every time, so a seeded board rolls the same ship after a reload.
+        hulls.sort((a, b) -> {
+            int c = Float.compare(valueByHull.get(a), valueByHull.get(b));
+            return c != 0 ? c : a.compareTo(b);
+        });
+        int n = hulls.size();
+        int t = clamp(tier);
+        int from = Math.min(n - 1, n * t / TIERS);
+        int to = Math.max(from + 1, Math.min(n, n * (t + 1) / TIERS));
+        String hull = hulls.get(from + random.nextInt(to - from));
+        List<String> variants = variantsByHull.get(hull);
+        java.util.Collections.sort(variants);
+        return variants.get(random.nextInt(variants.size()));
     }
 
-    /** A pirate or Luddic Path refit, by the hull's manufacturer. */
-    private static boolean isRefit(ShipHullSpecAPI hull) {
-        String maker = hull.getManufacturer();
-        if (maker == null) return false;
-        maker = maker.toLowerCase(java.util.Locale.ROOT);
-        return maker.contains("pirate") || maker.contains("path");
+    /** S-mods a famous ship always carries (Andrzej, 2026-11-13): 1 at tiers 0 to 2, 2 at 3 to 5, 3 at 6 and 7. */
+    public static int famousSMods(int tier) {
+        if (tier <= 2) return 1;
+        if (tier <= 5) return 2;
+        return 3;
     }
 
     /** A copy of the variant the game treats as its own (not the stock one), with up to sMods hull mods made S-mods. */
