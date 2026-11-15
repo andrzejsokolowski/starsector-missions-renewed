@@ -1,3 +1,6 @@
+Version 0.9.0 (2026-11-15)
+- Updated for Starsector 0.98.5a.
+
 Version 0.8.8 (2026-11-15)
 - Famous ships are held by pirates or the Luddic Path, or by any other faction you are not friendly with (reputation 10 or lower), Legio Infernalis included. This goes for a famous flagship's fleet and for the fleet guarding a famous derelict. Fighting them never costs reputation.
 

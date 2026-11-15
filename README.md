@@ -1,6 +1,6 @@
 # Missions - Renewed
 
-A Starsector 0.98a mod by Oddisz. Bar missions sorted into tiers 0 to 7, from pocket money to jobs worth
+A Starsector 0.98.5a mod by Oddisz. Bar missions sorted into tiers 0 to 7, from pocket money to jobs worth
 millions, so contracts stay worth taking once your colonies earn a fortune.
 
 Requires LunaLib.
