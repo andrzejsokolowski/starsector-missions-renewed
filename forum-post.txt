@@ -8,6 +8,11 @@ Once your colonies earn millions a month, a 30k bar mission is not worth the tri
 Missions - Renewed adds contracts in tiers 0 to 7, from pocket money to millions of credits.
 Needs LunaLib.
 [/b][/center]
+[spoiler=Screenshots]
+[center][img]https://github.com/andrzejsokolowski/starsector-missions-renewed/blob/main/screenshots/01-famous-ship-lead.webp?raw=true[/img]
+[img]https://github.com/andrzejsokolowski/starsector-missions-renewed/blob/main/screenshots/02-mission-board.png?raw=true[/img]
+[img]https://github.com/andrzejsokolowski/starsector-missions-renewed/blob/main/screenshots/03-crew-transport-offer.webp?raw=true[/img][/center]
+[/spoiler]
 
 [hr][center][size=12pt][b]Contracts in the bar[/b][/size][/center][hr]
 [list]
