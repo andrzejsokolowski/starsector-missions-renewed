@@ -1,3 +1,6 @@
+Version 0.8.8 (2026-11-15)
+- Famous ships are held by pirates or the Luddic Path, or by any other faction you are not friendly with (reputation 10 or lower), Legio Infernalis included. This goes for a famous flagship's fleet and for the fleet guarding a famous derelict. Fighting them never costs reputation.
+
 Version 0.8.7 (2026-11-15)
 - Fixed famous ship leads that said "That contract is no longer on offer" when clicked. A flagship's escort can now be any pirate, Pather or Legio fleet, whoever the client is at war with, and a lead looks further out when nothing is in range.
 - The mission board checks its contracts when it opens and leaves out any that cannot be offered, so the count and the list only show contracts you can open.

@@ -42,10 +42,10 @@ public final class ShipLeadContracts {
         if (variantId == null) return null;
         ShipHullSpecAPI hull = Global.getSettings().getVariant(variantId).getHullSpec();
         boolean flagship = tier.level >= 1 && random.nextFloat() < FLAGSHIP_CHANCE;
-        // Escorts are crews of people, never the secret enemies: pirates, Pathers or Legio at every tier, whoever
-        // the client is at war with (a pirate client still knows where a Pather flagship is). None installed or
-        // loaded: the ship is a derelict instead, never a failed lead.
-        String flagshipEscort = flagship ? EnemyFleets.pickEnemy(EnemyFleets.GROUP_MIN_TIER - 1, null, random) : null;
+        // Escorts are crews of people, never the secret enemies: pirates, Pathers, or any faction the player is not
+        // friendly with (EnemyFleets.pickFamousShipHolder), whoever the client is. None: the ship is a derelict
+        // instead, never a failed lead.
+        String flagshipEscort = flagship ? EnemyFleets.pickFamousShipHolder(random) : null;
         if (flagshipEscort == null) flagship = false;
         StarSystemAPI system = Places.pickSystem(origin, 4f, 10f + 4f * tier.level, false,
                 flagship ? 1f : dangerWeight(tier.level), random);
@@ -69,7 +69,7 @@ public final class ShipLeadContracts {
             if (roll < UNGUARDED) {
                 guards = ShipLeadContract.GUARDS_NONE;
             } else {
-                escort = roll < UNGUARDED + SCAVENGED ? null : EnemyFleets.pickEnemy(tier.level, origin.getFaction(), random);
+                escort = roll < UNGUARDED + SCAVENGED ? null : EnemyFleets.pickFamousShipHolder(random);
                 if (escort == null) {
                     guards = ShipLeadContract.GUARDS_SCAVENGERS;
                     escortDeployment = Math.max(6, Math.round(strength * 0.25f));

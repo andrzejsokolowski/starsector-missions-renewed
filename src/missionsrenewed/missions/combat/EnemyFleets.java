@@ -110,6 +110,41 @@ public final class EnemyFleets {
         return result;
     }
 
+    /** Most reputation (as a fraction, 10 on the game's scale) a faction may have with the player and still hold a famous ship. */
+    private static final float HOLDER_MAX_REP = 0.10f;
+    /** Pick weight of pirates and the Luddic Path among famous ship holders; every other allowed faction weighs 1. */
+    private static final float OUTLAW_HOLDER_WEIGHT = 3f;
+
+    /**
+     * Who holds a famous ship (Andrzej, 2026-11-15): the escort of a famous flagship or the fleet guarding a famous
+     * derelict. Pirates and the Luddic Path always; any other faction with real war fleets (shown on the intel
+     * screen, has ships, not Omega, Threat, Dwellers, Remnants or a group's faction) only while the player's
+     * reputation with it is 10 or lower, so Legio Infernalis only at neutral or worse. The fleets carry
+     * MEMORY_KEY_NO_REP_IMPACT, so fighting them never costs standing. Null when none qualifies.
+     */
+    public static String pickFamousShipHolder(Random random) {
+        WeightedRandomPicker<String> picker = new WeightedRandomPicker<>(random);
+        java.util.Set<String> groupFactions = new java.util.HashSet<>();
+        for (EnemyGroups.Group group : EnemyGroups.forTier(7)) groupFactions.add(group.factionId);
+        String commission = Misc.getCommissionFactionId();
+        List<FactionAPI> factions = new java.util.ArrayList<>(Global.getSector().getAllFactions());
+        // The same order every time, so a seeded board rolls the same holder after a reload.
+        factions.sort((a, b) -> a.getId().compareTo(b.getId()));
+        for (FactionAPI faction : factions) {
+            String id = faction.getId();
+            if (Factions.PIRATES.equals(id) || Factions.LUDDIC_PATH.equals(id)) {
+                picker.add("faction:" + id, OUTLAW_HOLDER_WEIGHT);
+                continue;
+            }
+            if (id.equals(commission) || groupFactions.contains(id)) continue;
+            if (NOT_A_WAR_FLEET.contains(id) && !LEGIO.equals(id)) continue;
+            if (!faction.isShowInIntelTab() || faction.getKnownShips() == null || faction.getKnownShips().isEmpty()) continue;
+            if (faction.getRelationship(Factions.PLAYER) > HOLDER_MAX_REP) continue;
+            picker.add("faction:" + id, 1f);
+        }
+        return picker.pick();
+    }
+
     /** "pirate", "Pather", "Omega": as in "a pirate fleet". */
     public static String enemyName(String key) {
         if (key == null) return "hostile";
