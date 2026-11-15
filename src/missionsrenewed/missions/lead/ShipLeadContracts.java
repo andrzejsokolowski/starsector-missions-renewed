@@ -31,7 +31,7 @@ public final class ShipLeadContracts {
         return 1f;
     }
     /** The lead costs this share of the ship's value, plus 5 percent per S-mod, whatever the tier (Andrzej, 2026-11-15). */
-    private static final float FEE_SHARE = 0.15f;
+    private static final float FEE_SHARE = 0.40f;
     /** Derelicts: share left unguarded, then share watched by scavengers; the rest have a guard fleet. */
     private static final float UNGUARDED = 0.3f, SCAVENGED = 0.3f;
 

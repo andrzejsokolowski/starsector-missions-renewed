@@ -1,3 +1,6 @@
+Version 0.8.6 (2026-11-15)
+- Famous ship leads cost more: 40% of the ship's value plus 5% per S-mod (was 15%).
+
 Version 0.8.5 (2026-11-15)
 - Famous ship lead prices follow the ship's value again (15% of it, plus 5% per S-mod), with no cap by tier.
 - Famous ship derelicts vary: some are unguarded, some have scavengers nearby, some sit under a guard fleet of varying strength. Flagship escorts vary in strength too. The offer says which, and about how many DP.

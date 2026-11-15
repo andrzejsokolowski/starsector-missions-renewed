@@ -47,7 +47,7 @@ Requires LunaLib.
   into 8 equal groups, tier 0 the cheapest and tier 7 the most expensive, and the ship is drawn from its tier's
   group. It is a pristine derelict you can recover (unguarded, watched by scavengers, or guarded by a fleet;
   high tier derelicts usually lie in dangerous systems), or the flagship of a hostile fleet, always recoverable
-  once beaten. Always S-modded: 1 at tiers 0 to 2, 2 at 3 to 5, 3 at 6 and 7. The lead costs 15 percent of the
+  once beaten. Always S-modded: 1 at tiers 0 to 2, 2 at 3 to 5, 3 at 6 and 7. The lead costs 40 percent of the
   ship's value plus 5 percent per S-mod.
 - **Ship deal**: a client wants one ship from your fleet (never the flagship) and pays well over its value on
   the spot, more for a ship Starship Legends rates as well known; or a client sells you a ship (S-mods from

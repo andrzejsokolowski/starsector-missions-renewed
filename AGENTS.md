@@ -87,7 +87,7 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 - Famous ship lead guards (0.8.5, `ShipLeadContract.guards`; 0 on older saves = guarded exactly when escortKey is
   set): derelicts 30 percent unguarded, 30 percent scavengers (`EnemyFleets.scavengers`, a quarter of the tier's
   DP), 40 percent a `pickEnemy` fleet of 30 to 100 percent of the tier's DP; a flagship's escort is 60 to 130
-  percent minus the ship's DP. Fee = hull value x (0.15 + 0.05 x S-mods), no tier cap (Andrzej: tie it to value).
+  percent minus the ship's DP. Fee = hull value x (0.40 + 0.05 x S-mods), no tier cap (Andrzej: tie it to value; 0.40 since 0.8.6).
 - `src/missionsrenewed/missions/expedition/` - cargo to a planet in an uncolonised system (`Places`), delivered
   by flying within 300 units. The ambush is rolled at offer time from a shown chance and spawned when the
   player enters the system.
