@@ -58,6 +58,10 @@ This mod is under the CC0 (Creative Commons Zero) License, allowing you to do wh
 [/spoiler]
 
 [spoiler=Version log]
+[b]0.8.3[/b]
+[list]
+[li]Contracts no longer send you into dangerous or story systems, such as Blade Breaker bases from Dassault-Mikoyan Engineering, Remnant strongholds, or systems a quest already uses. This covers famous ship leads, salvage leads, combat targets and expeditions.[/li]
+[/list]
 [b]0.8.2[/b]
 [list]
 [li]Famous ship leads pick by price: all warships are sorted by value and split into 8 equal groups, tier 0 the cheapest and tier 7 the most expensive, and the ship is drawn at random from its tier's group. One very expensive modded ship no longer pushes every tier up.[/li]

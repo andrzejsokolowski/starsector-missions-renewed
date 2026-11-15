@@ -32,16 +32,31 @@ public final class Places {
     }
 
     /**
+     * Whether contracts may send the player into this system. Left out: Remnant strongholds, systems the game or a
+     * mod marks as dangerous or special (theme_unsafe, theme_special: DME's Blade Breaker bases carry
+     * theme_unsafe and theme_breakers*), systems a story already uses, and systems flagged as no target for random
+     * missions (Andrzej, 2026-11-15: a famous ship lead landed in a Blade Breaker system).
+     */
+    public static boolean contractSafe(StarSystemAPI system) {
+        if (system.hasTag(Tags.THEME_REMNANT_MAIN) || system.hasTag(Tags.THEME_REMNANT_RESURGENT)) return false;
+        if (system.hasTag(Tags.THEME_UNSAFE) || system.hasTag(Tags.THEME_SPECIAL) || system.hasTag(Tags.PK_SYSTEM)) return false;
+        if (system.hasTag(Tags.SYSTEM_ALREADY_USED_FOR_STORY) || system.hasTag(Tags.NOT_RANDOM_MISSION_TARGET)) return false;
+        for (String tag : system.getTags()) {
+            if (tag.startsWith("theme_breakers")) return false;
+        }
+        return true;
+    }
+
+    /**
      * A system between minLY and maxLY from origin, preferring uncolonised ones (no patrols to get in the
-     * way). Remnant strongholds are left out. Null when nothing is in range.
+     * way). Only systems that pass contractSafe. Null when nothing is in range.
      */
     public static StarSystemAPI pickSystem(MarketAPI origin, float minLY, float maxLY, boolean uncolonisedOnly, Random random) {
         Vector2f from = origin.getPrimaryEntity().getLocationInHyperspace();
         WeightedRandomPicker<StarSystemAPI> empty = new WeightedRandomPicker<>(random);
         WeightedRandomPicker<StarSystemAPI> any = new WeightedRandomPicker<>(random);
         for (StarSystemAPI system : Global.getSector().getStarSystems()) {
-            if (!usable(system) || pickPlanetCount(system) == 0) continue;
-            if (system.hasTag(Tags.THEME_REMNANT_MAIN) || system.hasTag(Tags.THEME_REMNANT_RESURGENT)) continue;
+            if (!usable(system) || !contractSafe(system) || pickPlanetCount(system) == 0) continue;
             float ly = Misc.getDistanceLY(from, system.getLocation());
             if (ly < minLY || ly > maxLY) continue;
             if (uncolonised(system)) empty.add(system); else any.add(system);

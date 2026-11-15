@@ -77,6 +77,9 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   the client, picked by `MarketCMD.getDefenderStr` inside the tier's `marines` range; `RaidListener`,
   transient, reports raids) and `RaidContracts` (raid or `delivery/GarrisonContract`, the player's marines
   to a same-faction market).
+- `Places.pickSystem` (combat, expedition, salvage and famous ship leads) only takes systems that pass
+  `Places.contractSafe` (0.8.3): no Remnant strongholds, no theme_unsafe / theme_special / pk_system, no
+  system_already_used_for_story or not_random_mission_target, no DME Blade Breaker theme_breakers* systems.
 - `src/missionsrenewed/missions/expedition/` - cargo to a planet in an uncolonised system (`Places`), delivered
   by flying within 300 units. The ambush is rolled at offer time from a shown chance and spawned when the
   player enters the system.
