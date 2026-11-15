@@ -82,6 +82,10 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   not_random_mission_target. Dangerous systems are allowed (Andrzej, 2026-11-15); `Places.dangerous`
   (theme_unsafe, Remnant main/resurgent, DME theme_breakers*) gets `dangerWeight`: famous ship derelicts 2 at
   tiers 3-4 and 8 from tier 5.
+- The board builds every live line when it is counted or shown (`shownLines`, 0.8.7) and closes lines whose
+  builder returns null, so nothing listed says "no longer on offer". Flagship lead escorts use
+  `pickEnemy(4, null)` (any pirate/Path/Legio, no hostility check); no escort faction = derelict; no system in
+  range = retry out to 80 LY.
 - No check for replaced systems (0.8.4 had one, removed in 0.8.5): Andrzej, 2026-11-15, mods replace systems
   only at sector generation, before any contract exists.
 - Famous ship lead guards (0.8.5, `ShipLeadContract.guards`; 0 on older saves = guarded exactly when escortKey is

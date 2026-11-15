@@ -42,8 +42,15 @@ public final class ShipLeadContracts {
         if (variantId == null) return null;
         ShipHullSpecAPI hull = Global.getSettings().getVariant(variantId).getHullSpec();
         boolean flagship = tier.level >= 1 && random.nextFloat() < FLAGSHIP_CHANCE;
+        // Escorts are crews of people, never the secret enemies: pirates, Pathers or Legio at every tier, whoever
+        // the client is at war with (a pirate client still knows where a Pather flagship is). None installed or
+        // loaded: the ship is a derelict instead, never a failed lead.
+        String flagshipEscort = flagship ? EnemyFleets.pickEnemy(EnemyFleets.GROUP_MIN_TIER - 1, null, random) : null;
+        if (flagshipEscort == null) flagship = false;
         StarSystemAPI system = Places.pickSystem(origin, 4f, 10f + 4f * tier.level, false,
                 flagship ? 1f : dangerWeight(tier.level), random);
+        // Nothing in range (an out-of-the-way market): look further rather than fail the lead.
+        if (system == null) system = Places.pickSystem(origin, 4f, 80f, false, flagship ? 1f : dangerWeight(tier.level), random);
         if (system == null) return null;
         SectorEntityToken anchor = Places.pickPlanet(system, random);
         if (anchor == null) return null;
@@ -54,9 +61,7 @@ public final class ShipLeadContracts {
         int guards;
         float strength = tier.rollDeployment(random) * Settings.strengthMult();
         if (flagship) {
-            // Escorts are crews of people, never the secret enemies: pirates or Pathers at every tier.
-            escort = EnemyFleets.pickEnemy(EnemyFleets.GROUP_MIN_TIER - 1, origin.getFaction(), random);
-            if (escort == null) return null;
+            escort = flagshipEscort;
             escortDeployment = Math.max(6, Math.round(strength * (0.6f + 0.7f * random.nextFloat()) - Hulls.dp(hull)));
             guards = ShipLeadContract.GUARDS_FLEET;
         } else {

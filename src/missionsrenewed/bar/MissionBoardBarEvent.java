@@ -93,7 +93,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
     @Override
     public boolean shouldShowAtMarket(MarketAPI market) {
         if (Settings.testMode() && market != null && market.getPrimaryEntity() != null) return true;
-        return !liveLines(market).isEmpty() || !ordersAt(market).isEmpty();
+        return !shownLines(market).isEmpty() || !ordersAt(market).isEmpty();
     }
 
     /** Open ship orders whose client sits in this market's bar. */
@@ -111,7 +111,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
     @Override
     public void addPromptAndOption(InteractionDialogAPI dialog, Map<String, MemoryAPI> memoryMap) {
         MarketAPI here = dialog.getInteractionTarget().getMarket();
-        int count = liveLines(here).size();
+        int count = shownLines(here).size();
         if (count > 0) {
             dialog.getTextPanel().addPara("The mission board has " + count + (count == 1 ? " contract" : " contracts") + " posted.");
         }
@@ -136,7 +136,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
     private void showBoard() {
         options.clearOptions();
         dialog.getVisualPanel().fadeVisualOut();
-        List<Integer> lines = liveLines(market);
+        List<Integer> lines = shownLines(market);
         List<ShipOrderContract> orders = ordersAt(market);
         if (lines.isEmpty() && orders.isEmpty()) {
             text.addPara("There are no contracts on the board.");
@@ -228,6 +228,20 @@ public class MissionBoardBarEvent extends BaseBarEvent {
      * here, and the LunaLib job type and tier settings still allow it. A line rolled before a setting
      * changed is hidden, not re-rolled.
      */
+    /**
+     * liveLines with each contract built, so a line whose roll falls through (nothing in range fits) is closed and
+     * never listed, instead of saying "no longer on offer" when clicked. Built contracts are kept, so this is cheap
+     * after the first look.
+     */
+    private static List<Integer> shownLines(MarketAPI market) {
+        List<Integer> lines = new ArrayList<>();
+        for (int i : liveLines(market)) {
+            if (contractAt(market, i) != null) lines.add(i);
+            else closeLine(market, i);
+        }
+        return lines;
+    }
+
     private static List<Integer> liveLines(MarketAPI market) {
         List<Integer> live = new ArrayList<>();
         List<Offer> offers = offersAt(market);
