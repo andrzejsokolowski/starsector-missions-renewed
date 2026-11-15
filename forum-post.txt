@@ -63,6 +63,10 @@ This mod is under the CC0 (Creative Commons Zero) License, allowing you to do wh
 [/spoiler]
 
 [spoiler=Version log]
+[b]1.0.0[/b]
+[list]
+[li]The mod is now considered stable. No gameplay changes.[/li]
+[/list]
 [b]0.9.1[/b]
 [list]
 [li]The tier that fits you is now a weighted blend of your fleet's DP (50%), colony income (30%) and credits (20%), instead of whichever of the three is highest. Carrying a lot of credits alone no longer sends you tier 7 boards, and a rich colony owner who just lost half the fleet still gets well-paid jobs.[/li]
