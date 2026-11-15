@@ -22,6 +22,15 @@ public final class ShipLeadContracts {
     private static final float FLAGSHIP_CHANCE = 0.4f;
     /** Derelicts get guards from this tier. */
     private static final int GUARDED_FROM_TIER = 3;
+    /**
+     * How strongly a derelict lead favors dangerous systems (Andrzej, 2026-11-15: "something killed that ship"):
+     * tier 3 and 4 twice as likely per system, tier 5 and up eight times, so most high tier derelicts lie in one.
+     */
+    private static float dangerWeight(int tier) {
+        if (tier >= 5) return 8f;
+        if (tier >= 3) return 2f;
+        return 1f;
+    }
     /** The lead costs this share of the ship's value, plus 5 percent per S-mod... */
     private static final float FEE_SHARE = 0.15f;
     /** ...but never more than this share of what a tier's contract pays, so a 40 million credit hull stays affordable. */
@@ -33,12 +42,12 @@ public final class ShipLeadContracts {
         String variantId = Hulls.pickFamous(tier.level, random);
         if (variantId == null) return null;
         ShipHullSpecAPI hull = Global.getSettings().getVariant(variantId).getHullSpec();
-        StarSystemAPI system = Places.pickSystem(origin, 4f, 10f + 4f * tier.level, false, random);
+        boolean flagship = tier.level >= 1 && random.nextFloat() < FLAGSHIP_CHANCE;
+        StarSystemAPI system = Places.pickSystem(origin, 4f, 10f + 4f * tier.level, false,
+                flagship ? 1f : dangerWeight(tier.level), random);
         if (system == null) return null;
         SectorEntityToken anchor = Places.pickPlanet(system, random);
         if (anchor == null) return null;
-
-        boolean flagship = tier.level >= 1 && random.nextFloat() < FLAGSHIP_CHANCE;
         String escort = null;
         int escortDeployment = 0;
         if (flagship) {

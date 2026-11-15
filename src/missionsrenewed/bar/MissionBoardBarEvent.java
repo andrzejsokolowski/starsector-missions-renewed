@@ -192,8 +192,10 @@ public class MissionBoardBarEvent extends BaseBarEvent {
             shownLine = ((Line) optionData).index;
             shown = contractAt(market, shownLine);
             options.clearOptions();
-            if (shown == null) {
-                // The roll fell through, for example no market in range takes the cargo.
+            if (shown == null || !shown.placeExists()) {
+                // The roll fell through (no market in range takes the cargo), or another mod replaced the
+                // system the offer points into.
+                shown = null;
                 closeLine(market, shownLine);
                 text.addPara("That contract is no longer on offer.");
                 showBoard();

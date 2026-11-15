@@ -78,8 +78,13 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   transient, reports raids) and `RaidContracts` (raid or `delivery/GarrisonContract`, the player's marines
   to a same-faction market).
 - `Places.pickSystem` (combat, expedition, salvage and famous ship leads) only takes systems that pass
-  `Places.contractSafe` (0.8.3): no Remnant strongholds, no theme_unsafe / theme_special / pk_system, no
-  system_already_used_for_story or not_random_mission_target, no DME Blade Breaker theme_breakers* systems.
+  `Places.contractSafe` (0.8.4): no theme_special / pk_system / system_already_used_for_story /
+  not_random_mission_target. Dangerous systems are allowed (Andrzej, 2026-11-15); `Places.dangerous`
+  (theme_unsafe, Remnant main/resurgent, DME theme_breakers*) gets `dangerWeight`: famous ship derelicts 2 at
+  tiers 3-4 and 8 from tier 5.
+- `ContractIntel.target()` names the contract's planet; `placeExists()` (`Places.exists`: still in a system the
+  sector holds, and still inside it) withdraws a stored board offer and voids a signed contract, refunding a
+  negative advance, when another mod replaced the system.
 - `src/missionsrenewed/missions/expedition/` - cargo to a planet in an uncolonised system (`Places`), delivered
   by flying within 300 units. The ambush is rolled at offer time from a shown chance and spawned when the
   player enters the system.

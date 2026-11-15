@@ -1,3 +1,7 @@
+Version 0.8.4 (2026-11-15)
+- Contracts may send you into dangerous systems again (Remnant strongholds, Blade Breaker bases and the like), and high tier famous derelicts usually lie in one.
+- A contract pointing into a star system that another mod removed and replaced is withdrawn from the board, or, if already signed, ends as void with the lead fee refunded. Before, the ship or debris field could sit in a system that no longer exists.
+
 Version 0.8.3 (2026-11-15)
 - Contracts no longer send you into dangerous or story systems, such as Blade Breaker bases from Dassault-Mikoyan Engineering, Remnant strongholds, or systems a quest already uses. This covers famous ship leads, salvage leads, combat targets and expeditions.
 

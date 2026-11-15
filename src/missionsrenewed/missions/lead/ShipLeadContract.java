@@ -164,6 +164,11 @@ public class ShipLeadContract extends ContractIntel implements FleetEventListene
     }
 
     @Override
+    protected SectorEntityToken target() {
+        return anchor;
+    }
+
+    @Override
     protected boolean shouldCancel() {
         return flagship && fleet == null;
     }
