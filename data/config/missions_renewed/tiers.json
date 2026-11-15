@@ -10,7 +10,7 @@
 	#   stake         credits an investment asks for up front (paid back later with interest)
 	#   weight        how often this tier is rolled, relative to the others
 	# The ranges also place the player on a tier (PlayerTier): your fleet's total DP against deploymentPoints min,
-	# colony income per month against reward min, credits on hand against stake min.
+	# colony income per month against reward min, credits on hand against stake min, blended by the LunaLib weights.
 	"tiers": [
 		{ "tier": 0, "reward": [5000, 20000],       "deploymentPoints": [8, 12],    "cargo": [100, 300],       "fuel": [100, 300],    "crew": [50, 150],    "marines": [0, 150],        "stake": [5000, 15000],       "weight": 10 },
 		{ "tier": 1, "reward": [20000, 45000],      "deploymentPoints": [20, 30],   "cargo": [300, 800],       "fuel": [300, 600],    "crew": [150, 300],   "marines": [100, 300],      "stake": [15000, 35000],      "weight": 10 },

@@ -11,7 +11,8 @@ Requires LunaLib.
   1 to 5 contracts by market size, each with its own tier and job type, for example "Tier 5 hauling":
   1 or 2 at size 4 and 5, 2 or 3 at size 6, 3 or 4 at size 7, 4 or 5 at size 8, always 5 at size 9 and up.
   Size 3 markets rarely have a board, with 1 contract. Smaller markets have none. Ship hand-overs are on the board too.
-- Tiers are random, but lean a little toward your fleet size, colony income and credits.
+- Tiers are random, but lean a little toward the tier that fits you: a blend of your fleet's DP (50%), colony
+  income (30%) and credits (20%).
 - Each contract pays an advance when you sign and the rest on completion. Missing the deadline or
   abandoning the contract charges a penalty, even if that leaves you in debt, and costs reputation with
   the client's faction.
@@ -87,6 +88,7 @@ the table says.
 
 - Chance of a mission board per bar.
 - Lean toward your strength: 0 makes the tier roll fully random.
+- Your strength: how much fleet DP, colony income and credits each count toward the tier that fits you.
 - Lowest and highest tier: bars only offer contracts in this range.
 - Proving yourself (on by default): tiers open two at a time (a setting). Tiers 0 and 1 are open from the
   start; 3 contracts (a setting) of tier 0 or higher open 2 and 3, 3 of tier 2 or higher open 4 and 5, 3 of

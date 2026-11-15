@@ -1,3 +1,7 @@
+Version 0.9.1 (2026-11-15)
+- The tier that fits you is now a weighted blend of your fleet's DP (50%), colony income (30%) and credits (20%), instead of whichever of the three is highest. Carrying a lot of credits alone no longer sends you tier 7 boards, and a rich colony owner who just lost half the fleet still gets well-paid jobs.
+- New LunaLib settings for the three weights.
+
 Version 0.9.0 (2026-11-15)
 - Updated for Starsector 0.98.5a.
 

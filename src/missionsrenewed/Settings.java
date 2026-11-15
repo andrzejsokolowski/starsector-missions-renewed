@@ -19,6 +19,19 @@ public final class Settings {
         return integer("mr_playerLean", 100) / 100f;
     }
 
+    /** Weights of fleet DP, colony income and credits in the player's tier (PlayerTier). */
+    public static float tierWeightFleet() {
+        return Math.max(0, integer("mr_tierWeightFleet", 50));
+    }
+
+    public static float tierWeightIncome() {
+        return Math.max(0, integer("mr_tierWeightIncome", 30));
+    }
+
+    public static float tierWeightCredits() {
+        return Math.max(0, integer("mr_tierWeightCredits", 20));
+    }
+
     public static float rewardMult() {
         return decimal("mr_rewardMult", 1f);
     }
