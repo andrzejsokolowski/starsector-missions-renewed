@@ -33,9 +33,10 @@ import java.awt.Color;
 import java.util.Random;
 
 /**
- * Pay for the location of one named ship. Either a pristine derelict to recover (guarded from tier 3), or the
- * flagship of a hostile fleet, which the game always offers for recovery once it is beaten. The prize is
- * the ship. The price of the lead is the advance, paid by the player. No payment, no penalty.
+ * Pay for the location of one named ship. Either a pristine derelict to recover (unguarded, watched by
+ * scavengers, or guarded by a fleet), or the flagship of a hostile fleet, which the game always offers for
+ * recovery once it is beaten. The prize is the ship. The price of the lead is the advance, paid by the player.
+ * No payment, no penalty.
  */
 public class ShipLeadContract extends ContractIntel implements FleetEventListener {
 
@@ -48,9 +49,13 @@ public class ShipLeadContract extends ContractIntel implements FleetEventListene
     private final String shipName;
     /** True: the ship leads a fleet. False: it drifts as a derelict. */
     private final boolean flagship;
-    /** The derelict's guards or the flagship's escort, as an enemy key, or null for no guards. */
+    /** The derelict's guards or the flagship's escort, as an enemy key, or null for no guards or scavengers. */
     private final String escortKey;
     private final int escortDeployment;
+
+    /** Leads signed before 0.8.5 read 0: guarded exactly when escortKey is set. */
+    static final int GUARDS_NONE = 1, GUARDS_SCAVENGERS = 2, GUARDS_FLEET = 3;
+    private final int guards;
     private final long seed;
     private final int fee;
 
@@ -60,8 +65,8 @@ public class ShipLeadContract extends ContractIntel implements FleetEventListene
     private boolean playerFought;
 
     ShipLeadContract(int tier, PersonAPI client, MarketAPI origin, SectorEntityToken anchor, String variantId, int sMods,
-                     String shipName, boolean flagship, String escortKey, int escortDeployment, long seed, int fee,
-                     float durationDays) {
+                     String shipName, boolean flagship, String escortKey, int escortDeployment, int guards, long seed,
+                     int fee, float durationDays) {
         super(tier, client, -fee, 0, 0, durationDays);
         this.origin = origin;
         this.anchor = anchor;
@@ -71,6 +76,7 @@ public class ShipLeadContract extends ContractIntel implements FleetEventListene
         this.flagship = flagship;
         this.escortKey = escortKey;
         this.escortDeployment = escortDeployment;
+        this.guards = guards;
         this.seed = seed;
         this.fee = fee;
     }
@@ -134,7 +140,9 @@ public class ShipLeadContract extends ContractIntel implements FleetEventListene
         recovery.storyPointRecovery = false;
         Misc.setSalvageSpecial(derelict, recovery);
         Misc.makeImportant(derelict, IMPORTANT_REASON);
-        if (escortKey != null) {
+        if (guards == GUARDS_SCAVENGERS) {
+            fleet = EnemyFleets.scavengers(tier, escortDeployment, derelict, random);
+        } else if (escortKey != null && guards != GUARDS_NONE) {
             fleet = EnemyFleets.spawn(escortKey, tier, escortDeployment, derelict, EnemyFleets.ANONYMOUS_NAME,
                     durationDays + 30f, random);
         }
@@ -161,11 +169,6 @@ public class ShipLeadContract extends ContractIntel implements FleetEventListene
         famousMemberId = famous.getId();
         fleet.addEventListener(this);
         Misc.makeImportant(fleet, IMPORTANT_REASON);
-    }
-
-    @Override
-    protected SectorEntityToken target() {
-        return anchor;
     }
 
     @Override
@@ -227,6 +230,18 @@ public class ShipLeadContract extends ContractIntel implements FleetEventListene
     public void addOfferText(TextPanelAPI text) {
         String where = flagship ? "It leads a fleet near " + place() + "." : "It is drifting near " + place() + ".";
         text.addPara("\"I know where the " + shipName + " is, " + Hulls.aClassName(hull()) + ". " + where + "\"");
+        if (flagship) {
+            text.addPara("\"Its crew won't hand it over. You'll have to take it from them.\"");
+        } else if (guards == GUARDS_SCAVENGERS) {
+            text.addPara("\"Scavengers have been sniffing around it. They won't give it up for free.\"");
+        } else if (guarded()) {
+            text.addPara("\"Someone's sitting on it. Armed, and not friendly.\"");
+        } else {
+            text.addPara("\"Nobody else knows about it yet. Get there before that changes.\"");
+        }
+        if (!flagship && anchor.getStarSystem() != null && Places.dangerous(anchor.getStarSystem())) {
+            text.addPara("\"And watch yourself out there. Something killed that ship, and it may still be around.\"");
+        }
         text.addPara("\"The location is yours for " + Misc.getDGSCredits(fee) + ".\"");
     }
 
@@ -235,11 +250,28 @@ public class ShipLeadContract extends ContractIntel implements FleetEventListene
         Color h = Misc.getHighlightColor();
         info.addPara("Ship: %s, %s", 0f, h, shipName, Hulls.className(hull()));
         if (sMods > 0) info.addPara("S-mods: %s", 0f, h, "" + sMods);
-        info.addPara(flagship ? "Flagship of a hostile fleet" : (escortKey != null ? "Derelict, guarded" : "Derelict"), 0f);
+        if (flagship) {
+            info.addPara("Flagship of a hostile fleet: about %s DP", 0f, h, roundDp(escortDeployment + Hulls.dp(hull())));
+        } else if (guards == GUARDS_SCAVENGERS) {
+            info.addPara("Derelict, scavengers nearby: about %s DP", 0f, h, roundDp(escortDeployment));
+        } else if (guarded()) {
+            info.addPara("Derelict, guarded: about %s DP", 0f, Misc.getNegativeHighlightColor(), roundDp(escortDeployment));
+        } else {
+            info.addPara("Derelict, no guards reported", 0f);
+        }
         info.addPara("Location: near %s, %s light years away", 0f, h, place(),
                 Misc.getRoundedValueMaxOneAfterDecimal(Misc.getDistanceLY(origin.getPrimaryEntity(), anchor)));
         info.addPara("The lead goes cold in: %s days", 0f, h, "" + Math.round(durationDays));
         addTerms(info, 10f);
+    }
+
+    /** A guard fleet (not scavengers) sits on the derelict. */
+    private boolean guarded() {
+        return escortKey != null && guards != GUARDS_NONE && guards != GUARDS_SCAVENGERS;
+    }
+
+    private static String roundDp(float dp) {
+        return "" + Math.max(10, Math.round(dp / 10f) * 10);
     }
 
     @Override

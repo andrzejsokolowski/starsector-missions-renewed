@@ -118,11 +118,6 @@ public class ExpeditionContract extends ContractIntel {
     }
 
     @Override
-    protected SectorEntityToken target() {
-        return destination;
-    }
-
-    @Override
     protected boolean shouldCancel() {
         return destination == null || destination.getContainingLocation() == null;
     }

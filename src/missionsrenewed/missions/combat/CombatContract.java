@@ -105,11 +105,6 @@ public class CombatContract extends ContractIntel implements FleetEventListener 
     }
 
     @Override
-    protected SectorEntityToken target() {
-        return anchor;
-    }
-
-    @Override
     protected boolean shouldCancel() {
         return spawnFailed;
     }

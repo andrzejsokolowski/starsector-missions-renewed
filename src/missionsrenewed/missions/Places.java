@@ -55,19 +55,6 @@ public final class Places {
     }
 
     /**
-     * Whether the entity is still in the sector: in hyperspace or in a star system the sector still holds, and
-     * still inside that location. Another mod can remove a system and put a new one in the same spot; a contract
-     * pointing into the old one would send the player to a place that no longer exists (Andrzej, 2026-11-15).
-     */
-    public static boolean exists(SectorEntityToken entity) {
-        if (entity == null || entity.isExpired()) return false;
-        com.fs.starfarer.api.campaign.LocationAPI location = entity.getContainingLocation();
-        if (location == null) return false;
-        if (!location.isHyperspace() && !Global.getSector().getStarSystems().contains(location)) return false;
-        return location.getEntityById(entity.getId()) != null;
-    }
-
-    /**
      * A system between minLY and maxLY from origin, preferring uncolonised ones (no patrols to get in the
      * way). Only systems that pass contractSafe. Null when nothing is in range.
      */

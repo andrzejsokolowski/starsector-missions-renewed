@@ -1,3 +1,8 @@
+Version 0.8.5 (2026-11-15)
+- Famous ship lead prices follow the ship's value again (15% of it, plus 5% per S-mod), with no cap by tier.
+- Famous ship derelicts vary: some are unguarded, some have scavengers nearby, some sit under a guard fleet of varying strength. Flagship escorts vary in strength too. The offer says which, and about how many DP.
+- Removed the 0.8.4 check for replaced star systems. Systems are only replaced while the sector is generated, before any contract exists, so it could never trigger.
+
 Version 0.8.4 (2026-11-15)
 - Contracts may send you into dangerous systems again (Remnant strongholds, Blade Breaker bases and the like), and high tier famous derelicts usually lie in one.
 - A contract pointing into a star system that another mod removed and replaced is withdrawn from the board, or, if already signed, ends as void with the lead fee refunded. Before, the ship or debris field could sit in a system that no longer exists.

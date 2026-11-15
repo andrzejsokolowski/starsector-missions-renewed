@@ -4,7 +4,6 @@ import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
 import com.fs.starfarer.api.campaign.RepLevel;
-import com.fs.starfarer.api.campaign.SectorEntityToken;
 import com.fs.starfarer.api.campaign.ReputationActionResponsePlugin.ReputationAdjustmentResult;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
@@ -126,23 +125,6 @@ public abstract class ContractIntel extends BaseIntelPlugin {
     /** The line after the player signs. */
     public abstract String signText();
 
-    /** The planet or entity the contract sends the player to, or null when it has none. */
-    protected SectorEntityToken target() {
-        return null;
-    }
-
-    /**
-     * Whether the contract's place still exists. Another mod can remove a star system and put a new one in the
-     * same spot; a contract pointing into the old one can never be done (Andrzej, 2026-11-15).
-     */
-    public boolean placeExists() {
-        SectorEntityToken place = target();
-        return place == null || Places.exists(place);
-    }
-
-    /** Set when the contract ended because its place vanished: the fee is refunded. */
-    private boolean placeLost;
-
     /** Signs the contract: registers it, hands over whatever the job needs and settles the advance. */
     public void accept(TextPanelAPI text) {
         Global.getSector().getIntelManager().addIntel(this, true);
@@ -167,12 +149,7 @@ public abstract class ContractIntel extends BaseIntelPlugin {
     protected void advanceImpl(float amount) {
         if (state != State.ACTIVE) return;
         elapsedDays += Global.getSector().getClock().convertToDays(amount);
-        if (!placeExists()) {
-            placeLost = true;
-            Global.getSector().getCampaignUI().addMessage(getName() + ": the place it points to no longer exists. The contract is void"
-                    + (advance < 0 ? " and the fee is refunded." : "."), Misc.getHighlightColor());
-            end(State.CANCELLED, null);
-        } else if (shouldCancel()) {
+        if (shouldCancel()) {
             end(State.CANCELLED, null);
         } else if (elapsedDays >= durationDays) {
             onDeadline();
@@ -193,7 +170,6 @@ public abstract class ContractIntel extends BaseIntelPlugin {
         state = result;
         setImportant(false);
         int credits = creditsOnEnd(result);
-        if (placeLost && advance < 0) credits -= advance;
         settledCredits = credits;
         if (credits > 0) {
             Global.getSector().getPlayerFleet().getCargo().getCredits().add(credits);
@@ -419,8 +395,7 @@ public abstract class ContractIntel extends BaseIntelPlugin {
                 info.addButton("Fail now", BUTTON_TEST_FAIL, base, dark, (int) width, 20f, 3f);
             }
         } else {
-            info.addPara(placeLost ? "The contract is void: the place it pointed to no longer exists. "
-                    + (advance < 0 ? "The fee was refunded." : "") : endText(), opad);
+            info.addPara(endText(), opad);
             addBullets(info, ListInfoMode.IN_DESC);
         }
     }

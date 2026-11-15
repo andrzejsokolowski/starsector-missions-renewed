@@ -105,11 +105,6 @@ public class SalvageLeadContract extends ContractIntel {
     }
 
     @Override
-    protected SectorEntityToken target() {
-        return anchor;
-    }
-
-    @Override
     protected boolean shouldCancel() {
         return false;
     }

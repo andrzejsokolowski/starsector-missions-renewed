@@ -82,9 +82,12 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   not_random_mission_target. Dangerous systems are allowed (Andrzej, 2026-11-15); `Places.dangerous`
   (theme_unsafe, Remnant main/resurgent, DME theme_breakers*) gets `dangerWeight`: famous ship derelicts 2 at
   tiers 3-4 and 8 from tier 5.
-- `ContractIntel.target()` names the contract's planet; `placeExists()` (`Places.exists`: still in a system the
-  sector holds, and still inside it) withdraws a stored board offer and voids a signed contract, refunding a
-  negative advance, when another mod replaced the system.
+- No check for replaced systems (0.8.4 had one, removed in 0.8.5): Andrzej, 2026-11-15, mods replace systems
+  only at sector generation, before any contract exists.
+- Famous ship lead guards (0.8.5, `ShipLeadContract.guards`; 0 on older saves = guarded exactly when escortKey is
+  set): derelicts 30 percent unguarded, 30 percent scavengers (`EnemyFleets.scavengers`, a quarter of the tier's
+  DP), 40 percent a `pickEnemy` fleet of 30 to 100 percent of the tier's DP; a flagship's escort is 60 to 130
+  percent minus the ship's DP. Fee = hull value x (0.15 + 0.05 x S-mods), no tier cap (Andrzej: tie it to value).
 - `src/missionsrenewed/missions/expedition/` - cargo to a planet in an uncolonised system (`Places`), delivered
   by flying within 300 units. The ambush is rolled at offer time from a shown chance and spawned when the
   player enters the system.
