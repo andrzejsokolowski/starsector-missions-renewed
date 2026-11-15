@@ -32,7 +32,7 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
 - `MissionsRenewedModPlugin` - loads the tier table at startup, keeps exactly one board event per save,
   and on the first load of an existing save clears every market's roll and `$BarCMD_shownEvents` (BarCMD
   ignores events missing from that list until it expires, up to 40 days).
-- `src/missionsrenewed/tiers/PlayerTier` - places the player on the table (0.9.0, MSR-26): fleet DP vs
+- `src/missionsrenewed/tiers/PlayerTier` - places the player on the table (0.9.1, MSR-29): fleet DP vs
   deploymentPoints min, colony income per month vs reward min and credits vs stake min, each placed smoothly
   (`smooth`: tier reached plus the fraction toward the next minimum), blended by LunaLib weights
   `mr_tierWeightFleet` 50 / `mr_tierWeightIncome` 30 / `mr_tierWeightCredits` 20, rounded. The roll multiplies that
