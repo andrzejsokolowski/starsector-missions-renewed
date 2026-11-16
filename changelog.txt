@@ -1,3 +1,6 @@
+Version 1.0.1 (2026-11-16)
+- The bar no longer offers "Open the mission board" when the board has nothing on it.
+
 Version 1.0.0 (2026-11-15)
 - Version 1.0.0: the mod is now considered stable. No gameplay changes.
 

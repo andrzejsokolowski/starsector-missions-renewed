@@ -112,6 +112,10 @@ public class MissionBoardBarEvent extends BaseBarEvent {
     public void addPromptAndOption(InteractionDialogAPI dialog, Map<String, MemoryAPI> memoryMap) {
         MarketAPI here = dialog.getInteractionTarget().getMarket();
         int count = shownLines(here).size();
+        // The bar picks its events only now and then, so the board can be on the list after its last contract was
+        // taken, expired or hidden by a setting. No option then (Andrzej, 2026-11-16): an empty board is not worth
+        // a click. Test mode keeps it for the spawner.
+        if (count == 0 && ordersAt(here).isEmpty() && !Settings.testMode()) return;
         if (count > 0) {
             dialog.getTextPanel().addPara("The mission board has " + count + (count == 1 ? " contract" : " contracts") + " posted.");
         }

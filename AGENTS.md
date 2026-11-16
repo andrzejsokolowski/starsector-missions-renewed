@@ -84,6 +84,8 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
   not_random_mission_target. Dangerous systems are allowed (Andrzej, 2026-11-15); `Places.dangerous`
   (theme_unsafe, Remnant main/resurgent, DME theme_breakers*) gets `dangerWeight`: famous ship derelicts 2 at
   tiers 3-4 and 8 from tier 5.
+- The bar only offers "Open the mission board" when `shownLines` or a hand-over has something (1.0.1; the bar
+  caches its event list, so `shouldShowAtMarket` alone can be stale). Test mode always offers it.
 - The board builds every live line when it is counted or shown (`shownLines`, 0.8.7) and closes lines whose
   builder returns null, so nothing listed says "no longer on offer". Famous ship holders (flagship escorts and
   derelict guard fleets, 0.8.8) come from `EnemyFleets.pickFamousShipHolder`: pirates and Path always (weight 3),
