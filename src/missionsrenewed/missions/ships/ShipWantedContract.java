@@ -62,6 +62,11 @@ public class ShipWantedContract extends ContractIntel {
     }
 
     @Override
+    public boolean hasOwnOfferPicture() {
+        return member() != null;
+    }
+
+    @Override
     protected MarketAPI clientMarket() {
         return origin;
     }

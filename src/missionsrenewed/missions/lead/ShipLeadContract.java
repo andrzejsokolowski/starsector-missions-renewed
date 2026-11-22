@@ -94,6 +94,11 @@ public class ShipLeadContract extends ContractIntel implements FleetEventListene
         dialog.getVisualPanel().showFleetMemberInfo(shown, true);
     }
 
+    @Override
+    public boolean hasOwnOfferPicture() {
+        return true;
+    }
+
     private String place() {
         return anchor.getName() + " in the " + Places.systemName(anchor);
     }
@@ -303,7 +308,7 @@ public class ShipLeadContract extends ContractIntel implements FleetEventListene
 
     @Override
     public SectorEntityToken getMapLocation(SectorMapAPI map) {
-        return derelict != null && derelict.isAlive() ? derelict : anchor;
+        return foundOr(derelict, anchor);
     }
 
     @Override

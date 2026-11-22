@@ -210,6 +210,11 @@ public class DefenseContract extends ContractIntel implements FleetEventListener
     }
 
     @Override
+    protected String offerMapLabel() {
+        return "Defend";
+    }
+
+    @Override
     protected void addJobBullets(TooltipMakerAPI info, Color tc, float pad) {
         Color h = Misc.getHighlightColor();
         if (!attacking) {

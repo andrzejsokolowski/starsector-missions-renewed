@@ -180,7 +180,7 @@ public class SalvageLeadContract extends ContractIntel {
 
     @Override
     public SectorEntityToken getMapLocation(SectorMapAPI map) {
-        return debris != null && debris.isAlive() ? debris : anchor;
+        return foundOr(debris, anchor);
     }
 
     @Override

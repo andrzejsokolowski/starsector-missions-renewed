@@ -169,6 +169,11 @@ public abstract class DeliveryContract extends ContractIntel {
     }
 
     @Override
+    protected String offerMapLabel() {
+        return "Destination";
+    }
+
+    @Override
     protected void addJobBullets(TooltipMakerAPI info, Color tc, float pad) {
         Color h = Misc.getHighlightColor();
         info.addPara("%s " + goodsPhrase() + " to %s", pad, tc, h, Misc.getWithDGS(units), destination.getName())

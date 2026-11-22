@@ -133,6 +133,14 @@ runs the checks and writes `MissionsRenewed.zip` in this folder. Mod id `mission
     `VisualPanelAPI.showFleetMemberInfo(member, true)` as vanilla's SurplusShipHull does). Combat and defense
     offers build their fleet from the seed at offer time and show a glimpse (`combat/FleetPreview`,
     `addShipList` like PersonBountyIntel); signing spawns that same fleet.
+  - Offer map (1.1.0, MSR-31): `OfferScreen` shows `ContractIntel.showOfferMap` (client portrait + vanilla
+    `VisualPanelAPI.showMapMarker`, as DeliveryBarEvent does) when `offerMapTarget` (the intel's `getMapLocation(null)`,
+    null when it is the market the player stands in) has a place. The game's small map has a "Show intel" button that
+    opens the intel tab at the marker, where the player lays in a course. `showMapMarker` only sits under a person
+    panel; on any other visual it replaces it, so offers with `hasOwnOfferPicture` (ship leads) keep the ship and get
+    a "Look at the map" / "Look at the ship" option (`OfferScreen.SWAP_PICTURE`, handled before anything else in
+    both bar events). The board keeps the picture up after signing (`showBoard(true)`). `ContractIntel.foundOr`:
+    derelicts and debris fields are the map location only once found (vanilla `getMapLocationFor`), the anchor before.
   - `conquest/` - Nexerelin only (`ConquestContracts.canOffer`), `MissionFamily.minTier` 5; market size 3 / 4 / 5
     at tier 5 / 6 / 7 (MSR-22). Never story markets (`isStoryMarket`: a list of core ids, `Misc.isStoryCritical`,
     `Tags.NOT_RANDOM_MISSION_TARGET`). Done when the market passes to the client's faction, the player's faction

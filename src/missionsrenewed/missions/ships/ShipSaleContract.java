@@ -76,6 +76,11 @@ public class ShipSaleContract extends ContractIntel {
     }
 
     @Override
+    public boolean hasOwnOfferPicture() {
+        return true;
+    }
+
+    @Override
     protected boolean countsAsProof() {
         return false;
     }

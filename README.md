@@ -16,6 +16,9 @@ Requires LunaLib.
 - Each contract pays an advance when you sign and the rest on completion. Missing the deadline or
   abandoning the contract charges a penalty, even if that leaves you in debt, and costs reputation with
   the client's faction.
+- An offer for a job somewhere else shows a small map of the place under the client, as vanilla bar missions
+  do. Its "Show intel" button opens the intel screen at that place, where you can lay in a course. Famous ship
+  leads show the ship and have a "Look at the map" option.
 - You can hold 3 contracts at once. Open contracts are in the intel screen under Missions, with an
   Abandon button.
 

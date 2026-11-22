@@ -3,8 +3,11 @@ package missionsrenewed.missions;
 import com.fs.starfarer.api.Global;
 import com.fs.starfarer.api.campaign.FactionAPI;
 import com.fs.starfarer.api.campaign.InteractionDialogAPI;
+import com.fs.starfarer.api.campaign.PlanetAPI;
 import com.fs.starfarer.api.campaign.RepLevel;
 import com.fs.starfarer.api.campaign.ReputationActionResponsePlugin.ReputationAdjustmentResult;
+import com.fs.starfarer.api.campaign.SectorEntityToken;
+import com.fs.starfarer.api.campaign.StarSystemAPI;
 import com.fs.starfarer.api.campaign.TextPanelAPI;
 import com.fs.starfarer.api.campaign.comm.IntelInfoPlugin;
 import com.fs.starfarer.api.campaign.econ.MarketAPI;
@@ -109,6 +112,64 @@ public abstract class ContractIntel extends BaseIntelPlugin {
     /** The picture on the right of the offer: the client by default, the ship for ship deals and leads. */
     public void showOfferVisual(InteractionDialogAPI dialog) {
         dialog.getVisualPanel().showPersonInfo(client, true);
+    }
+
+    /** True when showOfferVisual shows something other than the client (a ship), so the map gets its own option. */
+    public boolean hasOwnOfferPicture() {
+        return false;
+    }
+
+    /**
+     * Where the job takes the player, for the small map in the bar offer: the intel's map location, or null when the
+     * job is at the market the player stands in (investments, ship deals).
+     */
+    public SectorEntityToken offerMapTarget(SectorEntityToken here) {
+        SectorEntityToken target = getMapLocation(null);
+        if (target == null || !target.isAlive()) return null;
+        if (here != null && (target == here || (here.getMarket() != null && target.getMarket() == here.getMarket()))) return null;
+        return target;
+    }
+
+    /** The word before the place's name on the offer's map, as in vanilla's "Destination: Jangala". */
+    protected String offerMapLabel() {
+        return "Target";
+    }
+
+    /**
+     * The client with the small map under the portrait, as vanilla bar missions show it (DeliveryBarEvent). The map's
+     * "Show intel" button opens the intel screen at the place, where the player can lay in a course.
+     */
+    public void showOfferMap(InteractionDialogAPI dialog, SectorEntityToken target) {
+        dialog.getVisualPanel().showPersonInfo(client, true);
+        Set<String> tags = getIntelTags(null);
+        tags.remove(Tags.INTEL_ACCEPTED);
+        dialog.getVisualPanel().showMapMarker(target, offerMapLabel() + ": " + target.getName(), mapNameColor(target),
+                true, getIcon(), null, tags);
+    }
+
+    /** The color of the place's name on the map, picked as BaseHubMission's showMap does. */
+    private Color mapNameColor(SectorEntityToken target) {
+        if (target.getFaction() != null && !target.getFaction().isNeutralFaction()) return target.getFaction().getBaseUIColor();
+        if (target instanceof PlanetAPI) {
+            PlanetAPI planet = (PlanetAPI) target;
+            StarSystemAPI system = planet.getStarSystem();
+            if (system != null && planet.getSpec() != null) {
+                if ((system.getStar() == planet || system.getCenter() == planet) && planet.getMarket() != null) {
+                    return planet.getMarket().getTextColorForFactionOrPlanet();
+                }
+                return Misc.setBrightness(Misc.setAlpha(planet.getSpec().getIconColor(), 255), 235);
+            }
+        }
+        return getFactionForUIColors().getBaseUIColor();
+    }
+
+    /**
+     * The map location for a spawned thing the player has not found yet: vanilla (BaseHubMission.getMapLocationFor)
+     * never points the map at an undiscovered entity, so until then it is the planet the thing orbits.
+     */
+    protected static SectorEntityToken foundOr(SectorEntityToken entity, SectorEntityToken fallback) {
+        if (entity == null || !entity.isAlive() || entity.isDiscoverable()) return fallback;
+        return entity;
     }
 
     /** What the client says when the player looks at the contract. */

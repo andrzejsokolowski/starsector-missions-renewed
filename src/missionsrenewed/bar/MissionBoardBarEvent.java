@@ -136,10 +136,17 @@ public class MissionBoardBarEvent extends BaseBarEvent {
         showBoard();
     }
 
-    /** The list: one option per contract line, then hand-overs, the test spawner and Leave. */
     private void showBoard() {
+        showBoard(false);
+    }
+
+    /**
+     * The list: one option per contract line, then hand-overs, the test spawner and Leave. keepPicture leaves the
+     * signed contract's client and map up, so its "Show intel" button can still plot the course.
+     */
+    private void showBoard(boolean keepPicture) {
         options.clearOptions();
-        dialog.getVisualPanel().fadeVisualOut();
+        if (!keepPicture) dialog.getVisualPanel().fadeVisualOut();
         List<Integer> lines = shownLines(market);
         List<ShipOrderContract> orders = ordersAt(market);
         if (lines.isEmpty() && orders.isEmpty()) {
@@ -192,6 +199,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
             }
             return;
         }
+        if (OfferScreen.handle(dialog, shown, optionText, optionData)) return;
         if (optionData instanceof Line) {
             shownLine = ((Line) optionData).index;
             shown = contractAt(market, shownLine);
@@ -209,7 +217,7 @@ public class MissionBoardBarEvent extends BaseBarEvent {
             text.addPara(shown.signText());
             shown.accept(text);
             shown = null;
-            showBoard();
+            showBoard(true);
         } else if (optionData == Option.BACK) {
             shown = null;
             showBoard();

@@ -70,6 +70,7 @@ public class TestContractBarEvent extends BaseBarEvent {
 
     @Override
     public void optionSelected(String optionText, Object optionData) {
+        if (OfferScreen.handle(dialog, shown, optionText, optionData)) return;
         if (optionData instanceof MissionFamily) {
             family = (MissionFamily) optionData;
             showTiers();

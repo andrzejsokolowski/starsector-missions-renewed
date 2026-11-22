@@ -1,3 +1,9 @@
+Version 1.1.0 (2026-11-22)
+- Offers for a job somewhere else show a small map of the place under the client, as vanilla bar missions do. "Show intel" on the map opens the intel screen at that place, where you can lay in a course.
+- Famous ship leads still show the ship, with a "Look at the map" option to switch to the map and back.
+- After you sign, the map stays up so you can still use "Show intel".
+- Famous ship leads and salvage leads point the intel map at the planet next to the find until you have found it.
+
 Version 1.0.1 (2026-11-16)
 - The bar no longer offers "Open the mission board" when the board has nothing on it.
 
